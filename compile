@@ -39,7 +39,22 @@ case "$fn" in
             swig -python -I$(pkg-config --variable=includedir libcaer) -cpperraswarn pyflags.i
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
             ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+
+            # configure path
+            # for .bashrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.bashrc
+            # for .zshrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.zshrc
         else
+            export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+            export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
+            export LD_LIBRARY_PATH=$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
+
+            # configure path
+            # for .bashrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.bashrc
+            # for .zshrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.zshrc
             echo "[MESSAGE] swig binding compiled"
         fi
     ;;
@@ -62,7 +77,20 @@ case "$fn" in
             swig -python -I$(pkg-config --variable=includedir libcaer) -cpperraswarn pyflags.i
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
             ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+
+            # configure path
+            # for .bashrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.bashrc
+            # for .zshrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.zshrc
         else
+            export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+            export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
+            # configure path
+            # for .bashrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.bashrc
+            # for .zshrc
+            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.zshrc
             echo "[MESSAGE] swig binding compiled."
         fi
     ;;
@@ -126,15 +154,26 @@ case "$fn" in
         fi
     ;;
 
+    "make.install")
+        echo "[MESSAGE] Installing..."
+        cp $PWD/swigpy/_libcaer_wrap.so $PWD/pyaer
+        cp $PWD/swigpy/libcaer_wrap.py $PWD/pyaer
+        echo "[MESSAGE] Installation completed."
+    ;;
+
     "spiker")
         echo "[MESSAGE] Install for spiker"
-        cp $PWD/build/pycaer.so $PWD/../spiker
     ;;
 
     "clean")
         # SWIG
         echo "[MESSAGE] Cleaning SWIG files."
         rm -rf $PWD/swigpy
+
+        # remove compiled SWIG
+        echo "[MESSAGE] Cleaning Compiled interface."
+        rm $PWD/pyaer/_libcaer_wrap.so
+        rm $PWD/pyaer/libcaer_wrap.py
 
         # remove libcaer files
         echo "[MESSAGE] Cleaning libcaer installation."

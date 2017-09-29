@@ -1,4 +1,5 @@
 swigpy/
+libcaer_wrap.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
