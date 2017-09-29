@@ -42,9 +42,9 @@ case "$fn" in
 
             # configure path
             # for .bashrc
-            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.bashrc
+            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer) >> $HOME/.bashrc
             # for .zshrc
-            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.zshrc
+            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer) >> $HOME/.zshrc
         else
             export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
             export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
@@ -80,17 +80,17 @@ case "$fn" in
 
             # configure path
             # for .bashrc
-            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.bashrc
+            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer) >> $HOME/.bashrc
             # for .zshrc
-            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.zshrc
+            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer) >> $HOME/.zshrc
         else
             export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
             export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
             # configure path
             # for .bashrc
-            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.bashrc
+            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer) >> $HOME/.bashrc
             # for .zshrc
-            echo 'export LD_LIBRARY_PATH='$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer)':$LD_LIBRARY_PATH' >> $HOME/.zshrc
+            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer) >> $HOME/.zshrc
             echo "[MESSAGE] swig binding compiled."
         fi
     ;;
