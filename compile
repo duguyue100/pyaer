@@ -1,0 +1,181 @@
+#!/bin/bash
+
+# This script is to compile library
+
+DIRECTORY="$(dirname "$0")"
+fn=$1
+
+export DIRECTORY
+export fn
+
+# Compile libcaer
+
+case "$fn" in
+    "make")
+        echo "[MESSAGE] Compiling libcaer"
+        cd libcaer
+        if [ ! -d "$PWD/libcaer/build" ]; then
+            mkdir build
+        fi
+        cmake -DCMAKE_INSTALL_PREFIX=./build .
+        make -j8
+        make install
+        cd ..
+
+        echo "[MESSAGE] Compiling libcaer swig binding"
+        if [ ! -d "$PWD/swigpy" ]; then
+            export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+            export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
+            export LD_LIBRARY_PATH=$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
+            # for anaconda that is not in the right place
+            # export PKG_CONFIG_PATH=$HOME/anaconda/lib/pkgconfig:$PKG_CONFIG_PATH
+            # export LD_LIBRARY_PATH=$HOME/anaconda/lib:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
+            echo $(pkg-config --variable=includedir libcaer)
+            echo $(pkg-config --variable=libdir libcaer)
+            echo $(pkg-config --cflags python2)
+            mkdir swigpy
+            cd swigpy
+            cp $PWD/../libcaer/bindings/python_swig/pyflags.i .
+            swig -python -I$(pkg-config --variable=includedir libcaer) -cpperraswarn pyflags.i
+            gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
+            ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+        else
+            echo "[MESSAGE] swig binding compiled"
+        fi
+    ;;
+    
+    "make.swig")
+        echo "[MESSAGE] Compiling libcaer swig binding"
+        if [ ! -d "$PWD/swigpy" ]; then
+            export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+            export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
+            export LD_LIBRARY_PATH=$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
+            # for anaconda that is not in the right place
+            # export PKG_CONFIG_PATH=$HOME/anaconda/lib/pkgconfig:$PKG_CONFIG_PATH
+            # export LD_LIBRARY_PATH=$HOME/anaconda/lib:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
+            echo $(pkg-config --variable=includedir libcaer)
+            echo $(pkg-config --variable=libdir libcaer)
+            echo $(pkg-config --cflags python2)
+            mkdir swigpy
+            cd swigpy
+            cp $PWD/../libcaer/bindings/python_swig/pyflags.i .
+            swig -python -I$(pkg-config --variable=includedir libcaer) -cpperraswarn pyflags.i
+            gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
+            ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+        else
+            echo "[MESSAGE] swig binding compiled."
+        fi
+    ;;
+
+    "clean.swig")
+        echo "[MESSAGE] Cleaning SWIG files."
+        rm -rf $PWD/swigpy
+    ;;
+
+    "make.lib")
+        echo "[MESSAGE] Compiling libcaer"
+        cd libcaer
+        if [ ! -d "$PWD/libcaer/build" ]; then
+            mkdir build
+        fi
+        cmake -DCMAKE_INSTALL_PREFIX=./build .
+        make -j8
+        make install
+        cd ..
+    ;;
+
+    "clean.lib")
+        echo "[MESSAGE] Cleaning libcaer installation."
+        echo "[MESSAGE] Removing main compilation files"
+        rm $PWD/libcaer/CMakeCache.txt
+        rm -rf $PWD/libcaer/CMakeFiles
+        rm $PWD/libcaer/Makefile
+        rm -rf $PWD/libcaer/build
+        rm $PWD/libcaer/cmake_install.cmake
+        rm $PWD/libcaer/install_manifest.txt
+        rm $PWD/libcaer/libcaer.pc
+
+        echo "[MESSAGE] Removing documentation compilation files"
+        rm $PWD/libcaer/docs/cmake_install.cmake
+        rm -rf $PWD/libcaer/docs/CMakeFiles
+        rm $PWD/libcaer/docs/libcaer_api.doxy
+        rm $PWD/libcaer/docs/Makefile
+
+        echo "[MESSAGE] Removing include compilation files"
+        rm $PWD/libcaer/include/cmake_install.cmake
+        rm -rf $PWD/libcaer/include/CMakeFiles
+        rm $PWD/libcaer/include/libcaer.h
+        rm $PWD/libcaer/include/Makefile
+
+        echo "[MESSAGE] Removing includcpp compilation files"
+        rm $PWD/libcaer/includecpp/cmake_install.cmake
+        rm -rf $PWD/libcaer/includecpp/CMakeFiles
+        rm $PWD/libcaer/includecpp/Makefile
+
+        echo "[MESSAGE] Removing src compilation files"
+        rm $PWD/libcaer/src/cmake_install.cmake
+        rm -rf $PWD/libcaer/src/CMakeFiles
+        rm $PWD/libcaer/src/Makefile
+        echo "[MESSAGE] Removing compiled dynamic library"
+        if [ "$OSTYPE" == "linux-gnu" ]; then
+            # for linux
+            rm $PWD/libcaer/src/*.so.*
+        elif [ "$OSTYPE" == "darwin"* ]; then
+            # for mac
+            rm $PWD/libcaer/src/*.dylib
+        fi
+    ;;
+
+    "spiker")
+        echo "[MESSAGE] Install for spiker"
+        cp $PWD/build/pycaer.so $PWD/../spiker
+    ;;
+
+    "clean")
+        # SWIG
+        echo "[MESSAGE] Cleaning SWIG files."
+        rm -rf $PWD/swigpy
+
+        # remove libcaer files
+        echo "[MESSAGE] Cleaning libcaer installation."
+        echo "[MESSAGE] Removing main compilation files"
+        rm $PWD/libcaer/CMakeCache.txt
+        rm -rf $PWD/libcaer/CMakeFiles
+        rm $PWD/libcaer/Makefile
+        rm -rf $PWD/libcaer/build
+        rm $PWD/libcaer/cmake_install.cmake
+        rm $PWD/libcaer/install_manifest.txt
+        rm $PWD/libcaer/libcaer.pc
+
+        echo "[MESSAGE] Removing documentation compilation files"
+        rm $PWD/libcaer/docs/cmake_install.cmake
+        rm -rf $PWD/libcaer/docs/CMakeFiles
+        rm $PWD/libcaer/docs/libcaer_api.doxy
+        rm $PWD/libcaer/docs/Makefile
+
+        echo "[MESSAGE] Removing include compilation files"
+        rm $PWD/libcaer/include/cmake_install.cmake
+        rm -rf $PWD/libcaer/include/CMakeFiles
+        rm $PWD/libcaer/include/libcaer.h
+        rm $PWD/libcaer/include/Makefile
+
+        echo "[MESSAGE] Removing includcpp compilation files"
+        rm $PWD/libcaer/includecpp/cmake_install.cmake
+        rm -rf $PWD/libcaer/includecpp/CMakeFiles
+        rm $PWD/libcaer/includecpp/Makefile
+
+        echo "[MESSAGE] Removing src compilation files"
+        rm $PWD/libcaer/src/cmake_install.cmake
+        rm -rf $PWD/libcaer/src/CMakeFiles
+        rm $PWD/libcaer/src/Makefile
+        echo "[MESSAGE] Removing compiled dynamic library"
+        if [ "$OSTYPE" == "linux-gnu" ]; then
+            # for linux
+            rm $PWD/libcaer/src/*.so.*
+        elif [ "$OSTYPE" == "darwin"* ]; then
+            # for mac
+            rm $PWD/libcaer/src/*.dylib
+        fi
+    ;;
+
+esac

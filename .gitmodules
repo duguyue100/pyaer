@@ -1,0 +1,3 @@
+[submodule "libcaer"]
+	path = libcaer
+	url = https://github.com/inilabs/libcaer.git
