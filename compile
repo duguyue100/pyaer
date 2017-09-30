@@ -1,20 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# This script is to compile library
+# This script is to compile libcaer library and Python 2 interface
+# Author: Yuhuang Hu
+# Email : duguyue100@gmail.com
 
-fn=$1
-
-export fn
-
-# Compile libcaer
+# customize this to the right Python library
+CONDA_LIB_PATH=$HOME/anaconda2/lib
+CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
 
 compile_swigpy()
 {
     echo "[MESSAGE] Compiling libcaer swig binding"
     if [ ! -d "$PWD/swigpy" ]; then
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
-        export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
-        export LD_LIBRARY_PATH=$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
+        export PKG_CONFIG_PATH=$CONDA_PKG_CONFIG_PATH:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=$CONDA_LIB_PATH:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
 
         # summary information
         echo '[MESSAGE] libcaer include directory: '$(pkg-config --variable=includedir libcaer)
@@ -47,8 +47,8 @@ compile_swigpy()
         echo '[MESSAGE] Please restart your terminal or source your shell profile.'
     else
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
-        export PKG_CONFIG_PATH=$HOME/anaconda2/lib/pkgconfig:$PKG_CONFIG_PATH
-        export LD_LIBRARY_PATH=$HOME/anaconda2/lib:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
+        export PKG_CONFIG_PATH=$CONDA_PKG_CONFIG_PATH:$PKG_CONFIG_PATH
+        export LD_LIBRARY_PATH=$CONDA_LIB_PATH:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
 
         echo '[MESSAGE] libcaer include directory: '$(pkg-config --variable=includedir libcaer)
         echo '[MESSAGE] libcaer library directory: '$(pkg-config --variable=libdir libcaer)
