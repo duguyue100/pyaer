@@ -4,6 +4,9 @@
 # Author: Yuhuang Hu
 # Email : duguyue100@gmail.com
 
+# option
+fn=$1
+
 # customize this to the right Python library
 CONDA_LIB_PATH=$HOME/anaconda2/lib
 CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
@@ -69,6 +72,7 @@ compile_libcaer()
     make -j8
     make install
     cd ../..
+    rm -rf $PWD/libcaer/compiled
 }
 
 make_install()
