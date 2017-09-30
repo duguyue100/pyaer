@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# define python executable
+CONDA_LIB_PATH=$HOME/anaconda2/lib
+CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
