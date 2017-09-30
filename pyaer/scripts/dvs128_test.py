@@ -13,7 +13,7 @@ info = libcaer.caerDVS128InfoGet(handle)
 
 print (type(info))
 print (dir(info))
-print (type(info.deviceID))
+print (info.deviceID)
 
 #  print("device ID: "+str(libcaer.caer_dvs128_info_deviceID_get(info)))
 
