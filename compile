@@ -13,6 +13,8 @@ CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
 
 if [ -f $PWD/compile.conf ]; then
     source $PWD/compile.conf
+else
+    echo "[MESSAGE] No compile.conf found, use default configuration settings."
 fi
 
 compile_swigpy()
