@@ -8,13 +8,51 @@
 fn=$1
 
 # customize this to the right Python library
+INSTALL_OPT="no"
+ENABLE_INSTALL=false
+PYTHON_VERSION=2  # TODO: support Python 3 as well
 CONDA_LIB_PATH=$HOME/anaconda2/lib
 CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
 
+# Color Profile
+RED='\033[0;31m'
+LIGHT_BLUE='\033[1;34m'
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+PURPLE='\033[0;35m'
+COLOR_END='\033[0m'
+
+is_yes()
+{
+    yesses={y,Y,yes,Yes,YES}
+    if [[ $yesses =~ $1 ]]; then
+        echo 1
+    fi
+}
+
+print_conf()
+{
+    echo -e "${LIGHT_BLUE}PYTHON VERSION       : $PYTHON_VERSION${COLOR_END}"
+    echo -e "${LIGHT_BLUE}CONDA LIB PATH       : $CONDA_LIB_PATH${COLOR_END}"
+    echo -e "${LIGHT_BLUE}CONDA PKG CONFIG PATH: $CONDA_PKG_CONFIG_PATH${COLOR_END}"
+}
+
 if [ -f $PWD/compile.conf ]; then
     source $PWD/compile.conf
+    echo -e "${RED}[MESSAGE] Using customize configuration.${COLOR_END}"
+    print_conf
 else
-    echo "[MESSAGE] No compile.conf found, use default configuration settings."
+    echo -e "${RED}[MESSAGE] No compile.conf found, use default configuration settings if continue installation.${COLOR_END}"
+    echo -e "${RED}[MESSAGE] Continue installation? (yes/no) [$INSTALL_OPT]${COLOR_END}"
+    read opt
+    if [[ $opt == "" ]]; then
+        opt=$INSTALL_OPT
+
+    if [[ $(is_yes $opt) ]]; then
+        ENABLE_INSTALL=true
+    fi
+    print_conf
 fi
 
 compile_swigpy()
@@ -122,48 +160,52 @@ clean_install()
     echo "[MESSAGE] Installation removed."
 }
 
-case "$fn" in
-    "make.swig")
-        compile_swigpy
-    ;;
+if [ $ENABLE_INSTALL == true ]; then
+    case "$fn" in
+        "make.swig")
+            compile_swigpy
+        ;;
 
-    "clean.swig")
-        clean_swigpy
-    ;;
+        "clean.swig")
+            clean_swigpy
+        ;;
 
-    "make.lib")
-        compile_libcaer
-    ;;
+        "make.lib")
+            compile_libcaer
+        ;;
 
-    "clean.lib")
-        clean_libcaer
-    ;;
+        "clean.lib")
+            clean_libcaer
+        ;;
 
-    "make.install")
-        make_install
-    ;;
+        "make.install")
+            make_install
+        ;;
 
-    "clean.install")
-        clean_install
-    ;;
+        "clean.install")
+            clean_install
+        ;;
 
-    "make")
-        # compile libcaer
-        compile_libcaer
+        "make")
+            # compile libcaer
+            compile_libcaer
 
-        # compile swigpy
-        compile_swigpy
-    ;;
-    
-    "clean")
-        # SWIG
-        clean_swigpy
+            # compile swigpy
+            compile_swigpy
+        ;;
+        
+        "clean")
+            # SWIG
+            clean_swigpy
 
-        # remove compiled SWIG
-        clean_install
+            # remove compiled SWIG
+            clean_install
 
-        # remove libcaer files
-        clean_libcaer
-    ;;
+            # remove libcaer files
+            clean_libcaer
+        ;;
 
-esac
+    esac
+else
+    echo -e "${RED} Installation cancelled.${COLOR_END}"
+fi
