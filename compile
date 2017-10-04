@@ -252,4 +252,3 @@ if [ $ENABLE_INSTALL = true ]; then
 else
     echo -e "${RED} Installation interrupted.${COLOR_END}"
 fi
-
