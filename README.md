@@ -42,11 +42,16 @@ CONDA_LIB_PATH=$HOME/anaconda2/lib
 CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
 ```
 
-4. Make this repository
+4. Make this repository and install it!
 
 ```
 $ ./compile make
+$ ./compile make.install
 ```
+
+__NOTE:__ This repository is designed to be compiled and run within local
+directory, nothing to pollute your system because this is in active
+development.
 
 5. (Optional) if you want to clean the installation, just type
 

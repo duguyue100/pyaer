@@ -7,9 +7,12 @@
 # option
 fn=$1
 
-# customize this to the right Python library
+# for installation check
 INSTALL_OPT="no"
 ENABLE_INSTALL=false
+
+# customize this to the right configuration
+REBUILDING=false
 PYTHON_VERSION=2  # TODO: support Python 3 as well
 CONDA_LIB_PATH=$HOME/anaconda2/lib
 CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
@@ -22,6 +25,32 @@ GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 PURPLE='\033[0;35m'
 COLOR_END='\033[0m'
+
+print_help()
+{
+    echo -e "${PURPLE}--------------------------------------------------------------------${COLOR_END}"
+    echo -e "${PURPLE}Compilation Sequences for PyAER${COLOR_END}"
+    echo -e "${PURPLE}This script is developed by Yuhuang Hu@INI@UZH/ETHz${COLOR_END}"
+    echo -e "${PURPLE}Contact: yuhuang.hu@ini.uzh.ch${COLOR_END}"
+    echo -e "${PURPLE} ${COLOR_END}"
+    echo -e "${PURPLE}Available functions:${COLOR_END}"
+    echo -e "${PURPLE}make          : make libcaer and${COLOR_END}"
+    echo -e "${PURPLE}make.lib      : make libcaer${COLOR_END}"
+    echo -e "${PURPLE}make.swig     : make Python bindings based on libcaer${COLOR_END}"
+    echo -e "${PURPLE}make.install  : Install Python bindings${COLOR_END}"
+    echo -e "${PURPLE}clean         : Clean installation and compilation files.${COLOR_END}"
+    echo -e "${PURPLE}clean.lib     : Clean libcaer compilation files${COLOR_END}"
+    echo -e "${PURPLE}clean.swig    : Clean SWIG bindings${COLOR_END}"
+    echo -e "${PURPLE}clean.install : Clean installation${COLOR_END}"
+    echo -e "${PURPLE}help          : Print help${COLOR_END}"
+    echo -e "${PURPLE} ${COLOR_END}"
+    echo -e "${PURPLE}Available configuration:${COLOR_END}"
+    echo -e "${PURPLE}REBUILDING (bool)           : false if first time, true if not${COLOR_END}"
+    echo -e "${PURPLE}PYTHON_VERSION (int)        : 2 for Python 2, 3 for Python 3${COLOR_END}"
+    echo -e "${PURPLE}CONDA_LIB_PATH (str)        : Path to custom Python library${COLOR_END}"
+    echo -e "${PURPLE}CONDA_PKG_CONFIG_PATH (str) : Path to custom Python pkg-config files${COLOR_END}"
+    echo -e "${PURPLE}--------------------------------------------------------------------${COLOR_END}"
+}
 
 is_yes()
 {
@@ -57,55 +86,64 @@ fi
 
 compile_swigpy()
 {
-    echo "[MESSAGE] Compiling libcaer swig binding"
+    echo -e "${BLUE}[MESSAGE] Compiling libcaer swig binding${COLOR_END}"
     if [ ! -d "$PWD/swigpy" ]; then
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
         export PKG_CONFIG_PATH=$CONDA_PKG_CONFIG_PATH:$PKG_CONFIG_PATH
         export LD_LIBRARY_PATH=$CONDA_LIB_PATH:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
 
         # summary information
-        echo '[MESSAGE] libcaer include directory: '$(pkg-config --variable=includedir libcaer)
-        echo '[MESSAGE] libcaer library directory: '$(pkg-config --variable=libdir libcaer)
-        echo '[MESSAGE] LD_LIBRARY_PATH          : '$(LD_LIBRARY_PATH)
+        echo -e "${LIGHT_BLUE}[MESSAGE] libcaer include directory: "$(pkg-config --variable=includedir libcaer)${COLOR_END}
+        echo -e "${LIGHT_BLUE}[MESSAGE] libcaer library directory: "$(pkg-config --variable=libdir libcaer)${COLOR_END}
+        echo -e "${LIGHT_BLUE}[MESSAGE] LD_LIBRARY_PATH          : "$(LD_LIBRARY_PATH)${COLOR_END}
 
         # compile swig interface
         mkdir swigpy
         cd swigpy
         cp $PWD/../libcaer/bindings/python_swig/pyflags.i .
         swig -python -I$(pkg-config --variable=includedir libcaer) -cpperraswarn pyflags.i
-        gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
+        if [ $PYTHON_VERSION == 2 ]; then
+            gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
+        elif [ $PYTHON_VERSION == 3]; then
+            gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python3) -I$(pkg-config --variable=includedir libcaer)
+        fi
         ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
 
         # configure path
         # for .bashrc
-        if [ -f $HOME/.bashrc ]; then
-            cp $HOME/.bashrc $HOME/.bashrc.pyaer.bak
-            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$(pkg-config --variable=libdir libcaer) >> $HOME/.bashrc
-            echo 'LD_LIBRARY_PATH is appended in '$HOME/.bashrc
+        if [[ $REBUILDING == false ]]; then
+            NEW_LD_PATH="export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$(pkg-config --variable=libdir libcaer)
+            if [ -f $HOME/.bashrc ]; then
+                cp $HOME/.bashrc $HOME/.bashrc.pyaer.bak
+                echo $NEW_LD_PATH >> $HOME/.bashrc
+                echo -e "${GREEN}LD_LIBRARY_PATH is appended in "$HOME/.bashrc${COLOR_END}
+            fi
+            # for .zshrc
+            if [ -f $HOME/.zshrc ]; then
+                cp $HOME/.zshrc $HOME/.zshrc.pyaer.bak
+                echo $NEW_LD_PATH >> $HOME/.zshrc
+                echo -e "${GREEN}LD_LIBRARY_PATH is appended in "$HOME/.zshrc${COLOR_END}
+            fi
+            echo -e "${BLUE}[MESSAGE] LD_LIBRARY_PATH configured.${COLOR_END}"
+            echo -e "${BLUE}[MESSAGE] Please restart your terminal or source your shell profile.${COLOR_END}"
+        else
+            # not appending LD_LIBRARY_PATH if true
+            echo -e "${RED}[MESSAGE] Rebuilding enabled, no LD_LIBRARY_PATH appended.${COLOR_END}"
         fi
-        # for .zshrc
-        if [ -f $HOME/.zshrc ]; then
-            cp $HOME/.zshrc $HOME/.zshrc.pyaer.bak
-            echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'$(pkg-config --variable=libdir libcaer) >> $HOME/.zshrc
-            echo 'LD_LIBRARY_PATH is appended in '$HOME/.zshrc
-        fi
-
-        echo '[MESSAGE] LD_LIBRARY_PATH configured.'
-        echo '[MESSAGE] Please restart your terminal or source your shell profile.'
     else
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
         export PKG_CONFIG_PATH=$CONDA_PKG_CONFIG_PATH:$PKG_CONFIG_PATH
         export LD_LIBRARY_PATH=$CONDA_LIB_PATH:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
 
-        echo '[MESSAGE] libcaer include directory: '$(pkg-config --variable=includedir libcaer)
-        echo '[MESSAGE] libcaer library directory: '$(pkg-config --variable=libdir libcaer)
-        echo '[MESSAGE] LD_LIBRARY_PATH          : '$(LD_LIBRARY_PATH)
+        echo -e "${LIGHT_BLUE}[MESSAGE] libcaer include directory: "$(pkg-config --variable=includedir libcaer)${COLOR_END}
+        echo -e "${LIGHT_BLUE}[MESSAGE] libcaer library directory: "$(pkg-config --variable=libdir libcaer)${COLOR_END}
+        echo -e "${LIGHT_BLUE}[MESSAGE] LD_LIBRARY_PATH          : "$(LD_LIBRARY_PATH)${COLOR_END}
     fi
 }
 
 compile_libcaer()
 {
-    echo "[MESSAGE] Compiling libcaer"
+    echo -e "${BLUE}[MESSAGE] Compiling libcaer${COLOR_END}"
     cd libcaer
     if [ ! -d "$PWD/libcaer/build" ]; then
         mkdir compiled
@@ -121,31 +159,31 @@ compile_libcaer()
 
 make_install()
 {
-    echo "[MESSAGE] Installing..."
+    echo -e "${BLUE}[MESSAGE] Installing Python bindings...${COLOR_END}"
     cp $PWD/swigpy/_libcaer_wrap.so $PWD/pyaer
     cp $PWD/swigpy/libcaer_wrap.py $PWD/pyaer
-    echo "[MESSAGE] Installation completed."
+    echo -e "${BLUE}[MESSAGE] Installation completed.${COLOR_END}"
 }
 
 # cleaning functions
 clean_swigpy()
 {
-    echo "[MESSAGE] Cleaning SWIG files."
+    echo -e "${BLUE}[MESSAGE] Cleaning SWIG files.${COLOR_END}"
     rm -rf $PWD/swigpy
-    echo "[MESSAGE] SWIG files removed."
+    echo -e "${BLUE}[MESSAGE] SWIG files removed.${COLOR_END}"
 }
 
 clean_libcaer()
 {
-    echo "[MESSAGE] Cleaning libcaer installation."
+    echo -e "${BLUE}[MESSAGE] Cleaning libcaer installation.${COLOR_END}"
     rm -rf $PWD/libcaer/compiled
     rm -rf $PWD/libcaer/build
-    echo "[MESSAGE] libcaer files removed."
+    echo -e "${BLUE}[MESSAGE] libcaer files removed.${COLOR_END}"
 }
 
 clean_install()
 {
-    echo "[MESSAGE] Cleaning Compiled interface."
+    echo -e "${BLUE}[MESSAGE] Cleaning Compiled interface.${COLOR_END}"
     rm $PWD/pyaer/_libcaer_wrap.so
     rm $PWD/pyaer/libcaer_wrap.py
 
@@ -157,10 +195,11 @@ clean_install()
         cp $HOME/.zshrc.pyaer.bask $HOME/.zshrc
     fi
 
-    echo "[MESSAGE] Installation removed."
+    echo -e "${BLUE}[MESSAGE] Installation removed.${COLOR_END}"
 }
 
-if [ $ENABLE_INSTALL == true ]; then
+# main work flow
+if [ $ENABLE_INSTALL = true ]; then
     case "$fn" in
         "make.swig")
             compile_swigpy
@@ -205,7 +244,12 @@ if [ $ENABLE_INSTALL == true ]; then
             clean_libcaer
         ;;
 
+        "help")
+            print_help
+        ;;
+
     esac
 else
-    echo -e "${RED} Installation cancelled.${COLOR_END}"
+    echo -e "${RED} Installation interrupted.${COLOR_END}"
 fi
+
