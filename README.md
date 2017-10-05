@@ -114,6 +114,9 @@ e.g.
 LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
 ```
 
+__NOTE:__ If you get errors in compilation, please contact for a patch.
+It's a known issue that `swig` doesn't recognize `//` as comment.
+
 ## Contacts
 
 Yuhuang Hu  
