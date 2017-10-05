@@ -28,28 +28,28 @@ COLOR_END='\033[0m'
 
 print_help()
 {
-    echo -e "${PURPLE}--------------------------------------------------------------------${COLOR_END}"
-    echo -e "${PURPLE}Compilation Sequences for PyAER${COLOR_END}"
-    echo -e "${PURPLE}This script is developed by Yuhuang Hu@INI@UZH/ETHz${COLOR_END}"
-    echo -e "${PURPLE}Contact: yuhuang.hu@ini.uzh.ch${COLOR_END}"
-    echo -e "${PURPLE} ${COLOR_END}"
-    echo -e "${PURPLE}Available functions:${COLOR_END}"
-    echo -e "${PURPLE}make          : make libcaer and${COLOR_END}"
-    echo -e "${PURPLE}make.lib      : make libcaer${COLOR_END}"
-    echo -e "${PURPLE}make.swig     : make Python bindings based on libcaer${COLOR_END}"
-    echo -e "${PURPLE}make.install  : Install Python bindings${COLOR_END}"
-    echo -e "${PURPLE}clean         : Clean installation and compilation files.${COLOR_END}"
-    echo -e "${PURPLE}clean.lib     : Clean libcaer compilation files${COLOR_END}"
-    echo -e "${PURPLE}clean.swig    : Clean SWIG bindings${COLOR_END}"
-    echo -e "${PURPLE}clean.install : Clean installation${COLOR_END}"
-    echo -e "${PURPLE}help          : Print help${COLOR_END}"
-    echo -e "${PURPLE} ${COLOR_END}"
-    echo -e "${PURPLE}Available configuration:${COLOR_END}"
-    echo -e "${PURPLE}REBUILDING (bool)           : false if first time, true if not${COLOR_END}"
-    echo -e "${PURPLE}PYTHON_VERSION (int)        : 2 for Python 2, 3 for Python 3${COLOR_END}"
-    echo -e "${PURPLE}CONDA_LIB_PATH (str)        : Path to custom Python library${COLOR_END}"
-    echo -e "${PURPLE}CONDA_PKG_CONFIG_PATH (str) : Path to custom Python pkg-config files${COLOR_END}"
-    echo -e "${PURPLE}--------------------------------------------------------------------${COLOR_END}"
+    echo -e "${PURPLE} --------------------------------------------------------------------${COLOR_END}"
+    echo -e "${PURPLE} Compilation Sequences for PyAER${COLOR_END}"
+    echo -e "${PURPLE} This script is developed by Yuhuang Hu@INI@UZH/ETHz${COLOR_END}"
+    echo -e "${PURPLE} Contact: yuhuang.hu@ini.uzh.ch${COLOR_END}"
+    echo -e "${PURPLE}  ${COLOR_END}"
+    echo -e "${PURPLE} Available functions:${COLOR_END}"
+    echo -e "${PURPLE} make          : make libcaer and SWIG Python bindings${COLOR_END}"
+    echo -e "${PURPLE} make.lib      : make libcaer${COLOR_END}"
+    echo -e "${PURPLE} make.swig     : make Python bindings based on SWIG${COLOR_END}"
+    echo -e "${PURPLE} make.install  : Install Python bindings${COLOR_END}"
+    echo -e "${PURPLE} clean         : Clean installation and compilation files.${COLOR_END}"
+    echo -e "${PURPLE} clean.lib     : Clean libcaer compilation files${COLOR_END}"
+    echo -e "${PURPLE} clean.swig    : Clean SWIG bindings${COLOR_END}"
+    echo -e "${PURPLE} clean.install : Clean installation${COLOR_END}"
+    echo -e "${PURPLE} help          : Print help${COLOR_END}"
+    echo -e "${PURPLE}  ${COLOR_END}"
+    echo -e "${PURPLE} Available configuration:${COLOR_END}"
+    echo -e "${PURPLE} REBUILDING (bool)           : false if first time, true if not${COLOR_END}"
+    echo -e "${PURPLE} PYTHON_VERSION (int)        : 2 for Python 2, 3 for Python 3${COLOR_END}"
+    echo -e "${PURPLE} CONDA_LIB_PATH (str)        : Path to custom Python library${COLOR_END}"
+    echo -e "${PURPLE} CONDA_PKG_CONFIG_PATH (str) : Path to custom Python pkg-config files${COLOR_END}"
+    echo -e "${PURPLE} --------------------------------------------------------------------${COLOR_END}"
 }
 
 is_yes()
@@ -67,22 +67,36 @@ print_conf()
     echo -e "${LIGHT_BLUE}CONDA PKG CONFIG PATH: $CONDA_PKG_CONFIG_PATH${COLOR_END}"
 }
 
-if [ -f $PWD/compile.conf ]; then
-    source $PWD/compile.conf
-    echo -e "${RED}[MESSAGE] Using customize configuration.${COLOR_END}"
-    print_conf
-else
-    echo -e "${RED}[MESSAGE] No compile.conf found, use default configuration settings if continue installation.${COLOR_END}"
+
+continue_install()
+{
     echo -e "${RED}[MESSAGE] Continue installation? (yes/no) [$INSTALL_OPT]${COLOR_END}"
     read opt
     if [[ $opt == "" ]]; then
         opt=$INSTALL_OPT
+    fi
 
     if [[ $(is_yes $opt) ]]; then
         ENABLE_INSTALL=true
+        print_conf
     fi
-    print_conf
-fi
+}
+
+
+config_installation()
+{
+    if [ -f $PWD/compile.conf ]; then
+        source $PWD/compile.conf
+        echo -e "${RED}[MESSAGE] Using customize configuration in the file compile.conf.${COLOR_END}"
+        continue_install
+    else
+        echo -e "${RED}[MESSAGE] No compile.conf found, use default configuration settings if continue installation.${COLOR_END}"
+        echo -e "${RED}[MESSAGE] Use:${COLOR_END}"
+        echo -e "${BLUE}              cp compile.conf.bak compile.conf${COLOR_END}"
+        echo -e "${RED}          to create your configuration file if you need.${COLOR_END}"
+        continue_install
+    fi
+}
 
 compile_swigpy()
 {
@@ -110,9 +124,9 @@ compile_swigpy()
         ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
 
         # configure path
-        # for .bashrc
         if [[ $REBUILDING == false ]]; then
             NEW_LD_PATH="export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$(pkg-config --variable=libdir libcaer)
+            # for .bashrc
             if [ -f $HOME/.bashrc ]; then
                 cp $HOME/.bashrc $HOME/.bashrc.pyaer.bak
                 echo $NEW_LD_PATH >> $HOME/.bashrc
@@ -198,6 +212,13 @@ clean_install()
     echo -e "${BLUE}[MESSAGE] Installation removed.${COLOR_END}"
 }
 
+if [ $fn == "help" ]; then
+    print_help
+    exit 1
+fi
+
+config_installation
+
 # main work flow
 if [ $ENABLE_INSTALL = true ]; then
     case "$fn" in
@@ -243,12 +264,7 @@ if [ $ENABLE_INSTALL = true ]; then
             # remove libcaer files
             clean_libcaer
         ;;
-
-        "help")
-            print_help
-        ;;
-
     esac
 else
-    echo -e "${RED} Installation interrupted.${COLOR_END}"
+    echo -e "${RED}[MESSAGE] Installation interrupted.${COLOR_END}"
 fi
