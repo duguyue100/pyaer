@@ -26,7 +26,6 @@ If you are still interested, pleast contact us.__
 + [ ] Support Python 3
 + [ ] Testing compilation script
 + [ ] Can we provide pre-built binaries?
-+ [ ] Prepare setup script
 
 ## Installation
 
