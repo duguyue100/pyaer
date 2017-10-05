@@ -117,8 +117,10 @@ compile_swigpy()
         cp $PWD/../libcaer/bindings/python_swig/pyflags.i .
         swig -python -I$(pkg-config --variable=includedir libcaer) -cpperraswarn pyflags.i
         if [ $PYTHON_VERSION == 2 ]; then
+            echo -e "${BLUE}[MESSAGE] Your swig installation should be compile with python 2 library${COLOR_END}"
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
         elif [ $PYTHON_VERSION == 3]; then
+            echo -e "${BLUE}[MESSAGE] Your swig installation should be compile with python 3 library${COLOR_END}"
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python3) -I$(pkg-config --variable=includedir libcaer)
         fi
         ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
