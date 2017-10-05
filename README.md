@@ -7,18 +7,29 @@ Special thanks to [iniLabs](http://inilabs.com/) to make this possible.
 + Supported platform: `Ubuntu`
 + Supported Python: 2.7
 
+## Design Principle
+
++ Minimum installation effort
++ Keep active development in mind
++ Keep Python 2 and 3 in mind, however prioritize Python 2 first
++ Clean, simple, easy to manage
++ Well documented, human-readable code
++ Let's not do Windows for this moment
++ Let's not do Mac for this moment
+
 ## TODO
 
 + [ ] Intermediate level API for accessing camera
 + [ ] Support Python 3
 + [ ] Testing compilation script
++ [ ] Can we provide pre-built binaries?
 
 ## Installation
 
 1. Install `libcaer` dependency
 
 ```
-$ sudo apt-get install libusb-1.0-9-dev
+$ sudo apt-get install libusb-1.0-0-dev
 ```
 
 __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
@@ -117,6 +128,33 @@ LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
 
 __NOTE:__ If you get errors in compilation, please contact for a patch.
 It's a known issue that `swig` doesn't recognize `//` as comment.
+
+## Got a Linux?
+
+`libcaer` relies on `libusb` based driver, you won't be able
+to access the camera unless fix the `udev` rules. Refer details
+from [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px)
+
+```
+$ sudo touch /etc/udev/rules.d/65-inilabs.rules
+```
+
+Append following contents in the file with `sudo`
+
+```
+# All DVS/DAVIS systems
+SUBSYSTEM=="usb", ATTR{idVendor}=="152a", ATTR{idProduct}=="84[0-1]?", MODE="0666"
+# eDVS 4337
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", MODE="0666"
+```
+
+Updating rules
+
+```
+$ udevadm control --reload
+```
+
+Unplug and replug the camera, you should be fine.
 
 ## Contacts
 
