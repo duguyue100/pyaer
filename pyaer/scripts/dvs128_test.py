@@ -3,25 +3,35 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+from __future__ import print_function
+from pyaer.dvs128 import DVS128
 
-from pyaer import libcaer
+device = DVS128()
 
-handle = libcaer.caerDeviceOpen(
-    1, libcaer.CAER_DEVICE_DVS128, 0, 0, "")
+print ("Device ID:", device.device_id)
+if device.device_is_master:
+    print ("Device is master.")
+else:
+    print ("Device is slave.")
+print ("Device Serial Number:", device.device_serial_number)
+print ("Device String:", device.device_string)
+print ("Device USB bus Number:", device.device_usb_bus_number)
+print ("Device USB device address:", device.device_usb_device_address)
+print ("Device size X:", device.dvs_size_X)
+print ("Device size Y:", device.dvs_size_Y)
+print ("Logic Version:", device.logic_version)
 
-info = libcaer.caerDVS128InfoGet(handle)
+packet_container, packet_number = device.get_packet_container()
 
-print (type(info))
-print (dir(info))
-print (info.deviceID)
+print (type(packet_container))
+print (packet_number)
 
-#  print("device ID: "+str(libcaer.caer_dvs128_info_deviceID_get(info)))
-
-#  if(libcaer.caer_dvs128_info_deviceIsMaster_get(info)):
-#      print("device is Master: ")
-#  else:
-#      print("device is Slave")
+#  while True:
+#      (pol_ts, pol_xy, pol_pol, num_pol_event,
+#       special_ts, special_event_data, num_special_event) = \
+#          device.get_event()
 #
-#  print("device Serial Number"+str(libcaer.caer_dvs128_info_deviceSerialNumber_get(info)))
-#
-#  print(libcaer.caer_dvs128_info_deviceString_get(info))
+#      print ("Number of events:", num_pol_event, "Number of special events:",
+#             num_special_event)
+
+#  device.close()
