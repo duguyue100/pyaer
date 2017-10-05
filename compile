@@ -16,6 +16,7 @@ REBUILDING=false
 PYTHON_VERSION=2  # TODO: support Python 3 as well
 CONDA_LIB_PATH=$HOME/anaconda2/lib
 CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
+LIBCAER_INSTALLED=false
 
 # Color Profile
 RED='\033[0;31m'
@@ -49,6 +50,8 @@ print_help()
     echo -e "${PURPLE} PYTHON_VERSION (int)        : 2 for Python 2, 3 for Python 3${COLOR_END}"
     echo -e "${PURPLE} CONDA_LIB_PATH (str)        : Path to custom Python library${COLOR_END}"
     echo -e "${PURPLE} CONDA_PKG_CONFIG_PATH (str) : Path to custom Python pkg-config files${COLOR_END}"
+    echo -e "${PURPLE} LIBCAER_INSTALLED (bool)    : false if build libcaer locally,${COLOR_END}"
+    echo -e "${PURPLE}                               true  if you have libcaer installed in system${COLOR_END}"
     echo -e "${PURPLE} --------------------------------------------------------------------${COLOR_END}"
 }
 
@@ -102,7 +105,9 @@ compile_swigpy()
 {
     echo -e "${BLUE}[MESSAGE] Compiling libcaer swig binding${COLOR_END}"
     if [ ! -d "$PWD/swigpy" ]; then
-        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+        if [ $LIBCAER_INSTALLED == false ]; then
+            export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+        fi
         export PKG_CONFIG_PATH=$CONDA_PKG_CONFIG_PATH:$PKG_CONFIG_PATH
         export LD_LIBRARY_PATH=$CONDA_LIB_PATH:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
 
@@ -126,28 +131,32 @@ compile_swigpy()
         ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
 
         # configure path
-        if [[ $REBUILDING == false ]]; then
-            NEW_LD_PATH="export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$(pkg-config --variable=libdir libcaer)
-            # for .bashrc
-            if [ -f $HOME/.bashrc ]; then
-                cp $HOME/.bashrc $HOME/.bashrc.pyaer.bak
-                echo $NEW_LD_PATH >> $HOME/.bashrc
-                echo -e "${GREEN}LD_LIBRARY_PATH is appended in "$HOME/.bashrc${COLOR_END}
+        if [ $LIBCAER_INSTALLED == false ]; then
+            if [[ $REBUILDING == false ]]; then
+                NEW_LD_PATH="export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$(pkg-config --variable=libdir libcaer)
+                # for .bashrc
+                if [ -f $HOME/.bashrc ]; then
+                    cp $HOME/.bashrc $HOME/.bashrc.pyaer.bak
+                    echo $NEW_LD_PATH >> $HOME/.bashrc
+                    echo -e "${GREEN}LD_LIBRARY_PATH is appended in "$HOME/.bashrc${COLOR_END}
+                fi
+                # for .zshrc
+                if [ -f $HOME/.zshrc ]; then
+                    cp $HOME/.zshrc $HOME/.zshrc.pyaer.bak
+                    echo $NEW_LD_PATH >> $HOME/.zshrc
+                    echo -e "${GREEN}LD_LIBRARY_PATH is appended in "$HOME/.zshrc${COLOR_END}
+                fi
+                echo -e "${BLUE}[MESSAGE] LD_LIBRARY_PATH configured.${COLOR_END}"
+                echo -e "${BLUE}[MESSAGE] Please restart your terminal or source your shell profile.${COLOR_END}"
+            else
+                # not appending LD_LIBRARY_PATH if true
+                echo -e "${RED}[MESSAGE] Rebuilding enabled, no LD_LIBRARY_PATH appended.${COLOR_END}"
             fi
-            # for .zshrc
-            if [ -f $HOME/.zshrc ]; then
-                cp $HOME/.zshrc $HOME/.zshrc.pyaer.bak
-                echo $NEW_LD_PATH >> $HOME/.zshrc
-                echo -e "${GREEN}LD_LIBRARY_PATH is appended in "$HOME/.zshrc${COLOR_END}
-            fi
-            echo -e "${BLUE}[MESSAGE] LD_LIBRARY_PATH configured.${COLOR_END}"
-            echo -e "${BLUE}[MESSAGE] Please restart your terminal or source your shell profile.${COLOR_END}"
-        else
-            # not appending LD_LIBRARY_PATH if true
-            echo -e "${RED}[MESSAGE] Rebuilding enabled, no LD_LIBRARY_PATH appended.${COLOR_END}"
         fi
     else
-        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+        if [ $LIBCAER_INSTALLED == false ]; then
+            export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PWD/libcaer/build/lib/pkgconfig
+        fi
         export PKG_CONFIG_PATH=$CONDA_PKG_CONFIG_PATH:$PKG_CONFIG_PATH
         export LD_LIBRARY_PATH=$CONDA_LIB_PATH:$(pkg-config --variable=libdir libcaer):$LD_LIBRARY_PATH
 
@@ -250,7 +259,9 @@ if [ $ENABLE_INSTALL = true ]; then
 
         "make")
             # compile libcaer
-            compile_libcaer
+            if [ $LIBCAER_INSTALLED == false ]; then
+                compile_libcaer
+            fi
 
             # compile swigpy
             compile_swigpy

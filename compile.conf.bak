@@ -10,3 +10,7 @@ PYTHON_VERSION=2
 # define python executable
 CONDA_LIB_PATH=$HOME/anaconda2/lib
 CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
+
+# false if build libcaer locally
+# true  if you have a system installed libcaer
+LIBCAER_INSTALLED=false

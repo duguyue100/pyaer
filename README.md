@@ -81,6 +81,7 @@ $ ./compile clean
 + `clean.swig`: clean SWIG
 + `clean.lib` : clean `libcaer` compilation
 + `clean.install` : clean installation
++ `help`: print help info
 
 ## Yeah, you need SWIG
 
