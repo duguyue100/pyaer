@@ -49,9 +49,21 @@ cp compile.conf.bak compile.conf
 
 The configuration file looks like
 
-```
+```bash
+# Turn it to true if you are building the repository for the first time
+REBUILDING=false
+
+# defien python version (experimental)
+# only support python 2 at this moment
+PYTHON_VERSION=2
+
+# define python executable
 CONDA_LIB_PATH=$HOME/anaconda2/lib
 CONDA_PKG_CONFIG_PATH=$CONDA_LIB_PATH/pkgconfig
+
+# false if build libcaer locally
+# true  if you have a system installed libcaer
+LIBCAER_INSTALLED=false
 ```
 
 4. Make this repository and install it!
