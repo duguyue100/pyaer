@@ -11,6 +11,7 @@ Special thanks to [iniLabs](http://inilabs.com/) to make this possible.
 
 + [ ] Intermediate level API for accessing camera
 + [ ] Support Python 3
++ [ ] Testing compilation script
 
 ## Installation
 
