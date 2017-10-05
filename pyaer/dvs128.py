@@ -84,7 +84,6 @@ class DVS128(object):
     def set_data_exchange_blocking(self):
         """Set data exchange blocking."""
         return self.set_config(
-            self.handle,
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE,
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING,
             True)
@@ -158,9 +157,7 @@ class DVS128(object):
         packet_number : int
             number of event packet in the container
         """
-        print ("I'm here")
         packet_container = libcaer.caerDeviceDataGet(self.handle)
-        print ("I'm here")
         packet_number = \
             libcaer.caerEventPacketContainerGetEventPacketsNumber(
                 packet_container)
@@ -224,7 +221,7 @@ class DVS128(object):
             ts.append(libcaer.caerPolarityEventGetTimestamp(event))
             x.append(libcaer.caerPolarityEventGetX(event))
             y.append(libcaer.caerPolarityEventGetY(event))
-            pol.appdne(libcaer.caerPolarityEventGetPolarity(event))
+            pol.append(libcaer.caerPolarityEventGetPolarity(event))
 
         # change to numpy array
         ts = np.array(ts, dtype=np.uint64)
