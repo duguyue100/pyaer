@@ -23,6 +23,7 @@ Special thanks to [iniLabs](http://inilabs.com/) to make this possible.
 + [ ] Support Python 3
 + [ ] Testing compilation script
 + [ ] Can we provide pre-built binaries?
++ [ ] Prepare setup script
 
 ## Installation
 
