@@ -5,9 +5,10 @@ Email : duguyue100@gmail.com
 """
 import numpy as np
 from pyaer import libcaer
+from pyaer.device import USBDevice
 
 
-class DAVIS(object):
+class DAVIS(USBDevice):
     """Class for managing single DAVIS device."""
     def __init__(self,
                  device_id=1,
@@ -37,11 +38,10 @@ class DAVIS(object):
             SerialNumber descriptor.
             default is ""
         """
+        super(DAVIS, self).__init__()
         # open device
         self.open(device_id, bus_number_restrict,
                   dev_address_restrict, serial_number)
-        if self.handle is None:
-            raise ValueError("The camera is failed to open.")
         # get camera information
         self.obtain_device_info(self.handle)
 
@@ -79,50 +79,6 @@ class DAVIS(object):
         self.dvs_has_statistics = info.dvsHasStatistics
         self.mux_has_statistics = info.muxHasStatistics
 
-    def send_default_config(self):
-        """Send default bias configuration."""
-        if self.handle is not None:
-            send_success = libcaer.caerDeviceSendDefaultConfig(self.handle)
-            return send_success
-        else:
-            return False
-
-    def set_config(self, mod_addr, param_addr, param):
-        """Set configuration."""
-        if self.handle is not None:
-            set_success = libcaer.caerDeviceConfigSet(
-                self.handle, mod_addr, param_addr, param)
-            return set_success
-        else:
-            return False
-
-    def get_config(self, mod_addr, param_addr):
-        """Get Configuration."""
-        # TODO test configure get function
-        pass
-
-    def set_data_exchange_blocking(self):
-        """Set data exchange blocking."""
-        return self.set_config(
-            libcaer.CAER_HOST_CONFIG_DATAEXCHANGE,
-            libcaer.CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING,
-            True)
-
-    def data_start(self):
-        """Start data transmission."""
-        # TODO figure out the parameter meaning
-        if self.handle is not None:
-            data_start_success = libcaer.caerDeviceDataStart(
-                self.handle, None, None, None, None, None)
-            return data_start_success
-        else:
-            return False
-
-    def data_stop(self):
-        """Stop data transmission."""
-        if self.handle is not None:
-            libcaer.caerDeviceDataStop(self.handle)
-
     def open(self,
              device_id=1,
              bus_number_restrict=0,
@@ -151,212 +107,80 @@ class DAVIS(object):
             SerialNumber descriptor.
             default is ""
         """
-        self.handle = libcaer.caerDeviceOpen(
-            device_id, libcaer.CAER_DEVICE_DAVIS,
+        super(DAVIS, self).open(
+            libcaer.CAER_DEVICE_DAVIS, device_id,
             bus_number_restrict, dev_address_restrict,
             serial_number)
-
-    def close(self):
-        """Close device.
-
-        Cannot use
-        """
-        pass
-
-    def shutdown(self):
-        """Shutdown device."""
-        self.data_stop()
-        self.close()
-
-    def get_packet_container(self):
-        """Get event packet container.
-
-        Returns
-        -------
-        packet_container : caerEventPacketContainer
-            a container that consists of event packets
-        packet_number : int
-            number of event packet in the container
-        """
-        packet_container = libcaer.caerDeviceDataGet(self.handle)
-        if packet_container is not None:
-            packet_number = \
-                libcaer.caerEventPacketContainerGetEventPacketsNumber(
-                    packet_container)
-            return packet_container, packet_number
-        else:
-            return None, None
-
-    def get_packet_header(self, packet_container, idx):
-        """Get a single packet header.
-
-        Parameters
-        ----------
-        packet_container : caerEventPacketContainer
-            the event packet container
-        idx : int
-            the index of the packet header
-
-        Returns
-        -------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-        packet_type : caerEventPacketType
-            the type of the event packet
-        """
-        packet_header = \
-            libcaer.caerEventPacketContainerGetEventPacket(
-                packet_container, idx)
-        if packet_header is None:
-            return (None, None)
-        else:
-            packet_type = libcaer.caerEventPacketHeaderGetEventType(
-                packet_header)
-            return packet_header, packet_type
-
-    def get_polarity_event(self, packet_header):
-        """Get a packet of polarity event.
-
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-
-        Returns
-        -------
-        ts : numpy.ndarray
-            list of time stamp
-        xy : numpy.ndarray
-            list of x, y coordinate
-        pol : numpy.ndarray
-            list of polarity
-        """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        ts = []
-        x = []
-        y = []
-        pol = []
-        for event_id in range(num_events):
-            polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
-                packet_header)
-            event = libcaer.caerPolarityEventPacketGetEvent(
-                polarity, event_id)
-            ts.append(libcaer.caerPolarityEventGetTimestamp(event))
-            x.append(libcaer.caerPolarityEventGetX(event))
-            y.append(libcaer.caerPolarityEventGetY(event))
-            pol.append(libcaer.caerPolarityEventGetPolarity(event))
-
-        # change to numpy array
-        ts = np.array(ts, dtype=np.uint64)
-        xy = np.array([x, y], dtype=np.uint8)
-        pol = np.array(pol, dtype=np.bool)
-
-        return ts, xy, pol, num_events
-
-    def get_special_event(self, packet_header):
-        """Get a packet of special event.
-
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-
-        Returns
-        -------
-        ts : numpy.ndarray
-            list of time stamp
-        event_data : numpy.ndarray
-            list of event data
-        """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        ts = []
-        event_data = []
-        for event_id in range(num_events):
-            polarity = libcaer.caerSpecialEventPacketFromPacketHeader(
-                packet_header)
-            event = libcaer.caerPolarityEventPacketGetEvent(
-                polarity, event_id)
-            ts.append(libcaer.caerSpecialEventGetTimestamp(event))
-            event_data.append(libcaer.caerSpecialEventGetData(event))
-
-        # change to numpy array
-        ts = np.array(ts, dtype=np.uint64)
-        event_data = np.array(event_data, dtype=np.bool)
-
-        return ts, event_data, num_events
-
-    def get_frame_event(self, packet_header):
-        """Get a packet of frame event.
-
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-
-        Returns
-        -------
-        frame_mat : numpy.ndarray
-            the frame
-        frame_ts : int
-            the frame timestamp
-        """
-        frame = libcaer.caerFrameEventPacketFromPacketHeader(
-            packet_header)
-        first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
-        frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
-        frame_mat = np.zeros((self.aps_size_X, self.apsSizeY), dtype=np.uint8)
-        for y in range(libcaer.caerFrameEventGetLengthX(first_event)):
-            for x in range(libcaer.caerFrameEventGetLengthX(first_event)):
-                frame_mat[x, y] = libcaer.caerFrameEventGetPixel(
-                    first_event, x, y)
-        return frame_mat, frame_ts
-
-    def get_imu6_event(self, packet_header):
-        """Get IMU5 event.
-
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-        """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        imu = libcaer.caerIMU6EventPacketFromPacketHeader(packet_header)
-        imu_acc = []
-        imu_gyro = []
-        imu_ts = []
-        imu_temp = []
-        for event_id in range(num_events):
-            imu6 = libcaer.caerIMU6EventPacketGetEvent(imu, event_id)
-            x_acc = libcaer.caerIMU6EventGetAccelX(imu6)
-            y_acc = libcaer.caerIMU6EventGetAccelY(imu6)
-            z_acc = libcaer.caerIMU6EventGetAccelZ(imu6)
-            x_gyro = libcaer.caerIMU6EventGetGyroX(imu6)
-            y_gyro = libcaer.caerIMU6EventGetGyroY(imu6)
-            z_gyro = libcaer.caerIMU6EventGetGyroZ(imu6)
-
-            imu_acc.append([x_acc, y_acc, z_acc])
-            imu_gyro.append([x_gyro, y_gyro, z_gyro])
-            imu_ts.append(libcaer.caerIMU6EventGetTimestamp(imu6))
-            imu_temp.append(libcaer.caerIMU6EventGetTemp(imu6))
-
-        imu_acc = np.array(imu_acc, dtype=np.float32)
-        imu_gyro = np.array(imu_gyro, dtype=np.float32)
-        imu_ts = np.array(imu_ts, dtype=np.uint64)
-        imu_temp = np.array(imu_temp, dtype=np.float32)
-
-        return imu_acc, imu_gyro, imu_ts, imu_temp
 
     def get_event(self):
         """Get Event.
 
         Maybe not so efficient.
-        TODO fix the details
         """
         packet_container, packet_number = self.get_packet_container()
         if packet_container is not None:
-            pass
+            num_pol_event = 0
+            num_special_event = 0
+            num_imu_event = 0
+            pol_ts = None
+            pol_xy = None
+            pol_pol = None
+            special_ts = None
+            special_event_data = None
+            frames = []
+            frames_ts = []
+            imu_acc = None
+            imu_gyro = None
+            imu_ts = None
+            imu_temp = None
+            for packet_id in range(packet_number):
+                packet_header, packet_type = self.get_packet_header(
+                    packet_container, packet_id)
+                if packet_type == libcaer.POLARITY_EVENT:
+                    ts, xy, pol, num_events = self.get_polarity_event(
+                        packet_header)
+                    pol_ts = np.hstack((pol_ts, ts)) \
+                        if pol_ts is not None else ts
+                    pol_xy = np.hstack((pol_xy, xy)) \
+                        if pol_xy is not None else xy
+                    pol_pol = np.hstack((pol_pol, pol)) \
+                        if pol_pol is not None else pol
+                    num_pol_event += num_events
+                elif packet_type == libcaer.SPECIAL_EVENT:
+                    ts, event_data, num_events = self.get_special_event(
+                        packet_header)
+                    special_ts = np.hstack((special_ts, ts)) \
+                        if special_ts is not None else special_ts
+                    special_event_data = np.hstack(
+                        (special_event_data, event_data)) \
+                        if special_event_data is not None \
+                        else special_event_data
+                    num_special_event += num_events
+                elif packet_type == libcaer.FRAME_EVENT:
+                    frame_mat, frame_ts = self.get_frame_event(
+                        packet_header)
+                    frames.append(frame_mat)
+                    frames_ts.append(frame_ts)
+                elif packet_type == libcaer.IMU6_EVENT:
+                    ts, acc, gyro, temp, num_events = self.get_imu6_event(
+                        packet_header)
+                    imu_acc = np.hstack((imu_acc, acc)) \
+                        if imu_acc is not None else acc
+                    imu_gyro = np.hstack((imu_gyro, gyro)) \
+                        if imu_gyro is not None else gyro
+                    imu_ts = np.hstack((imu_ts, ts)) \
+                        if imu_ts is not None else ts
+                    imu_temp = np.hstack((imu_temp, temp)) \
+                        if imu_temp is not None else temp
+                    num_imu_event += num_events
+
+            # post processing with frames
+            frames = np.array(frames, dtype=np.uint8)
+            frames_ts = np.array(frames_ts, dtyep=np.uint64)
+
+            return (pol_ts, pol_xy, pol_pol, num_pol_event,
+                    special_ts, special_event_data, num_special_event,
+                    frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
+                    num_imu_event)
         else:
             return None

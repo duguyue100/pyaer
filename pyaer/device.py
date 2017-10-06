@@ -3,44 +3,26 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+import abc
 import numpy as np
 from pyaer import libcaer
 
 
 class USBDevice(object):
     """Base class for all USB devices."""
-    def __init__(self,
-                 device_type,
-                 device_id=1,
-                 bus_number_restrict=0,
-                 dev_address_restrict=0,
-                 serial_number=""):
-        """Device.
+    def __init__(self):
+        """Device."""
+        self.handle = None
 
-        Parameters
-        ----------
-        device_type : int
-            Device type
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
-        """
-        pass
+    @abc.abstractmethod
+    def obtain_device_info(self, handle):
+        """Obtain device handle."""
+        return
+
+    @abc.abstractmethod
+    def get_event(self):
+        """Get Event."""
+        return
 
     def open(self,
              device_type,
@@ -76,6 +58,8 @@ class USBDevice(object):
         self.handle = libcaer.caerDeviceOpen(
             device_id, device_type, bus_number_restrict,
             dev_address_restrict, serial_number)
+        if self.handle is None:
+            raise ValueError("The device is failed to open.")
 
     def close(self):
         """Close USB device."""
@@ -270,6 +254,8 @@ class USBDevice(object):
         frame_ts : int
             the frame timestamp
         """
+        # TODO check data type
+        # TODO is there only one frame?
         frame = libcaer.caerFrameEventPacketFromPacketHeader(
             packet_header)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
@@ -315,4 +301,4 @@ class USBDevice(object):
         imu_ts = np.array(imu_ts, dtype=np.uint64)
         imu_temp = np.array(imu_temp, dtype=np.float32)
 
-        return imu_acc, imu_gyro, imu_ts, imu_temp
+        return imu_ts, imu_acc, imu_gyro, imu_temp, num_events
