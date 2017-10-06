@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Turn it to true if you are building the repository for the first time
+# Turn it to true if you are not building the repository for the first time
 REBUILDING=false
 
 # defien python version (experimental)

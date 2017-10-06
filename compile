@@ -201,7 +201,6 @@ clean_swigpy()
 clean_libcaer()
 {
     echo -e "${BLUE}[MESSAGE] Cleaning libcaer installation.${COLOR_END}"
-    rm -rf $PWD/libcaer/compiled
     rm -rf $PWD/libcaer/build
     echo -e "${BLUE}[MESSAGE] libcaer files removed.${COLOR_END}"
 }
