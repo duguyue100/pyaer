@@ -38,4 +38,4 @@ while True:
     print ("Number of events:", num_pol_event, "Number of special events:",
            num_special_event)
 
-#  device.close()
+device.close()
