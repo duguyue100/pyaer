@@ -5,9 +5,10 @@ Email : duguyue100@gmail.com
 """
 import numpy as np
 from pyaer import libcaer
+from pyaer.device import Device
 
 
-class DVS128(object):
+class DVS128(Device):
     """Central class for managing single DVS128 device."""
     def __init__(self,
                  device_id=1,
