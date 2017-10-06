@@ -200,7 +200,7 @@ class USBDevice(object):
             pol.append(libcaer.caerPolarityEventGetPolarity(event))
 
         # change to numpy array
-        ts = np.array(ts, dtype=np.uint64)
+        ts = np.array(ts, dtype=np.int32)
         xy = np.array([x, y], dtype=np.uint8)
         pol = np.array(pol, dtype=np.bool)
 
@@ -234,7 +234,7 @@ class USBDevice(object):
             event_data.append(libcaer.caerSpecialEventGetData(event))
 
         # change to numpy array
-        ts = np.array(ts, dtype=np.uint64)
+        ts = np.array(ts, dtype=np.int32)
         event_data = np.array(event_data, dtype=np.bool)
 
         return ts, event_data, num_events
@@ -298,7 +298,38 @@ class USBDevice(object):
 
         imu_acc = np.array(imu_acc, dtype=np.float32)
         imu_gyro = np.array(imu_gyro, dtype=np.float32)
-        imu_ts = np.array(imu_ts, dtype=np.uint64)
+        imu_ts = np.array(imu_ts, dtype=np.int32)
         imu_temp = np.array(imu_temp, dtype=np.float32)
 
         return imu_ts, imu_acc, imu_gyro, imu_temp, num_events
+
+    def get_spike_event(self, packet_header):
+        """Get Spike Event.
+
+        Parameters
+        ----------
+        packet_header : caerEventPacketHeader
+            the header that represents a event packet
+        """
+        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
+            packet_header)
+        neuron_id = []
+        core_id = []
+        chip_id = []
+        ts = []
+        for event_id in range(num_events):
+            spike = libcaer.caerSpikeEventPacketFromPacketHeader(
+                packet_header)
+            event = libcaer.caerSpikeEventPacketGetEvent(
+                spike, event_id)
+            neuron_id.append(libcaer.caerSpikeEventGetNeuronID(event))
+            core_id.append(libcaer.caerSpikeEventGetSourceCoreID(event))
+            chip_id.append(libcaer.caerSpikeEventGetChipID(event))
+            ts.append(libcaer.caerSpikeEventGetTimestamp(event))
+
+        ts = np.array(ts, dtype=np.int32)
+        neuron_id = np.array(neuron_id, dtype=np.uint32)
+        core_id = np.array(core_id, dtype=np.uint8)
+        chip_id = np.array(chip_id, dtype=np.uint8)
+
+        return ts, neuron_id, core_id, chip_id, num_events
