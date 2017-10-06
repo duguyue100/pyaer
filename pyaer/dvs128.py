@@ -5,10 +5,10 @@ Email : duguyue100@gmail.com
 """
 import numpy as np
 from pyaer import libcaer
-from pyaer.device import Device
+from pyaer.device import USBDevice
 
 
-class DVS128(Device):
+class DVS128(USBDevice):
     """Central class for managing single DVS128 device."""
     def __init__(self,
                  device_id=1,
@@ -61,49 +61,6 @@ class DVS128(Device):
         self.dvs_size_Y = info.dvsSizeY
         self.logic_version = info.logicVersion
 
-    def send_default_config(self):
-        """Send default bias configuration."""
-        if self.handle is not None:
-            send_success = libcaer.caerDeviceSendDefaultConfig(self.handle)
-            return send_success
-        else:
-            return False
-
-    def set_config(self, mod_addr, param_addr, param):
-        """Set configuration."""
-        if self.handle is not None:
-            set_success = libcaer.caerDeviceConfigSet(
-                self.handle, mod_addr, param_addr, param)
-            return set_success
-        else:
-            return False
-
-    def get_config(self, mod_addr, param_addr):
-        """Get Configuration."""
-        # TODO test configure get function
-        pass
-
-    def set_data_exchange_blocking(self):
-        """Set data exchange blocking."""
-        return self.set_config(
-            libcaer.CAER_HOST_CONFIG_DATAEXCHANGE,
-            libcaer.CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING,
-            True)
-
-    def data_start(self):
-        """Start data transmission."""
-        # TODO figure out the parameter meaning
-        if self.handle is not None:
-            data_start_success = libcaer.caerDeviceDataStart(
-                self.handle, None, None, None, None, None)
-            return data_start_success
-        else:
-            return False
-
-    def data_stop(self):
-        """Stop data transmission."""
-        libcaer.caerDeviceDataStop(self.handle)
-
     def open(self,
              device_id=1,
              bus_number_restrict=0,
@@ -136,138 +93,6 @@ class DVS128(Device):
             device_id, libcaer.CAER_DEVICE_DVS128,
             bus_number_restrict, dev_address_restrict,
             serial_number)
-
-    def close(self):
-        """Close device.
-
-        Cannot use
-        """
-        if self.handle is not None:
-            libcaer.caerDeviceClose(self.handle)
-
-    def shutdown(self):
-        """Shutdown device."""
-        self.data_stop()
-        self.close()
-
-    def get_packet_container(self):
-        """Get event packet container.
-
-        Returns
-        -------
-        packet_container : caerEventPacketContainer
-            a container that consists of event packets
-        packet_number : int
-            number of event packet in the container
-        """
-        packet_container = libcaer.caerDeviceDataGet(self.handle)
-        if packet_container is not None:
-            packet_number = \
-                libcaer.caerEventPacketContainerGetEventPacketsNumber(
-                    packet_container)
-            return packet_container, packet_number
-        else:
-            return None, None
-
-    def get_packet_header(self, packet_container, idx):
-        """Get a single packet header.
-
-        Parameters
-        ----------
-        packet_container : caerEventPacketContainer
-            the event packet container
-        idx : int
-            the index of the packet header
-
-        Returns
-        -------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-        packet_type : caerEventPacketType
-            the type of the event packet
-        """
-        packet_header = \
-            libcaer.caerEventPacketContainerGetEventPacket(
-                packet_container, idx)
-        if packet_header is None:
-            return (None, None)
-        else:
-            packet_type = libcaer.caerEventPacketHeaderGetEventType(
-                packet_header)
-            return packet_header, packet_type
-
-    def get_polarity_event(self, packet_header):
-        """Get a packet of polarity event.
-
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-
-        Returns
-        -------
-        ts : numpy.ndarray
-            list of time stamp
-        xy : numpy.ndarray
-            list of x, y coordinate
-        pol : numpy.ndarray
-            list of polarity
-        """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        ts = []
-        x = []
-        y = []
-        pol = []
-        for event_id in range(num_events):
-            polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
-                packet_header)
-            event = libcaer.caerPolarityEventPacketGetEvent(
-                polarity, event_id)
-            ts.append(libcaer.caerPolarityEventGetTimestamp(event))
-            x.append(libcaer.caerPolarityEventGetX(event))
-            y.append(libcaer.caerPolarityEventGetY(event))
-            pol.append(libcaer.caerPolarityEventGetPolarity(event))
-
-        # change to numpy array
-        ts = np.array(ts, dtype=np.uint64)
-        xy = np.array([x, y], dtype=np.uint8)
-        pol = np.array(pol, dtype=np.bool)
-
-        return ts, xy, pol, num_events
-
-    def get_special_event(self, packet_header):
-        """Get a packet of special event.
-
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-
-        Returns
-        -------
-        ts : numpy.ndarray
-            list of time stamp
-        event_data : numpy.ndarray
-            list of event data
-        """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        ts = []
-        event_data = []
-        for event_id in range(num_events):
-            polarity = libcaer.caerSpecialEventPacketFromPacketHeader(
-                packet_header)
-            event = libcaer.caerPolarityEventPacketGetEvent(
-                polarity, event_id)
-            ts.append(libcaer.caerSpecialEventGetTimestamp(event))
-            event_data.append(libcaer.caerSpecialEventGetData(event))
-
-        # change to numpy array
-        ts = np.array(ts, dtype=np.uint64)
-        event_data = np.array(event_data, dtype=np.bool)
-
-        return ts, event_data, num_events
 
     def get_event(self):
         """Get event.
