@@ -46,7 +46,8 @@ class DVS128(object):
         self.obtain_device_info(self.handle)
 
     def obtain_device_info(self, handle):
-        info = libcaer.caerDVS128InfoGet(self.handle)
+        """Obtain DVS128 info."""
+        info = libcaer.caerDVS128InfoGet(handle)
 
         # port all info data field out
         self.device_id = info.deviceID
@@ -140,7 +141,8 @@ class DVS128(object):
 
         Cannot use
         """
-        libcaer.caerDeviceClose(self.handle)
+        if self.handle is not None:
+            libcaer.caerDeviceClose(self.handle)
 
     def shutdown(self):
         """Shutdown device."""
@@ -158,10 +160,13 @@ class DVS128(object):
             number of event packet in the container
         """
         packet_container = libcaer.caerDeviceDataGet(self.handle)
-        packet_number = \
-            libcaer.caerEventPacketContainerGetEventPacketsNumber(
-                packet_container)
-        return packet_container, packet_number
+        if packet_container is not None:
+            packet_number = \
+                libcaer.caerEventPacketContainerGetEventPacketsNumber(
+                    packet_container)
+            return packet_container, packet_number
+        else:
+            return None, None
 
     def get_packet_header(self, packet_container, idx):
         """Get a single packet header.
