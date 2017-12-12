@@ -128,7 +128,11 @@ compile_swigpy()
             echo -e "${BLUE}[MESSAGE] Your swig installation should be compile with python 3 library${COLOR_END}"
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python3) -I$(pkg-config --variable=includedir libcaer)
         fi
-        ld -L $(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+        if [ "$(uname)" == "Darwin" ]; then
+            ld -L $(pkg-config --variable=libdir libcaer) -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+            ld -L $(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+        fi
 
         # configure path
         if [ $LIBCAER_INSTALLED == false ]; then
