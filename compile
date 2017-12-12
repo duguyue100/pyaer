@@ -123,13 +123,18 @@ compile_swigpy()
         swig -python -I$(pkg-config --variable=includedir libcaer) -cpperraswarn pyflags.i
         if [ $PYTHON_VERSION == 2 ]; then
             echo -e "${BLUE}[MESSAGE] Your swig installation should be compile with python 2 library${COLOR_END}"
-            gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
+            if [ "$(uname)" == "Darwin" ]; then
+                gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer) -v
+                # clang -lstdc++ -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer) -v
+            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+                gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
+            fi
         elif [ $PYTHON_VERSION == 3]; then
             echo -e "${BLUE}[MESSAGE] Your swig installation should be compile with python 3 library${COLOR_END}"
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python3) -I$(pkg-config --variable=includedir libcaer)
         fi
         if [ "$(uname)" == "Darwin" ]; then
-            ld -L $(pkg-config --variable=libdir libcaer) -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+            ld -macosx_version_min 10.10.0 -L $(pkg-config --variable=libdir libcaer) -lcaer pyflags_wrap.o -o _libcaer_wrap.so
         elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
             ld -L $(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
         fi
@@ -226,7 +231,7 @@ clean_install()
     echo -e "${BLUE}[MESSAGE] Installation removed.${COLOR_END}"
 }
 
-if [ $fn == "help" ]; then
+if [ "$fn" == "help" ]; then
     print_help
     exit 1
 fi
