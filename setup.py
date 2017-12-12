@@ -28,7 +28,7 @@ except ImportError:
     exec(open("pyaer/__about__.py").read(), about)
 
 setup(
-    name='pyaer',
+    name="pyaer",
     version=about["__version__"],
 
     author=about["__author__"],
@@ -37,7 +37,8 @@ setup(
     url=about["__url__"],
 
     packages=find_packages(),
+    package_data={"pyaer": ["_libcaer_wrap.so"]},
 
-    classifiers=list(filter(None, classifiers.split('\n'))),
+    classifiers=list(filter(None, classifiers.split("\n"))),
     description="PyAER: Python bindings for Neuromorphic devices."
 )

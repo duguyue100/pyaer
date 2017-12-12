@@ -20,4 +20,7 @@ test:
 dvs128-test:
 	PYTHONPATH=$(PYTHONPATH) python ./pyaer/scripts/dvs128_test.py
 
+install:
+	python setup.py install
+
 cleanall:
