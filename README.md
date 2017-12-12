@@ -7,9 +7,6 @@ Special thanks to [iniLabs](http://inilabs.com/) to make this possible.
 + Supported platform: `Ubuntu`
 + Supported Python: 2.7
 
-__WARNING: This project needs bleeding-edge SWIG and a custom fix.
-If you are still interested, pleast contact us.__
-
 ## Design Principle
 
 + Minimum installation effort
