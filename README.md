@@ -101,7 +101,8 @@ $ ./compile clean
 ## Yeah, you need SWIG
 
 This repository uses SWIG to create Python bindings. And you will need to
-compile the latest SWIG from source.
+compile the latest SWIG from source. The reason is because current SWIG
+cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
 
 1. Install compilation dependency
 
@@ -115,21 +116,25 @@ _There might be other dependencies for compiling SWIG_
 2. Compile SIWG
 
 ```
-$ git clone https://github.com/swig/swig
+$ git clone https://github.com/duguyue100/swig
 $ cd swig
 $ ./autogen.sh
 $ ./configure
 $ make
-$ make install
+$ sudo make install
 ```
 
-For compiling SWIG with Anaconda
+For compiling SWIG with Python
 
 ```
-$ ./configure --with-python=/path/to/python/executable --without-python3
+$ ./configure --with-python=${command -v python} --without-python3
 ```
 
 The above is an example with Python 2, you can configure for Python 3 as well
+
+```
+$ ./configure --with-python=${command -v python} --without-python2
+```
 
 __Note:__ If you are not compile the SWIG with system Python distribution,
 it won't link to the custom Python automatically.
@@ -141,9 +146,6 @@ e.g.
 ```
 LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
 ```
-
-__NOTE:__ If you get errors in compilation, please contact for a patch.
-It's a known issue that `swig` doesn't recognize `//` as comment.
 
 ## Got a Linux?
 

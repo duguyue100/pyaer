@@ -5,17 +5,17 @@ Email : yuhuang.hu@uzh.ch
 """
 
 from setuptools import setup
+from setuptools import find_packages
 
 classifiers = """
-Development Status :: 4 - Beta
+Development Status :: 3 - Alpha
 Intended Audience :: Science/Research
 Natural Language :: English
 Operating System :: OS Independent
 Programming Language :: Python :: 2.7
 Topic :: Utilities
 Topic :: Scientific/Engineering
-Topic :: Scientific/Engineering :: Image Recognition
-Topic :: Scientific/Engineering :: Visualization
+Topic :: Scientific/Engineering :: Neuromorphic Engineering
 Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
@@ -36,7 +36,7 @@ setup(
 
     url=about["__url__"],
 
-    packages=["pyaer"],
+    packages=find_packages(),
 
     classifiers=list(filter(None, classifiers.split('\n'))),
     description="PyAER: Python bindings for Neuromorphic devices."

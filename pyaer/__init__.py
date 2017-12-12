@@ -3,7 +3,7 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import os
 
 FILE_PATH = os.path.realpath(__file__)
