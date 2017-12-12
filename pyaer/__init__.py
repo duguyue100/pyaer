@@ -14,6 +14,6 @@ LIBCAER_INCLUDE_PATH = os.path.join(PKG_PATH, "include")
 LIBCAER_LIB_PATH = os.path.join(PKG_PATH, "lib")
 
 try:
-    import libcaer_wrap as libcaer
+    from pyaer import libcaer_wrap as libcaer
 except ImportError:
     raise ImportError("libcaer is not in the LD_LIBRARAY_PATH")
