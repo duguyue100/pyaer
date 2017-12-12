@@ -1,4 +1,4 @@
-# PyAER-beta
+# PyAER
 
 PyAER with Swig Bindings
 
