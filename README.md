@@ -124,13 +124,13 @@ $ sudo make install
 For compiling SWIG with Python
 
 ```
-$ ./configure --with-python=${command -v python} --without-python3
+$ ./configure --with-python=$(command -v python) --without-python3
 ```
 
 The above is an example with Python 2, you can configure for Python 3 as well
 
 ```
-$ ./configure --with-python=${command -v python} --without-python2
+$ ./configure --with-python=$(command -v python) --without-python2
 ```
 
 __Note:__ If you are not compile the SWIG with system Python distribution,

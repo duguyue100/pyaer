@@ -114,7 +114,7 @@ compile_swigpy()
         # summary information
         echo -e "${LIGHT_BLUE}[MESSAGE] libcaer include directory: "$(pkg-config --variable=includedir libcaer)${COLOR_END}
         echo -e "${LIGHT_BLUE}[MESSAGE] libcaer library directory: "$(pkg-config --variable=libdir libcaer)${COLOR_END}
-        echo -e "${LIGHT_BLUE}[MESSAGE] LD_LIBRARY_PATH          : "$(LD_LIBRARY_PATH)${COLOR_END}
+        echo -e "${LIGHT_BLUE}[MESSAGE] LD_LIBRARY_PATH          : "$LD_LIBRARY_PATH ${COLOR_END}
 
         # compile swig interface
         mkdir swigpy
@@ -128,7 +128,7 @@ compile_swigpy()
             echo -e "${BLUE}[MESSAGE] Your swig installation should be compile with python 3 library${COLOR_END}"
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python3) -I$(pkg-config --variable=includedir libcaer)
         fi
-        ld --library-path=$(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+        ld -L $(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
 
         # configure path
         if [ $LIBCAER_INSTALLED == false ]; then
@@ -162,7 +162,7 @@ compile_swigpy()
 
         echo -e "${LIGHT_BLUE}[MESSAGE] libcaer include directory: "$(pkg-config --variable=includedir libcaer)${COLOR_END}
         echo -e "${LIGHT_BLUE}[MESSAGE] libcaer library directory: "$(pkg-config --variable=libdir libcaer)${COLOR_END}
-        echo -e "${LIGHT_BLUE}[MESSAGE] LD_LIBRARY_PATH          : "$(LD_LIBRARY_PATH)${COLOR_END}
+        echo -e "${LIGHT_BLUE}[MESSAGE] LD_LIBRARY_PATH          : "$LD_LIBRARY_PATH ${COLOR_END}
     fi
 }
 
