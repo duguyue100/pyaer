@@ -53,6 +53,9 @@ setup(
 
     url=about["__url__"],
 
+    install_requires=["numpy",
+                      "future"],
+
     packages=find_packages(),
     package_data={"pyaer": ["_libcaer_wrap.so"]},
 
