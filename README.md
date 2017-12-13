@@ -34,7 +34,7 @@ $ make
 
 __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
-2. Directly install from pip
+2. Directly install from pip (RECOMMEND)
 
 ```bash
 #  for python 2.7
