@@ -1,5 +1,7 @@
 # PyAER
 
+[![Build Status](https://api.travis-ci.org/duguyue100/pyaer.svg?branch=master)](https://travis-ci.org/duguyue100/pyaer)
+
 PyAER with Swig Bindings
 
 Special thanks to [iniLabs](http://inilabs.com/) to make this possible.

@@ -49,9 +49,10 @@ before_install:
     - cd swig
     - ./autogen.sh
     - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        ./configure --with-python=$(command -v python) --without-python3
+        ./configure --with-python=$(command -v python) --without-python3;
       else
-        ./configure --with-python=$(command -v python) --without-python2
+        ./configure --with-python=$(command -v python) --without-python2;
+      fi
     - make
     - sudo make install
 
