@@ -25,6 +25,9 @@ before_install:
     - conda update --yes conda
     - conda install --yes pip
     - sudo apt-get -qq update
+    - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
+    - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
+    - gcc --version
     - sudo apt-get install build-essential -y
     - sudo apt-get install libusb-1.0-0-dev -y
     - sudo apt-get install automake -y
