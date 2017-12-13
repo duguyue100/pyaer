@@ -77,7 +77,11 @@ before_install:
       fi
     - git clone https://github.com/inilabs/libcaer
     - cd libcaer
-    - cmake -DCMAKE_INSTALL_PREFIX=/usr .
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        cmake -DCMAKE_INSTALL_PREFIX=/usr .;
+      else
+        cmake -DCMAKE_INSTALL_PREFIX=/usr/local .;
+      fi
     - make
     - sudo make install
     - cd ..
