@@ -34,26 +34,23 @@ $ make
 
 __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
-2. (The Easy Way) Install from pip
+2. Directly install from pip
 
 ```bash
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp27-cp27mu-linux_x86_64.whl  # for python 2.7
+#  for python 2.7
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp27-cp27mu-linux_x86_64.whl
 ```
 
-```
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp36-cp36m-linux_x86_64.whl  # for python 3.6
+``` bash
+#  for python 3.6
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp36-cp36m-linux_x86_64.whl
 ```
 
-3. (The Hard Way) Download this repo
+3. Install from source
 
 ```
 $ git clone https://github.com/duguyue100/pyaer-beta.git
-```
-
-4. Install from `make`
-
-```
-make install
+$ make install
 ```
 
 ## Got a Linux?
@@ -84,6 +81,9 @@ $ udevadm control --reload
 Unplug and replug the camera, you should be fine.
 
 ## Yeah, you need SWIG
+
+__You only need to read this section if you are planning to compile
+`pyaer` from source.__
 
 This repository uses SWIG to create Python bindings. And you will need to
 compile the latest SWIG from source. The reason is because current SWIG
