@@ -1,0 +1,60 @@
+sudo: required
+cache:
+  directories:
+    - $HOME/download
+    - $HOME/.cache/pip
+
+language: python
+python:
+    - "2.7"
+    - "3.6"
+
+before_install:
+    - mkdir -p download
+    - cd download
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+        wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+      else
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      fi
+    - chmod +x miniconda.sh
+    - ./miniconda.sh -b -p $HOME/miniconda
+    - cd ..
+    - export PATH=/home/travis/miniconda/bin:$PATH
+    - conda info -a
+    - conda update --yes conda
+    - conda install --yes pip
+    - sudo apt-get -qq update
+    - sudo apt-get install build-essential -y
+    - sudo apt-get install libusb-1.0-0-dev -y
+    - sudo apt-get install automake -y
+    - sudo apt-get install bison -y
+    - git clone https://github.com/inilabs/libcaer
+    - cd libcaer
+    - cmake -DCMAKE_INSTALL_PREFIX=/usr .
+    - make
+    - sudo make install
+    - git clone https://github.com/duguyue100/swig
+    - cd swig
+    - ./autogen.sh
+    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+        ./configure --with-python=$(command -v python) --without-python3
+      else
+        ./configure --with-python=$(command -v python) --without-python2
+    - make
+    - sudo make install
+
+install:
+    - pip install numpy
+    - pip install future
+    - conda list
+
+script:
+    - make build-wheel
+
+branches:
+  only:
+    - master
+
+notifications:
+  email: false
