@@ -79,8 +79,8 @@ script:
     - python -c 'import pyaer; print(dir(pyaer))'
 
 branches:
-  only:
-    - master
+  except:
+    - refactor-compiling
 
 notifications:
   email: false
