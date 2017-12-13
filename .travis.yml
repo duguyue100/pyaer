@@ -9,6 +9,14 @@ python:
     - "2.7"
     - "3.6"
 
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-5
+    - g++-5
+
 before_install:
     - mkdir -p download
     - cd download
