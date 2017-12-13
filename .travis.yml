@@ -49,10 +49,9 @@ before_install:
     - conda update --yes conda
     - conda install --yes pip
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        sudo -E apt-add-repository -y "ppa:ubuntu-toolchain-r/test";
-        sudo -E apt-get -yq update &>> ~/apt-get-update.log;
-        sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install gcc-5 g++-5;
+        sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test";
         sudo apt-get -qq update;
+        sudo apt-get -yq --no-install-suggests --no-install-recommends --force-yes install gcc-5 g++-5;
         sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc;
         sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++;
         gcc --version;
