@@ -21,6 +21,9 @@ dvs128-test:
 	PYTHONPATH=$(PYTHONPATH) python ./pyaer/scripts/dvs128_test.py
 
 install:
-	python setup.py install
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(HOME)/anaconda2/lib python setup.py install
+
+build-pyaer:
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(HOME)/anaconda2/lib python setup.py build
 
 cleanall:
