@@ -1,17 +1,30 @@
-sudo: required
 cache:
   directories:
     - $HOME/download
     - $HOME/.cache/pip
 
-os:
-    - linux
-    - osx
-
 language: python
-python:
-    - "2.7"
-    - "3.6"
+
+matrix:
+    include:
+        - os: linux
+          sudo: required
+          python: 2.7
+          env: TOXENV=py27
+        - os: linux
+          sudo: required
+          python: 36
+          env: TOXENV=py36
+        - os: osx
+          sudo: required
+          language: generic
+          env: TOXENV=py27
+        - os: osx
+          sudo: required
+          language: generic
+          env: TOXENV=py36
+
+
 
 deploy:
   provider: releases
