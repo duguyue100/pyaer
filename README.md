@@ -19,13 +19,6 @@ Special thanks to [iniLabs](http://inilabs.com/) to make this possible.
 + Let's not do Windows for this moment
 + Let's not do Mac for this moment
 
-## TODO
-
-+ [ ] Intermediate level API for accessing camera
-+ [ ] Support Python 3
-+ [ ] Testing compilation script
-+ [ ] Can we provide pre-built binaries?
-
 ## Installation
 
 1. Install `libcaer` dependency
@@ -41,17 +34,54 @@ $ make
 
 __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
-2. Download this repo
+2. (The Easy Way) Install from pip
+
+```bash
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp27-cp27mu-linux_x86_64.whl  # for python 2.7
+```
+
+```
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp36-cp36m-linux_x86_64.whl  # for python 3.6
+```
+
+3. (The Hard Way) Download this repo
 
 ```
 $ git clone https://github.com/duguyue100/pyaer-beta.git
 ```
 
-3. Install from `make`
+4. Install from `make`
 
 ```
 make install
 ```
+
+## Got a Linux?
+
+`libcaer` relies on `libusb` based driver, you won't be able
+to access the camera unless fix the `udev` rules. Refer details
+from [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px)
+
+```
+$ sudo touch /etc/udev/rules.d/65-inilabs.rules
+```
+
+Append following contents in the file with `sudo`
+
+```
+# All DVS/DAVIS systems
+SUBSYSTEM=="usb", ATTR{idVendor}=="152a", ATTR{idProduct}=="84[0-1]?", MODE="0666"
+# eDVS 4337
+SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", MODE="0666"
+```
+
+Updating rules
+
+```
+$ udevadm control --reload
+```
+
+Unplug and replug the camera, you should be fine.
 
 ## Yeah, you need SWIG
 
@@ -101,33 +131,6 @@ e.g.
 ```
 LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
 ```
-
-## Got a Linux?
-
-`libcaer` relies on `libusb` based driver, you won't be able
-to access the camera unless fix the `udev` rules. Refer details
-from [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px)
-
-```
-$ sudo touch /etc/udev/rules.d/65-inilabs.rules
-```
-
-Append following contents in the file with `sudo`
-
-```
-# All DVS/DAVIS systems
-SUBSYSTEM=="usb", ATTR{idVendor}=="152a", ATTR{idProduct}=="84[0-1]?", MODE="0666"
-# eDVS 4337
-SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", MODE="0666"
-```
-
-Updating rules
-
-```
-$ udevadm control --reload
-```
-
-Unplug and replug the camera, you should be fine.
 
 ## Contacts
 
