@@ -57,7 +57,6 @@ setup(
                       "future"],
 
     packages=find_packages(),
-    package_data={"pyaer": ["_libcaer_wrap.so"]},
 
     ext_modules=[libcaer_wrap],
 

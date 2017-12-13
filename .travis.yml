@@ -75,6 +75,7 @@ install:
 
 script:
     - make build-wheel
+    - make build-wheel
     - make install
     - python -c 'import pyaer; print(dir(pyaer))'
 
