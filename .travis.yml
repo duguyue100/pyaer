@@ -17,6 +17,15 @@ addons:
     - gcc-5
     - g++-5
 
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN 
+  file_glob: true
+  file: dist/*.whl
+  skip_cleanup: true
+  on:
+    tags: true
+
 before_install:
     - mkdir -p download
     - cd download
