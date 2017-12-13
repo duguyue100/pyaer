@@ -45,6 +45,7 @@ before_install:
     - cmake -DCMAKE_INSTALL_PREFIX=/usr .
     - make
     - sudo make install
+    - cd ..
     - git clone https://github.com/duguyue100/swig
     - cd swig
     - ./autogen.sh
@@ -55,6 +56,7 @@ before_install:
       fi
     - make
     - sudo make install
+    - cd ..
 
 install:
     - pip install numpy
@@ -62,6 +64,7 @@ install:
     - conda list
 
 script:
+    - cd duguyue100/pyaer
     - make build-wheel
 
 branches:
