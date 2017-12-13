@@ -124,8 +124,9 @@ compile_swigpy()
         if [ $PYTHON_VERSION == 2 ]; then
             echo -e "${BLUE}[MESSAGE] Your swig installation should be compile with python 2 library${COLOR_END}"
             if [ "$(uname)" == "Darwin" ]; then
-                gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer) -v
-                # clang -lstdc++ -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer) -v
+                # gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer) -v
+                clang -O2 -fPIC -c pyflags_wrap.c -I$HOME/anaconda/include/python2.7 -I$(pkg-config --variable=includedir libcaer)
+                # cc -stdlib=libstdc++ -lstdc++ -arch x86_64 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer) -v
             elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
                 gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python2) -I$(pkg-config --variable=includedir libcaer)
             fi
@@ -134,7 +135,8 @@ compile_swigpy()
             gcc -std=c11 -O2 -fPIC -c pyflags_wrap.c $(pkg-config --cflags python3) -I$(pkg-config --variable=includedir libcaer)
         fi
         if [ "$(uname)" == "Darwin" ]; then
-            ld -macosx_version_min 10.10.0 -L $(pkg-config --variable=libdir libcaer) -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+            # ld -macosx_version_min 10.10.0 -L $(pkg-config --variable=libdir libcaer) -lcaer pyflags_wrap.o -o _libcaer_wrap.so
+            clang pyflags_wrap.o -L$(pkg-config --variable=libdir libcaer) -lpython -lcaer -o _libcaer_wrap.so
         elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
             ld -L $(pkg-config --variable=libdir libcaer) -shared -lcaer pyflags_wrap.o -o _libcaer_wrap.so
         fi
