@@ -61,11 +61,13 @@ before_install:
 install:
     - pip install numpy
     - pip install future
+    - pip install wheel
     - conda list
 
 script:
-    - cd duguyue100/pyaer
     - make build-wheel
+    - make install
+    - python -c 'import pyaer; print(dir(pyaer))'
 
 branches:
   only:
