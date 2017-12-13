@@ -10,6 +10,7 @@ from setuptools import find_packages
 from distutils.core import Extension
 
 from sysconfig import get_paths
+from sys import platform
 
 classifiers = """
 Development Status :: 3 - Alpha
@@ -33,14 +34,21 @@ except ImportError:
 
 python_paths = get_paths()
 
+if platform in ["linux", "linux2"]:
+    libcaer_include = "/usr/include"
+    libcaer_lib = "/usr/lib"
+elif platform == "darwin":
+    libcaer_include = "/usr/local/include"
+    libcaer_lib = "/usr/local/lib"
+
 libcaer_wrap = Extension(
     name="_libcaer_wrap",
     sources=["./pyaer/pyflags.i"],
-    include_dirs=["/usr/include",
+    include_dirs=[libcaer_include,
                   python_paths["include"]],
-    library_dirs=["/usr/lib",
+    library_dirs=[libcaer_lib,
                   python_paths["stdlib"]],
-    swig_opts=["-I/usr/include"],
+    swig_opts=["-I"+libcaer_include],
     extra_compile_args=["-std=c11"],
     extra_link_args=["-lcaer"])
 
