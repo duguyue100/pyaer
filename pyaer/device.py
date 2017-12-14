@@ -139,7 +139,8 @@ class USBDevice(object):
         else:
             return None, None
 
-    def get_packet_header(self, packet_container, idx):
+    @staticmethod
+    def get_packet_header(packet_container, idx):
         """Get a single packet header.
 
         Parameters
@@ -166,7 +167,8 @@ class USBDevice(object):
                 packet_header)
             return packet_header, packet_type
 
-    def get_polarity_event(self, packet_header):
+    @staticmethod
+    def get_polarity_event(packet_header):
         """Get a packet of polarity event.
 
         Parameters
@@ -206,7 +208,8 @@ class USBDevice(object):
 
         return ts, xy, pol, num_events
 
-    def get_special_event(self, packet_header):
+    @staticmethod
+    def get_special_event(packet_header):
         """Get a packet of special event.
 
         Parameters
@@ -267,7 +270,8 @@ class USBDevice(object):
                     first_event, x, y)
         return frame_mat, frame_ts
 
-    def get_imu6_event(self, packet_header):
+    @staticmethod
+    def get_imu6_event(packet_header):
         """Get IMU5 event.
 
         Parameters
@@ -303,7 +307,8 @@ class USBDevice(object):
 
         return imu_ts, imu_acc, imu_gyro, imu_temp, num_events
 
-    def get_spike_event(self, packet_header):
+    @staticmethod
+    def get_spike_event(packet_header):
         """Get Spike Event.
 
         Parameters
