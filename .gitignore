@@ -2,6 +2,7 @@ swigpy/
 libcaer_wrap.py
 compile.conf
 pyflags_wrap.c
+*.lprof
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
