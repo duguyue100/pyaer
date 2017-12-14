@@ -35,7 +35,7 @@ before_install:
     - mkdir -p download
     - cd download
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        rvm get stable;
+        rvm get head;
         brew install wget;
       fi
     - if [[ "$TOXENV" == "py27" ]]; then
