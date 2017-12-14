@@ -12,8 +12,6 @@ from distutils.core import Extension
 from sysconfig import get_paths
 from sys import platform
 
-from pyaer import __about__
-
 classifiers = """
 Development Status :: 3 - Alpha
 Intended Audience :: Science/Research
@@ -27,7 +25,10 @@ Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-about = __about__.__dict__
+__version__ = "0.1.0a9"
+__author__ = "Yuhuang Hu"
+__author_email__ = "duguyue100@gmail.com"
+__url__ = "https://github.com/duguyue100/pyaer"
 
 python_paths = get_paths()
 
@@ -51,12 +52,12 @@ libcaer_wrap = Extension(
 
 setup(
     name="pyaer",
-    version=about["__version__"],
+    version=__version__,
 
-    author=about["__author__"],
-    author_email=about["__author_email__"],
+    author=__author__,
+    author_email=__author_email__,
 
-    url=about["__url__"],
+    url=__url__,
 
     install_requires=["numpy",
                       "future"],
