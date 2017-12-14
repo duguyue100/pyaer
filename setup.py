@@ -3,7 +3,7 @@
 Author: Yuhuang Hu
 Email : yuhuang.hu@uzh.ch
 """
-
+from __future__ import print_function, absolute_import
 from setuptools import setup
 from setuptools import find_packages
 
@@ -11,6 +11,8 @@ from distutils.core import Extension
 
 from sysconfig import get_paths
 from sys import platform
+
+from pyaer import __about__
 
 classifiers = """
 Development Status :: 3 - Alpha
@@ -25,12 +27,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-try:
-    from pyaer import __about__
-    about = __about__.__dict__
-except ImportError:
-    about = dict()
-    exec(open("pyaer/__about__.py").read(), about)
+about = __about__.__dict__
 
 python_paths = get_paths()
 
