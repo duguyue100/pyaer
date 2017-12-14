@@ -30,10 +30,19 @@ packet_container, packet_number = device.get_packet_container()
 print (type(packet_container))
 print (packet_number)
 
-while True:
+
+def get_event(device):
     (pol_ts, pol_xy, pol_pol, num_pol_event,
      special_ts, special_event_data, num_special_event) = \
         device.get_event()
+    return (pol_ts, pol_xy, pol_pol, num_pol_event,
+            special_ts, special_event_data, num_special_event)
+
+
+while True:
+    (pol_ts, pol_xy, pol_pol, num_pol_event,
+     special_ts, special_event_data, num_special_event) = \
+        get_event(device)
 
     print ("Number of events:", num_pol_event, "Number of special events:",
            num_special_event)
