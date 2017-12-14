@@ -4,10 +4,10 @@
 
 PyAER with Swig Bindings
 
-Special thanks to [iniLabs](http://inilabs.com/) to make this possible.
+Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
 
-+ Supported platform: `Ubuntu`
-+ Supported Python: 2.7
++ Supported platform: `Ubuntu`, `macOS`
++ Supported Python: 2.7, 3.6
 
 ## Design Principle
 
@@ -16,18 +16,17 @@ Special thanks to [iniLabs](http://inilabs.com/) to make this possible.
 + Keep Python 2 and 3 in mind, however prioritize Python 2 first
 + Clean, simple, easy to manage
 + Well documented, human-readable code
-+ Let's not do Windows for this moment
-+ Let's not do Mac for this moment
 
 ## Installation
 
 1. Install `libcaer` dependency
 
-```
+```bash
 $ sudo apt-get install libusb-1.0-0-dev
 $ git clone https://github.com/inilabs/libcaer.git
 $ cd libcaer
-$ cmake -DCMAKE_INSTALL_PREFIX=/usr .
+$ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
+# for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
 $ make
 # make install
 ```
@@ -38,13 +37,21 @@ __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/
 
 ```bash
 #  for python 2.7
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp27-cp27mu-linux_x86_64.whl
+#  Linux
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a8/pyaer-0.1.0a7-cp27-cp27mu-linux_x86_64.whl
+#  macOS
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a8/pyaer-0.1.0a8-cp27-cp27m-macosx_10_6_x86_64.whl
 ```
 
 ``` bash
 #  for python 3.6
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a7/pyaer-0.1.0a7-cp36-cp36m-linux_x86_64.whl
+#  Linux
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a8/pyaer-0.1.0a7-cp36-cp36m-linux_x86_64.whl
+#  macOS
+$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a8/pyaer-0.1.0a8-cp36-cp36m-macosx_10_7_x86_64.whl
 ```
+
+__NOTE:__ Check out the [latest release](https://github.com/duguyue100/pyaer/releases) for more information.
 
 3. Install from source
 
