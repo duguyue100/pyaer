@@ -15,10 +15,14 @@ matrix:
           env: TOXENV=py36
         - os: osx
           sudo: required
-          env: TOXENV=py27
+          env:
+              - TOXENV=py27
+              - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
           sudo: required
-          env: TOXENV=py36
+          env:
+              - TOXENV=py36
+              - HOMEBREW_NO_AUTO_UPDATE=1
 
 
 
