@@ -19,7 +19,7 @@ test:
 	PYTHONPATH=$(PYTHONPATH) python
 
 dvs128-test:
-	PYTHONPATH=$(PYTHONPATH) python ./pyaer/scripts/dvs128_test.py
+	python ./scripts/dvs128_test.py
 
 install:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
