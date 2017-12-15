@@ -3,6 +3,8 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+from __future__ import print_function, absolute_import
+from builtins import range
 import numpy as np
 from pyaer import libcaer
 from pyaer.device import USBDevice
@@ -52,8 +54,8 @@ class DAVIS(USBDevice):
         self.device_id = info.deviceID
         self.device_serial_number = info.deviceSerialNumber
         self.device_usb_bus_number = info.deviceUSBBusNumber
-        self.device_usb_device_address = info.deviceUSBDeviceAdress
-        self.device_string = info.deivce_string
+        self.device_usb_device_address = info.deviceUSBDeviceAddress
+        self.device_string = info.deviceString
         self.logic_version = info.logicVersion
         self.device_is_master = info.deviceIsMaster
         self.logic_clock = info.logicClock
@@ -111,6 +113,14 @@ class DAVIS(USBDevice):
             libcaer.CAER_DEVICE_DAVIS, device_id,
             bus_number_restrict, dev_address_restrict,
             serial_number)
+
+    def start_data_stream(self):
+        """Start streaming data."""
+        self.data_start()
+        self.set_data_exchange_blocking()
+
+        # ignore first packet
+        #  _, _ = self.get_packet_container()
 
     def get_event(self):
         """Get Event.
@@ -176,7 +186,7 @@ class DAVIS(USBDevice):
 
             # post processing with frames
             frames = np.array(frames, dtype=np.uint8)
-            frames_ts = np.array(frames_ts, dtyep=np.uint64)
+            frames_ts = np.array(frames_ts, dtype=np.uint64)
 
             return (pol_ts, pol_xy, pol_pol, num_pol_event,
                     special_ts, special_event_data, num_special_event,

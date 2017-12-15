@@ -3,6 +3,8 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+from __future__ import print_function, absolute_import
+from builtins import range
 import abc
 import numpy as np
 from pyaer import libcaer
@@ -231,7 +233,7 @@ class USBDevice(object):
         for event_id in range(num_events):
             polarity = libcaer.caerSpecialEventPacketFromPacketHeader(
                 packet_header)
-            event = libcaer.caerPolarityEventPacketGetEvent(
+            event = libcaer.caerSpecialEventPacketGetEvent(
                 polarity, event_id)
             ts.append(libcaer.caerSpecialEventGetTimestamp(event))
             event_data.append(libcaer.caerSpecialEventGetData(event))
@@ -263,7 +265,8 @@ class USBDevice(object):
             packet_header)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
         frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
-        frame_mat = np.zeros((self.aps_size_X, self.apsSizeY), dtype=np.uint8)
+        frame_mat = np.zeros((self.aps_size_X, self.aps_size_Y),
+                             dtype=np.uint8)
         for y in range(libcaer.caerFrameEventGetLengthX(first_event)):
             for x in range(libcaer.caerFrameEventGetLengthX(first_event)):
                 frame_mat[x, y] = libcaer.caerFrameEventGetPixel(

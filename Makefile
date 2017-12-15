@@ -21,6 +21,9 @@ test:
 dvs128-test:
 	python ./scripts/dvs128_test.py
 
+davis346-test:
+	python ./scripts/davis346_test.py
+
 install:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
 
