@@ -35,23 +35,13 @@ __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/
 
 2. Directly install from pip (RECOMMEND)
 
+Download the compiled wheel file from the [latest release](https://github.com/duguyue100/pyaer/releases/latest) and install it via `pip`
+
 ```bash
-#  for python 2.7
-#  Linux
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a11/pyaer-0.1.0a7-cp27-cp27mu-linux_x86_64.whl
-#  macOS
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a11/pyaer-0.1.0a8-cp27-cp27m-macosx_10_6_x86_64.whl
+$ pip install pyaer-latest-release.whl
 ```
 
-``` bash
-#  for python 3.6
-#  Linux
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a11/pyaer-0.1.0a7-cp36-cp36m-linux_x86_64.whl
-#  macOS
-$ pip install https://github.com/duguyue100/pyaer/releases/download/0.1.0a11/pyaer-0.1.0a8-cp36-cp36m-macosx_10_7_x86_64.whl
-```
-
-__NOTE:__ Check out the [latest release](https://github.com/duguyue100/pyaer/releases) for more information.
+__NOTE:__ We will start shipping `pypi` release from beta release.
 
 3. Install from source
 
