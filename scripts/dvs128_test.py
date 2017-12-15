@@ -22,13 +22,7 @@ print ("Device size Y:", device.dvs_size_Y)
 print ("Logic Version:", device.logic_version)
 
 device.send_default_config()
-device.data_start()
-device.set_data_exchange_blocking()
-
-packet_container, packet_number = device.get_packet_container()
-
-print (type(packet_container))
-print (packet_number)
+device.start_data_stream()
 
 
 def get_event(device):
@@ -40,11 +34,13 @@ def get_event(device):
 
 
 while True:
-    (pol_ts, pol_xy, pol_pol, num_pol_event,
-     special_ts, special_event_data, num_special_event) = \
-        get_event(device)
+    try:
+        (pol_ts, pol_xy, pol_pol, num_pol_event,
+         special_ts, special_event_data, num_special_event) = \
+            get_event(device)
 
-    print ("Number of events:", num_pol_event, "Number of special events:",
-           num_special_event)
-
-device.close()
+        print ("Number of events:", num_pol_event, "Number of special events:",
+               num_special_event)
+    except KeyboardInterrupt:
+            device.shutdown()
+            break
