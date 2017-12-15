@@ -265,11 +265,15 @@ class USBDevice(object):
             packet_header)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
         frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
-        frame_mat = np.zeros((self.aps_size_X, self.aps_size_Y),
+        frame_mat = np.zeros((self.aps_size_Y, self.aps_size_X),
                              dtype=np.uint8)
-        for y in range(libcaer.caerFrameEventGetLengthX(first_event)):
-            for x in range(libcaer.caerFrameEventGetLengthX(first_event)):
-                frame_mat[x, y] = libcaer.caerFrameEventGetPixel(
+        Y_range = libcaer.caerFrameEventGetLengthY(first_event)
+        X_range = libcaer.caerFrameEventGetLengthX(first_event)
+        Y_range = Y_range if Y_range < self.aps_size_Y else self.aps_size_Y
+        X_range = X_range if X_range < self.aps_size_X else self.aps_size_X
+        for y in range(Y_range):
+            for x in range(X_range):
+                frame_mat[y, x] = libcaer.caerFrameEventGetPixel(
                     first_event, x, y)
         return frame_mat, frame_ts
 

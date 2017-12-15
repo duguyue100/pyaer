@@ -1,4 +1,4 @@
-"""DAVIS346 test example.
+"""DAVIS240 test example.
 
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
