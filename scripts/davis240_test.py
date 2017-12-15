@@ -23,6 +23,9 @@ print ("Device USB device address:", device.device_usb_device_address)
 print ("Device size X:", device.dvs_size_X)
 print ("Device size Y:", device.dvs_size_Y)
 print ("Logic Version:", device.logic_version)
+print ("Background Activity Filter:",
+       device.dvs_has_background_activity_filter)
+
 
 flag = device.send_default_config()
 if flag:
@@ -53,9 +56,6 @@ while True:
             get_event(device)
 
         if frames.shape[0] != 0:
-            print (frames)
-            device.shutdown()
-            break
             cv2.imshow("frame", frames[0])
 
         print ("Number of events:", num_pol_event, "Number of Frames:",

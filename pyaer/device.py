@@ -89,7 +89,7 @@ class USBDevice(object):
 
     def send_default_config(self):
         """Send default configuration."""
-        if self.handle is None:
+        if self.handle is not None:
             send_success = libcaer.caerDeviceSendDefaultConfig(self.handle)
             return send_success
         else:
@@ -259,8 +259,6 @@ class USBDevice(object):
         frame_ts : int
             the frame timestamp
         """
-        # TODO check data type
-        # TODO is there only one frame?
         frame = libcaer.caerFrameEventPacketFromPacketHeader(
             packet_header)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
@@ -269,8 +267,6 @@ class USBDevice(object):
                              dtype=np.uint8)
         Y_range = libcaer.caerFrameEventGetLengthY(first_event)
         X_range = libcaer.caerFrameEventGetLengthX(first_event)
-        Y_range = Y_range if Y_range < self.aps_size_Y else self.aps_size_Y
-        X_range = X_range if X_range < self.aps_size_X else self.aps_size_X
         for y in range(Y_range):
             for x in range(X_range):
                 frame_mat[y, x] = libcaer.caerFrameEventGetPixel(

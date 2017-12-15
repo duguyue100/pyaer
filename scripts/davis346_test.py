@@ -23,6 +23,9 @@ print ("Device USB device address:", device.device_usb_device_address)
 print ("Device size X:", device.dvs_size_X)
 print ("Device size Y:", device.dvs_size_Y)
 print ("Logic Version:", device.logic_version)
+print ("Background Activity Filter:",
+       device.dvs_has_background_activity_filter)
+
 
 flag = device.send_default_config()
 if flag:
@@ -33,36 +36,30 @@ device.start_data_stream()
 
 
 def get_event(device):
-    (pol_ts, pol_xy, pol_pol, num_pol_event,
-     special_ts, special_event_data, num_special_event,
-     frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
-     num_imu_event) = \
-        device.get_event()
-    return (pol_ts, pol_xy, pol_pol, num_pol_event,
-            special_ts, special_event_data, num_special_event,
-            frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
-            num_imu_event)
+    data = device.get_event()
+
+    return data
 
 
 while True:
     try:
-        (pol_ts, pol_xy, pol_pol, num_pol_event,
-         special_ts, special_event_data, num_special_event,
-         frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
-         num_imu_event) = \
-            get_event(device)
+        data = get_event(device)
+        if data is not None:
+            (pol_ts, pol_xy, pol_pol, num_pol_event,
+             special_ts, special_event_data, num_special_event,
+             frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
+             num_imu_event) = data
+            if frames.shape[0] != 0:
+                cv2.imshow("frame", frames[0])
 
-        if frames.shape[0] != 0:
-            print (frames)
-            device.shutdown()
-            break
-            cv2.imshow("frame", frames[0])
+            print ("Number of events:", num_pol_event, "Number of Frames:",
+                   frames.shape)
 
-        print ("Number of events:", num_pol_event, "Number of Frames:",
-               frames.shape)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
+            pass
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
     except KeyboardInterrupt:
         device.shutdown()
         break
