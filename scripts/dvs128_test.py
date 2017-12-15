@@ -4,6 +4,10 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from __future__ import print_function
+
+import numpy as np
+import cv2
+
 from pyaer.dvs128 import DVS128
 
 device = DVS128()
@@ -38,6 +42,21 @@ while True:
         (pol_ts, pol_xy, pol_pol, num_pol_event,
          special_ts, special_event_data, num_special_event) = \
             get_event(device)
+
+        if num_pol_event != 0:
+            img = np.zeros((128, 128), dtype=np.float)
+            for event_id in range(num_pol_event):
+                if pol_pol[event_id] and \
+                        img[pol_xy[1, event_id], pol_xy[0, event_id]] < 3:
+                    img[pol_xy[1, event_id], pol_xy[0, event_id]] += 1
+                elif pol_pol[event_id] is False and \
+                        img[pol_xy[1, event_id], pol_xy[0, event_id]] > -3:
+                    img[pol_xy[1, event_id], pol_xy[0, event_id]] -= 1
+            img = (img+3.)/6.
+            cv2.imshow("image", img)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
         print ("Number of events:", num_pol_event, "Number of special events:",
                num_special_event)
