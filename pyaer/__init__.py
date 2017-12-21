@@ -9,9 +9,6 @@ import os
 FILE_PATH = os.path.realpath(__file__)
 CURR_PATH = os.path.dirname(os.path.realpath(__file__))
 PKG_PATH = os.path.dirname(CURR_PATH)
-LIBCAER_PATH = os.path.join(PKG_PATH, "libcaer", "build")
-LIBCAER_INCLUDE_PATH = os.path.join(PKG_PATH, "include")
-LIBCAER_LIB_PATH = os.path.join(PKG_PATH, "lib")
 
 try:
     from pyaer import libcaer_wrap as libcaer
