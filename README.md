@@ -12,8 +12,7 @@ Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
 ## Design Principle
 
 + Minimum installation effort
-+ Keep active development in mind
-+ Keep Python 2 and 3 in mind, however prioritize Python 2 first
++ Keep Python 2 and 3 in mind
 + Clean, simple, easy to manage
 + Well documented, human-readable code
 
@@ -28,7 +27,7 @@ $ cd libcaer
 $ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
 # for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
 $ make
-# make install
+$ make install
 ```
 
 __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
@@ -53,7 +52,7 @@ $ make install
 ## Got a Linux?
 
 `libcaer` relies on `libusb` based driver, you won't be able
-to access the camera unless fix the `udev` rules. Refer details
+to access the camera unless fixing the `udev` rules. Refer details
 from [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px)
 
 ```
@@ -75,7 +74,7 @@ Updating rules
 $ udevadm control --reload
 ```
 
-Unplug and replug the camera, you should be fine.
+Unplug and replug the camera.
 
 ## Yeah, you need SWIG
 
