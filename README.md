@@ -40,6 +40,10 @@ Download the compiled wheel file from the [latest release](https://github.com/du
 $ pip install pyaer-latest-release.whl
 ```
 
+__NOTE:__ The wheel file is built based on the bleeding-edge of
+`libcaer`. It's recommended to install `libcaer` from source
+than from other packaging system.
+
 __NOTE:__ We will start shipping `pypi` release from beta release.
 
 3. Install from source
