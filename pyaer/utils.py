@@ -6,6 +6,10 @@ Email : duguyue100@gmail.com
 from __future__ import print_function, absolute_import
 import json
 
+import pyaer
+
+logger = log.get_logger("utils", pyaer.LOG_LEVEL)
+
 
 def load_json(file_path):
     """Load JSON string.
@@ -41,7 +45,7 @@ def load_dvs_bias(file_path, verbose=False):
     if bias_obj is not None:
         if verbose:
             for key, value in bias_obj.iteritems():
-                print (key, value)
+                logger.debug(key, value)
         # TODO: to check validity of the bias file
         return bias_obj
     else:
@@ -66,7 +70,7 @@ def load_davis_bias(file_path, verbose=False):
     if bias_obj is not None:
         if verbose:
             for key, value in bias_obj.iteritems():
-                print (key, value)
+                logger.debug(key, value)
         # TODO: to check validity of the bias file
         return bias_obj
     else:
