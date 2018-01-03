@@ -64,9 +64,37 @@
 %include <libcaer/events/spike.h>
 
 %rename(caerDeviceClose) caerDeviceCloseW;
+%rename(caerDeviceConfigGet) caerDeviceConfigGetW;
+%rename(caerDeviceConfigGet64) caerDeviceConfigGet64W;
 
 %inline %{
 bool caerDeviceCloseW(caerDeviceHandle handle) {
 	return (caerDeviceClose(&handle));
+}
+%}
+
+%inline %{
+uint32_t caerDeviceConfigGetW(caerDeviceHandle handle, int8_t modAddr, uint8_t paramAddr) {
+    uint32_t param;
+    bool flag = caerDeviceConfigGet(handle, modAddr, paramAddr, &param);
+    if (flag == true) {
+        return param;
+    }
+    else {
+        return 0;
+    }
+}
+%}
+
+%inline %{
+uint64_t caerDeviceConfigGet64W(caerDeviceHandle handle, int8_t modAddr, uint8_t paramAddr) {
+    uint64_t param;
+    bool flag = caerDeviceConfigGet64(handle, modAddr, paramAddr, &param);
+    if (flag == true) {
+        return param;
+    }
+    else {
+        return 0;
+    }
 }
 %}
