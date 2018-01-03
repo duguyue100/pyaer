@@ -25,7 +25,10 @@ print ("Device size X:", device.dvs_size_X)
 print ("Device size Y:", device.dvs_size_Y)
 print ("Logic Version:", device.logic_version)
 
-device.send_default_config()
+# load new config
+device.set_bias_from_json("./scripts/configs/dvs128_config.json")
+print (device.get_bias())
+
 device.start_data_stream()
 
 

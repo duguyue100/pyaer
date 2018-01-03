@@ -114,6 +114,66 @@ class DAVIS(USBDevice):
             bus_number_restrict, dev_address_restrict,
             serial_number)
 
+    def set_bias(self, bias_obj):
+        """Set bias from bias dictionary.
+
+        # Parameters
+        bias_obj : dict
+            dictionary that contains DVS128 biases.
+
+        # Returns
+        flag : bool
+            True if set successful, False otherwise.
+            TODO: make this flag check possible
+        """
+        # global setting of DAVIS
+        self.set_config(libcaer.DAVIS_CONFIG_APS,
+                        libcaer.DAVIS_CONFIG_APS_EXPOSURE,
+                        bias_obj["exposure"])
+        self.set_config(libcaer.DAVIS_CONFIG_APS,
+                        libcaer.DAVIS_CONFIG_APS_FRAME_DELAY,
+                        bias_obj["frame_delay"])
+        self.set_config(libcaer.DAVIS_CONFIG_APS,
+                        libcaer.DAVIS_CONFIG_APS_RUN,
+                        bias_obj["aps_enabled"])
+        self.set_config(libcaer.DAVIS_CONFIG_DVS,
+                        libcaer.DAVIS_CONFIG_DVS_RUN,
+                        bias_obj["dvs_enabled"])
+        self.set_config(libcaer.DAVIS_CONFIG_IMU,
+                        libcaer.DAVIS_CONFIG_IMU_RUN,
+                        bias_obj["imu_enabled"])
+        # IMU settings of DAVIS
+        if 0 <= bias_obj["imu_gyro_scale"] <= 3:
+            self.set_config(libcaer.DAVIS_CONFIG_IMU,
+                            libcaer.DAVIS_CONFIG_IMU_GYRO_FULL_SCALE,
+                            bias_obj["imu_gyro_scale"])
+
+        if 0 <= bias_obj["imu_acc_scale"] <= 3:
+            self.set_config(libcaer.DAVIS_CONFIG_IMU,
+                            libcaer.DAVIS_CONFIG_IMU_ACCEL_FULL_SCALE,
+                            bias_obj["imu_acc_scale"])
+
+        if 0 <= bias_obj["imu_low_pass_filter"] <= 6:
+            self.set_config(
+                libcaer.DAVIS_CONFIG_IMU,
+                libcaer.DAVIS_CONFIG_IMU_DIGITAL_LOW_PASS_FILTER,
+                bias_obj["imu_low_pass_filter"])
+            if bias_obj["imu_low_pass_filter"] == 0:
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_IMU,
+                    libcaer.DAVIS_CONFIG_IMU_SAMPLE_RATE_DIVIDER,
+                    7)
+            else:
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_IMU,
+                    libcaer.DAVIS_CONFIG_IMU_SAMPLE_RATE_DIVIDER,
+                    0)
+
+        if self.chip_id == libcaer.DAVIS_CHIP_DAVIS346B:
+            pass
+        elif self.chip_id == libcaer.DAVIS_CHIP_DAVIS240C:
+            pass
+
     def start_data_stream(self):
         """Start streaming data."""
         self.data_start()

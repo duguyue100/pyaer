@@ -24,10 +24,33 @@ def load_json(file_path):
         A JSON object
     """
     try:
-        json_obj = json.load(file_path)
+        json_obj = json.load(open(file_path))
         return json_obj
     except IOError:
         return None
+
+
+def write_json(file_path, json_obj):
+    """Write JSON string.
+
+    # Parameters
+    file_path : str
+        the absolute path to the JSON string.
+    json_obj : dict
+        a dictionary
+
+    # Returns
+    flag : bool
+        True if saved successfully
+        False otherwise
+    """
+    try:
+        with open(file_path, "w") as f:
+            json.dump(json_obj, f)
+            f.close()
+        return True
+    except IOError:
+        return False
 
 
 def load_dvs_bias(file_path, verbose=False):
@@ -46,7 +69,7 @@ def load_dvs_bias(file_path, verbose=False):
     if bias_obj is not None:
         if verbose:
             for key, value in bias_obj.iteritems():
-                logger.debug(key, value)
+                logger.debug("%s: %d" % (key, value))
         # TODO: to check validity of the bias file
         return bias_obj
     else:
@@ -71,7 +94,7 @@ def load_davis_bias(file_path, verbose=False):
     if bias_obj is not None:
         if verbose:
             for key, value in bias_obj.iteritems():
-                logger.debug(key, value)
+                logger.debug("%s: %d" % (key, value))
         # TODO: to check validity of the bias file
         return bias_obj
     else:

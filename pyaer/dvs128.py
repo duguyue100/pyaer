@@ -6,8 +6,10 @@ Email : duguyue100@gmail.com
 from __future__ import print_function, absolute_import
 from builtins import range
 import numpy as np
+
 from pyaer import libcaer
 from pyaer.device import USBDevice
+from pyaer import utils
 
 
 class DVS128(USBDevice):
@@ -95,6 +97,117 @@ class DVS128(USBDevice):
             libcaer.CAER_DEVICE_DVS128, device_id,
             bus_number_restrict, dev_address_restrict,
             serial_number)
+
+    def set_bias_from_json(self, file_path, verbose=False):
+        """Set bias from loading JSON configuration file.
+
+        # Parameters
+        file_path : string
+            absolute path of the JSON bias file.
+        """
+        bias_obj = utils.load_dvs_bias(file_path, verbose)
+        self.set_bias(bias_obj)
+
+    def set_bias(self, bias_obj):
+        """Set bias from bias dictionary.
+
+        # Parameters
+        bias_obj : dict
+            dictionary that contains DVS128 biases.
+
+        # Returns
+        flag : bool
+            True if set successful, False otherwise.
+            TODO: make this flag check possible
+        """
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_CAS,
+                        bias_obj["cas"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_INJGND,
+                        bias_obj["injGnd"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_REQPD,
+                        bias_obj["reqPd"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_PUX,
+                        bias_obj["puX"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_DIFFOFF,
+                        bias_obj["diffOff"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_REQ,
+                        bias_obj["req"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_REFR,
+                        bias_obj["refr"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_PUY,
+                        bias_obj["puY"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_DIFFON,
+                        bias_obj["diffOn"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_DIFF,
+                        bias_obj["diff"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_FOLL,
+                        bias_obj["foll"])
+        self.set_config(libcaer.DVS128_CONFIG_BIAS,
+                        libcaer.DVS128_CONFIG_BIAS_PR,
+                        bias_obj["Pr"])
+
+    def get_bias(self):
+        """Get bias settings.
+
+        # Returns
+        bias_obj : dict
+            dictionary that contains DVS128 current bias settings.
+        """
+        bias_obj = {}
+        bias_obj["cas"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_CAS)
+        bias_obj["injGnd"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_INJGND)
+        bias_obj["reqPd"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_REQPD)
+        bias_obj["puX"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_PUX)
+        bias_obj["diffOff"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_DIFFOFF)
+        bias_obj["req"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_REQ)
+        bias_obj["refr"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_REFR)
+        bias_obj["puY"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_PUY)
+        bias_obj["diffOn"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_DIFFON)
+        bias_obj["diff"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_DIFF)
+        bias_obj["foll"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_FOLL)
+        bias_obj["Pr"] = self.get_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_PR)
+
+        return bias_obj
+
+    def save_bias_to_json(self, file_path):
+        """Save bias to JSON."""
+        bias_obj = self.get_bias()
+        return utils.write_json(file_path, bias_obj)
 
     def start_data_stream(self):
         """Start streaming data."""
