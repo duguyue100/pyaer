@@ -8,6 +8,7 @@ from builtins import range
 import numpy as np
 from pyaer import libcaer
 from pyaer.device import USBDevice
+from pyaer import utils
 
 
 class DAVIS(USBDevice):
@@ -114,6 +115,16 @@ class DAVIS(USBDevice):
             bus_number_restrict, dev_address_restrict,
             serial_number)
 
+    def set_bias_from_json(self, file_path, verbose=False):
+        """Set bias from loading JSON configuration file.
+
+        # Parameters
+        file_path : string
+            absolute path of the JSON bias file.
+        """
+        bias_obj = utils.load_dvs_bias(file_path, verbose)
+        self.set_bias(bias_obj)
+
     def set_bias(self, bias_obj):
         """Set bias from bias dictionary.
 
@@ -170,9 +181,353 @@ class DAVIS(USBDevice):
                     0)
 
         if self.chip_id == libcaer.DAVIS_CHIP_DAVIS346B:
-            pass
+            # VDAC
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_APSOVERFLOWLEVEL,
+                libcaer.vdac_set(27, 6))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_APSCAS,
+                libcaer.vdac_set(21, 6))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_ADCREFHIGH,
+                libcaer.vdac_set(
+                    bias_obj["ADC_RefHigh_volt"],
+                    bias_obj["ADC_RefHigh_current"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_ADCREFLOW,
+                libcaer.vdac_set(
+                    bias_obj["ADC_RefLow_volt"],
+                    bias_obj["ADC_RefLow_current"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_ADCTESTVOLTAGE,
+                libcaer.vdac_set(21, 7))
+            # CF biases
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_LOCALBUFBN,
+                libcaer.cf_n_type_set(5, 164))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_PADFOLLBN,
+                libcaer.cf_n_type_set(7, 215))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_DIFFBN,
+                libcaer.cf_n_type_set(
+                    bias_obj["DiffBn_coarse"],
+                    bias_obj["DiffBn_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_ONBN,
+                libcaer.cf_n_type_set(
+                    bias_obj["ONBn_coarse"],
+                    bias_obj["ONBn_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_OFFBN,
+                libcaer.cf_n_type_set(
+                    bias_obj["OFFBn_coarse"],
+                    bias_obj["OFFBn_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_PIXINVBN,
+                libcaer.cf_n_type_set(5, 129))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_PRBP,
+                libcaer.cf_p_type_set(
+                    bias_obj["PrBp_coarse"],
+                    bias_obj["PrBp_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_PRSFBP,
+                libcaer.cf_p_type_set(
+                    bias_obj["PrSFBp_coarse"],
+                    bias_obj["PrSFBp_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_REFRBP,
+                libcaer.cf_p_type_set(
+                    bias_obj["RefrBp_coarse"],
+                    bias_obj["RefrBp_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_READOUTBUFBP,
+                libcaer.cf_p_type_set(6, 20))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_APSROSFBN,
+                libcaer.cf_n_type_set(6, 219))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_ADCCOMPBP,
+                libcaer.cf_p_type_set(5, 20))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_COLSELLOWBN,
+                libcaer.cf_n_type_set(0, 1))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_DACBUFBP,
+                libcaer.cf_p_type_set(6, 60))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_LCOLTIMEOUTBN,
+                libcaer.cf_n_type_set(5, 49))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_AEPDBN,
+                libcaer.cf_n_type_set(6, 91))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_AEPUXBP,
+                libcaer.cf_p_type_set(4, 80))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_AEPUYBP,
+                libcaer.cf_p_type_set(7, 152))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_IFREFRBN,
+                libcaer.cf_n_type_set(5, 255))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_IFTHRBN,
+                libcaer.cf_n_type_set(5, 255))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_BIASBUFFER,
+                libcaer.cf_n_type_set(5, 254))
+            # Special Biases
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_SSP,
+                libcaer.shiftsource_set(1, 33, libcaer.SHIFTED_SOURCE))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS346_CONFIG_BIAS_SSN,
+                libcaer.shiftsource_set(1, 33, libcaer.SHIFTED_SOURCE))
+
+            if self.dvs_has_background_activity_filter:
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY,
+                    bias_obj["background_activity_filter_enabled"])
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_TIME,
+                    bias_obj["background_activity_filter_time"])
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD,
+                    bias_obj["refractory_period_enabled"])
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD_TIME,
+                    bias_obj["refractory_period_time"])
+
         elif self.chip_id == libcaer.DAVIS_CHIP_DAVIS240C:
-            pass
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS240_CONFIG_BIAS_PRBP,
+                libcaer.cf_p_type_set(
+                    bias_obj["PrBp_coarse"],
+                    bias_obj["PrBp_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS240_CONFIG_BIAS_PRSFBP,
+                libcaer.cf_p_type_set(
+                    bias_obj["PrSFBp_coarse"],
+                    bias_obj["PrSFPb_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS240_CONFIG_BIAS_DIFFBN,
+                libcaer.cf_n_type_set(
+                    bias_obj["DiffBn_coarse"],
+                    bias_obj["DiffBn_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS240_CONFIG_BIAS_ONBN,
+                libcaer.cf_n_type_set(
+                    bias_obj["ONBn_coarse"],
+                    bias_obj["ONBn_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS240_CONFIG_BIAS_OFFBN,
+                libcaer.cf_n_type_set(
+                    bias_obj["OFFBn_coarse"],
+                    bias_obj["OFFBn_fine"]))
+            self.set_config(
+                libcaer.DAVIS_CONFIG_BIAS,
+                libcaer.DAVIS240_CONFIG_BIAS_REFRBP,
+                libcaer.cf_p_type_set(
+                    bias_obj["RefrBp_coarse"],
+                    bias_obj["RefrBp_fine"]))
+
+    def get_bias(self):
+        """Get bias settings.
+
+        # Returns
+        bias_obj : dict
+            dictionary that contains DVS128 current bias settings.
+        """
+        bias_obj = {}
+        # global setting of DAVIS
+        bias_obj["exposure"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_EXPOSURE)
+        bias_obj["frame_delay"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_FRAME_DELAY)
+        bias_obj["aps_enabled"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_RUN)
+        bias_obj["dvs_enabled"] = self.get_config(
+            libcaer.DAVIS_CONFIG_DVS,
+            libcaer.DAVIS_CONFIG_DVS_RUN)
+        bias_obj["imu_enabled"] = self.get_config(
+            libcaer.DAVIS_CONFIG_IMU,
+            libcaer.DAVIS_CONFIG_IMU_RUN)
+        # IMU settings of DAVIS
+        bias_obj["imu_gyro_scale"] = self.get_config(
+            libcaer.DAVIS_CONFIG_IMU,
+            libcaer.DAVIS_CONFIG_IMU_GYRO_FULL_SCALE)
+        bias_obj["imu_acc_scale"] = self.get_config(
+            libcaer.DAVIS_CONFIG_IMU,
+            libcaer.DAVIS_CONFIG_IMU_ACCEL_FULL_SCALE)
+        bias_obj["imu_low_pass_filter"] = self.get_config(
+            libcaer.DAVIS_CONFIG_IMU,
+            libcaer.DAVIS_CONFIG_IMU_DIGITAL_LOW_PASS_FILTER)
+
+        if self.chip_id == libcaer.DAVIS_CHIP_DAVIS346B:
+            # VDAC
+            adc_ref_high = libcaer.caerBiasVDACParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_ADCREFHIGH))
+            bias_obj["ADC_RefHigh_volt"] = adc_ref_high.voltageValue
+            bias_obj["ADC_RefHigh_current"] = adc_ref_high.currentValue
+
+            adc_ref_low = libcaer.caerBiasVDACParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_ADCREFLOW))
+            bias_obj["ADC_RefLow_volt"] = adc_ref_low.voltageValue
+            bias_obj["ADC_RefLow_current"] = adc_ref_low.currentValue
+
+            prbp_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_PRBP))
+            bias_obj["PrBp_coarse"] = prbp_cf.coarseValue
+            bias_obj["PrBp_fine"] = prbp_cf.fineValue
+
+            prsfbp_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_PRSFBP))
+            bias_obj["PrSFBp_coarse"] = prsfbp_cf.coarseValue
+            bias_obj["PrSFPb_fine"] = prsfbp_cf.fineValue
+
+            diffbn_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_DIFFBN))
+            bias_obj["DiffBn_coarse"] = diffbn_cf.coarseValue
+            bias_obj["DiffBn_fine"] = diffbn_cf.fineValue
+
+            onbn_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_ONBN))
+            bias_obj["ONBn_coarse"] = onbn_cf.coarseValue
+            bias_obj["ONBn_fine"] = onbn_cf.fineValue
+
+            offbn_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_OFFBN))
+            bias_obj["OFFBn_coarse"] = offbn_cf.coarseValue
+            bias_obj["OFFBn_fine"] = offbn_cf.fineValue
+
+            refrbp_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS346_CONFIG_BIAS_REFRBP))
+            bias_obj["RefrBp_coarse"] = refrbp_cf.coarseValue
+            bias_obj["RefrBp_fine"] = refrbp_cf.fineValue
+
+            if self.dvs_has_background_activity_filter:
+                bias_obj["background_activity_filter_enabled"] = \
+                    self.get_config(
+                        libcaer.DAVIS_CONFIG_DVS,
+                        libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY)
+                bias_obj["background_activity_filter_time"] = self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_TIME)
+
+                bias_obj["refractory_period_enabled"] = \
+                    self.get_config(
+                        libcaer.DAVIS_CONFIG_DVS,
+                        libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD)
+                bias_obj["refractory_period_time"] = \
+                    self.get_config(
+                        libcaer.DAVIS_CONFIG_DVS,
+                        libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD_TIME)
+
+        elif self.chip_id == libcaer.DAVIS_CHIP_DAVIS240C:
+            prbp_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS240_CONFIG_BIAS_PRBP))
+            bias_obj["PrBp_coarse"] = prbp_cf.coarseValue
+            bias_obj["PrBp_fine"] = prbp_cf.fineValue
+
+            prsfbp_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS240_CONFIG_BIAS_PRSFBP))
+            bias_obj["PrSFBp_coarse"] = prsfbp_cf.coarseValue
+            bias_obj["PrSFPb_fine"] = prsfbp_cf.fineValue
+
+            diffbn_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS240_CONFIG_BIAS_DIFFBN))
+            bias_obj["DiffBn_coarse"] = diffbn_cf.coarseValue
+            bias_obj["DiffBn_fine"] = diffbn_cf.fineValue
+
+            onbn_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS240_CONFIG_BIAS_ONBN))
+            bias_obj["ONBn_coarse"] = onbn_cf.coarseValue
+            bias_obj["ONBn_fine"] = onbn_cf.fineValue
+
+            offbn_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS240_CONFIG_BIAS_OFFBN))
+            bias_obj["OFFBn_coarse"] = offbn_cf.coarseValue
+            bias_obj["OFFBn_fine"] = offbn_cf.fineValue
+
+            refrbp_cf = libcaer.caerBiasCoarseFineParse(
+                self.get_config(
+                    libcaer.DAVIS_CONFIG_BIAS,
+                    libcaer.DAVIS240_CONFIG_BIAS_REFRBP))
+            bias_obj["RefrBp_coarse"] = refrbp_cf.coarseValue
+            bias_obj["RefrBp_fine"] = refrbp_cf.fineValue
+        return bias_obj
+
+    def save_bias_to_json(self, file_path):
+        """Save bias to JSON."""
+        bias_obj = self.get_bias()
+        return utils.write_json(file_path, bias_obj)
 
     def start_data_stream(self):
         """Start streaming data."""
