@@ -7,6 +7,7 @@ from __future__ import print_function, absolute_import
 import json
 
 import pyaer
+from pyaer import log
 
 logger = log.get_logger("utils", pyaer.LOG_LEVEL)
 
