@@ -70,7 +70,7 @@
 
 %inline %{
 bool caerDeviceCloseW(caerDeviceHandle handle) {
-	return (caerDeviceClose(&handle));
+    return (caerDeviceClose(&handle));
 }
 %}
 
@@ -97,5 +97,104 @@ uint64_t caerDeviceConfigGet64W(caerDeviceHandle handle, int8_t modAddr, uint8_t
     else {
         return 0;
     }
+}
+%}
+
+%inline %{
+uint16_t cf_n_type_set(uint8_t coarse_value, uint8_t fine_value) {
+    struct caer_bias_coarsefine coarseFineBias;
+
+    coarseFineBias.coarseValue = coarse_value;
+    coarseFineBias.fineValue = fine_value;
+    coarseFineBias.enabled = true;
+    coarseFineBias.sexN = true;
+    coarseFineBias.typeNormal = true;
+    coarseFineBias.currentLevelNormal = true;
+
+    return caerBiasCoarseFineGenerate(coarseFineBias);
+}
+%}
+
+%inline %{
+uint16_t cf_p_type_set(uint8_t coarse_value, uint8_t fine_value) {
+    struct caer_bias_coarsefine coarseFineBias;
+
+    coarseFineBias.coarseValue = coarse_value;
+    coarseFineBias.fineValue = fine_value;
+    coarseFineBias.enabled = true;
+    coarseFineBias.sexN = false;
+    coarseFineBias.typeNormal = true;
+    coarseFineBias.currentLevelNormal = true;
+
+    return caerBiasCoarseFineGenerate(coarseFineBias);
+}
+%}
+
+%inline %{
+uint16_t cf_n_type_cas_set(uint8_t coarse_value, uint8_t fine_value) {
+    struct caer_bias_coarsefine coarseFineBias;
+
+    coarseFineBias.coarseValue = coarse_value;
+    coarseFineBias.fineValue = fine_value;
+    coarseFineBias.enabled = true;
+    coarseFineBias.sexN = true;
+    coarseFineBias.typeNormal = true;
+    coarseFineBias.currentLevelNormal = true;
+
+    return caerBiasCoarseFineGenerate(coarseFineBias);
+}
+%}
+
+%inline %{
+uint16_t cf_n_type_off_set(uint8_t coarse_value, uint8_t fine_value) {
+    struct caer_bias_coarsefine coarseFineBias;
+
+    coarseFineBias.coarseValue = coarse_value;
+    coarseFineBias.fineValue = fine_value;
+    coarseFineBias.enabled = false;
+    coarseFineBias.sexN = true;
+    coarseFineBias.typeNormal = true;
+    coarseFineBias.currentLevelNormal = true;
+
+    return caerBiasCoarseFineGenerate(coarseFineBias);
+}
+%}
+
+%inline %{
+uint16_t cf_p_type_off_set(uint8_t coarse_value, uint8_t fine_value) {
+    struct caer_bias_coarsefine coarseFineBias;
+
+    coarseFineBias.coarseValue = coarse_value;
+    coarseFineBias.fineValue = fine_value;
+    coarseFineBias.enabled = false;
+    coarseFineBias.sexN = false;
+    coarseFineBias.typeNormal = true;
+    coarseFineBias.currentLevelNormal = true;
+
+    return caerBiasCoarseFineGenerate(coarseFineBias);
+}
+%}
+
+%inline %{
+uint16_t shiftsource_set(uint8_t ref, uint8_t reg, enum caer_bias_shiftedsource_operating_mode opmode) {
+    struct caer_bias_shiftedsource caerBiasShiftSource;
+
+    caerBiasShiftSource.refValue = ref;
+    caerBiasShiftSource.regValue = reg;
+    caerBiasShiftSource.operatingMode = opmode;
+    caerBiasShiftSource.voltageLevel = SPLIT_GATE;
+
+    return caerBiasShiftedSourceGenerate(caerBiasShiftSource);
+}
+%}
+
+%inline %{
+uint16_t vdac_set(uint8_t volt, uint8_t curr) {
+    struct caer_bias_vdac caerBiasVDAC;
+
+    caerBiasVDAC.voltageValue = volt;
+    caerBiasVDAC.currentValue = curr;
+
+    return caerBiasVDACGenerate(caerBiasVDAC);
 }
 %}
