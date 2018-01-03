@@ -2,6 +2,7 @@
 * Authors:
 	Federico Corradi - federico.corradi@inilabs.com
 	Luca Longinotti - luca.longinotti@inilabs.com
+    Yuuang Hu - duguyue100@gmail.com
 */
 %module libcaer_wrap
 %{
