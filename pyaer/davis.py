@@ -343,7 +343,7 @@ class DAVIS(USBDevice):
                 libcaer.DAVIS240_CONFIG_BIAS_PRSFBP,
                 libcaer.cf_p_type_set(
                     bias_obj["PrSFBp_coarse"],
-                    bias_obj["PrSFPb_fine"]))
+                    bias_obj["PrSFBp_fine"]))
             self.set_config(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_DIFFBN,

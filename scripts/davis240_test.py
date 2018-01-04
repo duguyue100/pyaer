@@ -27,11 +27,8 @@ print ("Background Activity Filter:",
        device.dvs_has_background_activity_filter)
 
 
-flag = device.send_default_config()
-if flag:
-    print ("Default bias set")
-else:
-    print ("Default bias set error")
+device.set_bias_from_json("./scripts/configs/davis240c_config.json")
+
 device.start_data_stream()
 
 
@@ -56,7 +53,7 @@ while True:
             get_event(device)
 
         if frames.shape[0] != 0:
-            cv2.imshow("frame", frames[0])
+            cv2.imshow("frame", frames[0]/255.)
 
         print ("Number of events:", num_pol_event, "Number of Frames:",
                frames.shape)
