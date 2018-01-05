@@ -198,3 +198,20 @@ uint16_t vdac_set(uint8_t volt, uint8_t curr) {
     return caerBiasVDACGenerate(caerBiasVDAC);
 }
 %}
+
+%inline %{
+uint32_t set_dynapse_bias(uint8_t biasAddress, uint8_t coarseValue, uint8_t fineValue,
+bool biasHigh, bool typeNormal, bool sexN, bool enabled) {
+    struct caer_bias_dynapse biasValue;
+
+    biasValue.biasAddress = biasAddress;
+    biasValue.coarseValue = coarseValue;
+    biasValue.fineValue = fineValue;
+    biasValue.enabled = enabled;
+    biasValue.sexN = sexN;
+    biasValue.typeNormal = typeNormal;
+    biasValue.biasHigh = biasHigh;
+
+    return caerBiasDynapseGenerate(biasValue);
+}
+%}

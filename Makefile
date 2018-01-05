@@ -27,6 +27,9 @@ davis240-test:
 davis346-test:
 	python ./scripts/davis346_test.py
 
+dynapse-test:
+	python ./scripts/dynapse_test.py
+
 install:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
 
