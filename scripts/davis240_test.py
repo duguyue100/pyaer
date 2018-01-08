@@ -5,6 +5,7 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function
 
+from scipy.misc import imsave
 import cv2
 
 from pyaer.davis import DAVIS
@@ -27,6 +28,7 @@ print ("Background Activity Filter:",
        device.dvs_has_background_activity_filter)
 
 
+device.send_default_config()
 device.set_bias_from_json("./scripts/configs/davis240c_config.json")
 
 device.start_data_stream()
@@ -53,12 +55,14 @@ while True:
             get_event(device)
 
         if frames.shape[0] != 0:
+            imsave("./test.png", frames[0])
             cv2.imshow("frame", frames[0]/255.)
 
         print ("Number of events:", num_pol_event, "Number of Frames:",
                frames.shape)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            device.shutdown()
             break
     except KeyboardInterrupt:
         device.shutdown()
