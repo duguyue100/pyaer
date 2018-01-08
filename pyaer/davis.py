@@ -528,6 +528,42 @@ class DAVIS(USBDevice):
             bias_obj["RefrBp_fine"] = refrbp_cf.fineValue
         return bias_obj
 
+    def get_aps_bias(self):
+        """Get APS biases."""
+        aps_bias_obj = {}
+        aps_bias_obj["column_settle"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_COLUMN_SETTLE)
+        aps_bias_obj["exposure"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_EXPOSURE)
+        aps_bias_obj["frame_delay"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_FRAME_DELAY)
+        aps_bias_obj["global_shutter"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_GLOBAL_SHUTTER)
+        aps_bias_obj["null_settle"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_NULL_SETTLE)
+        aps_bias_obj["reset_read"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_RESET_READ)
+        aps_bias_obj["reset_settle"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_RESET_SETTLE)
+        aps_bias_obj["aps_enabled"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_RUN)
+        aps_bias_obj["wait_on_tranfer_stall"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_WAIT_ON_TRANSFER_STALL)
+        aps_bias_obj["autoexposure_enabled"] = self.get_config(
+            libcaer.DAVIS_CONFIG_APS,
+            libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE)
+
+        return aps_bias_obj
+
     def save_bias_to_json(self, file_path):
         """Save bias to JSON."""
         bias_obj = self.get_bias()
