@@ -138,7 +138,7 @@ uint16_t cf_n_type_cas_set(uint8_t coarse_value, uint8_t fine_value) {
     coarseFineBias.fineValue = fine_value;
     coarseFineBias.enabled = true;
     coarseFineBias.sexN = true;
-    coarseFineBias.typeNormal = true;
+    coarseFineBias.typeNormal = false;
     coarseFineBias.currentLevelNormal = true;
 
     return caerBiasCoarseFineGenerate(coarseFineBias);
