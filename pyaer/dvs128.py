@@ -214,9 +214,6 @@ class DVS128(USBDevice):
         self.data_start()
         self.set_data_exchange_blocking()
 
-        # ignore first packet
-        _, _ = self.get_packet_container()
-
     def get_event(self):
         """Get event.
 
