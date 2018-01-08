@@ -101,6 +101,7 @@ before_install:
 install:
     - pip install numpy
     - pip install future
+    - pip install scipy
     - pip install wheel
     - conda list
 
