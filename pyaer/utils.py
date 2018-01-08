@@ -5,6 +5,7 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
 import json
+from scipy import stats
 
 import pyaer
 from pyaer import log
@@ -99,3 +100,44 @@ def load_davis_bias(file_path, verbose=False):
         return bias_obj
     else:
         return None
+
+
+def clip(n, lower, upper):
+    """Return clipped value between lower and upper bound."""
+    return max(lower, min(n, upper))
+
+
+def mean(frame):
+    """Calculate the mean of a frame.
+
+    # Parameters
+    frame : numpy.ndarray
+        the input frame
+
+    # Returns
+    mean_val : float
+        the mean value.
+    """
+    if frame is None:
+        return 0.
+
+    return frame.mean()
+
+
+def trim_mean(frame, proportion_to_cut=0):
+    """Remove percentiles of data before computing the mean.
+
+    # Parameters
+    frame : numpy.ndarray
+        the input frame
+    proportion_to_cut : float
+        percentage of data to cut.
+
+    # Returns
+    mean_val : float
+        the mean value.
+    """
+    if frame is None:
+        return 0.
+
+    return stats.trim_mean(frame.flatten(), proportion_to_cut)

@@ -81,6 +81,10 @@ class DAVIS(USBDevice):
         self.dvs_has_ROI_filter = info.dvsHasROIFilter
         self.dvs_has_statistics = info.dvsHasStatistics
         self.mux_has_statistics = info.muxHasStatistics
+        # auto-exposure
+        self.min_exposure = 10
+        self.max_exposure = 25000
+        self.proportion_to_cut = 0.25
 
     def open(self,
              device_id=1,
@@ -533,6 +537,33 @@ class DAVIS(USBDevice):
         """Start streaming data."""
         self.data_start()
         self.set_data_exchange_blocking()
+
+    def compute_new_exposure(self, frame, current_exposure,
+                             desired_intensity,
+                             autoexposure_gain):
+        """Compute new exposure if auto-exposure is enabled.
+
+        # Parameters
+        frame : numpy.ndarray
+            the input frame
+        current_exposure : int
+            current exposure value
+        desired_intensity : float
+            desired intensity value
+        autoexposure_gain : float
+            autoexposure gain
+
+        # Returns
+        new_exposure : int
+            new exposure value
+        """
+        current_intensity = utils.trim_mean(frame, self.proportion_to_cut)
+
+        err = desired_intensity-current_intensity
+        delta_exposure = current_exposure*autoexposure_gain/1000.*err
+        new_exposure = int(current_exposure+delta_exposure+0.5)
+
+        return utils.clip(new_exposure, self.min_exposure, self.max_exposure)
 
     def get_event(self):
         """Get Event.
