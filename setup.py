@@ -60,7 +60,8 @@ setup(
     url=__url__,
 
     install_requires=["numpy",
-                      "future"],
+                      "future",
+                      "scipy"],
 
     packages=find_packages(),
 
