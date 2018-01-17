@@ -664,7 +664,7 @@ class DAVIS(USBDevice):
                     num_imu_event += num_events
 
             # post processing with frames
-            frames = np.array(frames, dtype=np.uint8)
+            frames = np.array(frames, dtype=np.uint16)
             frames_ts = np.array(frames_ts, dtype=np.uint64)
 
             return (pol_ts, pol_xy, pol_pol, num_pol_event,

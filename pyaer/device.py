@@ -264,7 +264,7 @@ class USBDevice(object):
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
         frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
         frame_mat = np.zeros((self.aps_size_Y, self.aps_size_X),
-                             dtype=np.uint8)
+                             dtype=np.uint16)
         Y_range = libcaer.caerFrameEventGetLengthY(first_event)
         X_range = libcaer.caerFrameEventGetLengthX(first_event)
         for y in range(Y_range):
