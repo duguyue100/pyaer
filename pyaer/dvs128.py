@@ -223,36 +223,25 @@ class DVS128(USBDevice):
         if packet_container is not None:
             num_pol_event = 0
             num_special_event = 0
-            pol_ts = None
-            pol_xy = None
-            pol_pol = None
-            special_ts = None
-            special_event_data = None
+            pol_events = None
+            special_events = None
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
                     packet_container, packet_id)
                 if packet_type == libcaer.POLARITY_EVENT:
-                    ts, xy, pol, num_events = self.get_polarity_event(
+                    events, num_events = self.get_polarity_event(
                         packet_header)
-                    pol_ts = np.hstack((pol_ts, ts)) \
-                        if pol_ts is not None else ts
-                    pol_xy = np.hstack((pol_xy, xy)) \
-                        if pol_xy is not None else xy
-                    pol_pol = np.hstack((pol_pol, pol)) \
-                        if pol_pol is not None else pol
+                    pol_events = np.hstack((pol_events, events)) \
+                        if pol_events is not None else events
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
-                    ts, event_data, num_events = self.get_special_event(
+                    events, num_events = self.get_special_event(
                         packet_header)
-                    special_ts = np.hstack((special_ts, ts)) \
-                        if special_ts is not None else special_ts
-                    special_event_data = np.hstack(
-                        (special_event_data, event_data)) \
-                        if special_event_data is not None \
-                        else special_event_data
+                    special_events = np.hstack((special_events, events)) \
+                        if special_events is not None else events
                     num_special_event += num_events
 
-            return (pol_ts, pol_xy, pol_pol, num_pol_event,
-                    special_ts, special_event_data, num_special_event)
+            return (pol_events, num_pol_event, special_events,
+                    num_special_event)
         else:
             return None

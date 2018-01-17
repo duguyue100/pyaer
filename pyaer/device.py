@@ -189,26 +189,18 @@ class USBDevice(object):
         """
         num_events = libcaer.caerEventPacketHeaderGetEventNumber(
             packet_header)
-        ts = []
-        x = []
-        y = []
-        pol = []
-        for event_id in range(num_events):
-            polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
-                packet_header)
-            event = libcaer.caerPolarityEventPacketGetEvent(
-                polarity, event_id)
-            ts.append(libcaer.caerPolarityEventGetTimestamp(event))
-            x.append(libcaer.caerPolarityEventGetX(event))
-            y.append(libcaer.caerPolarityEventGetY(event))
-            pol.append(libcaer.caerPolarityEventGetPolarity(event))
+        polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
+            packet_header)
+        events = np.array(
+            [[libcaer.caerPolarityEventGetTimestamp(event),
+              libcaer.caerPolarityEventGetX(event),
+              libcaer.caerPolarityEventGetY(event),
+              libcaer.caerPolarityEventGetPolarity(event)]
+             for event in [
+                libcaer.caerPolarityEventPacketGetEvent(polarity, event_id)
+                for event_id in range(num_events)]], dtype=np.uint64)
 
-        # change to numpy array
-        ts = np.array(ts, dtype=np.int32)
-        xy = np.array([x, y], dtype=np.uint8)
-        pol = np.array(pol, dtype=np.bool)
-
-        return ts, xy, pol, num_events
+        return events, num_events
 
     @staticmethod
     def get_special_event(packet_header):
@@ -228,21 +220,18 @@ class USBDevice(object):
         """
         num_events = libcaer.caerEventPacketHeaderGetEventNumber(
             packet_header)
-        ts = []
-        event_data = []
-        for event_id in range(num_events):
-            polarity = libcaer.caerSpecialEventPacketFromPacketHeader(
-                packet_header)
-            event = libcaer.caerSpecialEventPacketGetEvent(
-                polarity, event_id)
-            ts.append(libcaer.caerSpecialEventGetTimestamp(event))
-            event_data.append(libcaer.caerSpecialEventGetData(event))
+        polarity = libcaer.caerSpecialEventPacketFromPacketHeader(
+            packet_header)
 
-        # change to numpy array
-        ts = np.array(ts, dtype=np.int32)
-        event_data = np.array(event_data, dtype=np.bool)
+        events = np.array(
+            [[libcaer.caerSpecialEventGetTimestamp(event),
+              libcaer.caerSpecialEventGetData(event)]
+             for event in [
+                libcaer.caerSpecialEventPacketGetEvent(polarity, event_id)
+                for event_id in range(num_events)]],
+            dtype=np.uint64)
 
-        return ts, event_data, num_events
+        return events, num_events
 
     def get_frame_event(self, packet_header):
         """Get a packet of frame event.
@@ -263,14 +252,14 @@ class USBDevice(object):
             packet_header)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
         frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
-        frame_mat = np.zeros((self.aps_size_Y, self.aps_size_X),
-                             dtype=np.uint16)
         Y_range = libcaer.caerFrameEventGetLengthY(first_event)
         X_range = libcaer.caerFrameEventGetLengthX(first_event)
-        for y in range(Y_range):
-            for x in range(X_range):
-                frame_mat[y, x] = libcaer.caerFrameEventGetPixel(
-                    first_event, x, y)
+
+        frame_mat = np.array(
+            [libcaer.caerFrameEventGetPixel(first_event, x, y) >> 8
+                for y in range(Y_range) for x in range(X_range)],
+            dtype=np.uint8).reshape(Y_range, X_range)
+
         return frame_mat, frame_ts
 
     @staticmethod
@@ -285,30 +274,22 @@ class USBDevice(object):
         num_events = libcaer.caerEventPacketHeaderGetEventNumber(
             packet_header)
         imu = libcaer.caerIMU6EventPacketFromPacketHeader(packet_header)
-        imu_acc = []
-        imu_gyro = []
-        imu_ts = []
-        imu_temp = []
-        for event_id in range(num_events):
-            imu6 = libcaer.caerIMU6EventPacketGetEvent(imu, event_id)
-            x_acc = libcaer.caerIMU6EventGetAccelX(imu6)
-            y_acc = libcaer.caerIMU6EventGetAccelY(imu6)
-            z_acc = libcaer.caerIMU6EventGetAccelZ(imu6)
-            x_gyro = libcaer.caerIMU6EventGetGyroX(imu6)
-            y_gyro = libcaer.caerIMU6EventGetGyroY(imu6)
-            z_gyro = libcaer.caerIMU6EventGetGyroZ(imu6)
 
-            imu_acc.append([x_acc, y_acc, z_acc])
-            imu_gyro.append([x_gyro, y_gyro, z_gyro])
-            imu_ts.append(libcaer.caerIMU6EventGetTimestamp(imu6))
-            imu_temp.append(libcaer.caerIMU6EventGetTemp(imu6))
+        events = np.array(
+            [[libcaer.caerIMU6EventGetTimestamp(imu6),
+              libcaer.caerIMU6EventGetAccelX(imu6),
+              libcaer.caerIMU6EventGetAccelY(imu6),
+              libcaer.caerIMU6EventGetAccelZ(imu6),
+              libcaer.caerIMU6EventGetGyroX(imu6),
+              libcaer.caerIMU6EventGetGyroY(imu6),
+              libcaer.caerIMU6EventGetGyroZ(imu6),
+              libcaer.caerIMU6EventGetTemp(imu6)]
+             for imu6 in [
+                libcaer.caerIMU6EventPacketGetEvent(imu, event_id)
+                for event_id in range(num_events)]],
+            dtype=np.float32)
 
-        imu_acc = np.array(imu_acc, dtype=np.float32)
-        imu_gyro = np.array(imu_gyro, dtype=np.float32)
-        imu_ts = np.array(imu_ts, dtype=np.int32)
-        imu_temp = np.array(imu_temp, dtype=np.float32)
-
-        return imu_ts, imu_acc, imu_gyro, imu_temp, num_events
+        return events, num_events
 
     @staticmethod
     def get_spike_event(packet_header):
@@ -321,23 +302,17 @@ class USBDevice(object):
         """
         num_events = libcaer.caerEventPacketHeaderGetEventNumber(
             packet_header)
-        neuron_id = []
-        core_id = []
-        chip_id = []
-        ts = []
-        for event_id in range(num_events):
-            spike = libcaer.caerSpikeEventPacketFromPacketHeader(
-                packet_header)
-            event = libcaer.caerSpikeEventPacketGetEvent(
-                spike, event_id)
-            neuron_id.append(libcaer.caerSpikeEventGetNeuronID(event))
-            core_id.append(libcaer.caerSpikeEventGetSourceCoreID(event))
-            chip_id.append(libcaer.caerSpikeEventGetChipID(event))
-            ts.append(libcaer.caerSpikeEventGetTimestamp(event))
+        spike = libcaer.caerSpikeEventPacketFromPacketHeader(
+            packet_header)
 
-        ts = np.array(ts, dtype=np.int32)
-        neuron_id = np.array(neuron_id, dtype=np.uint32)
-        core_id = np.array(core_id, dtype=np.uint8)
-        chip_id = np.array(chip_id, dtype=np.uint8)
+        events = np.array(
+            [[libcaer.caerSpikeEventGetTimestamp(event),
+              libcaer.caerSpikeEventGetNeuronID(event),
+              libcaer.caerSpikeEventGetSourceCoreID(event),
+              libcaer.caerSpikeEventGetChipID(event)]
+             for event in [
+                libcaer.caerSpikeEventPacketGetEvent(spike, event_id)
+                for event_id in range(num_events)]],
+            dtype=np.uint64)
 
-        return ts, neuron_id, core_id, chip_id, num_events
+        return events, num_events

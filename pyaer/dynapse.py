@@ -265,27 +265,14 @@ class DYNAPSE(USBDevice):
         packet_container, packet_number = self.get_packet_container()
         if packet_container is not None:
             num_spike_events = 0
-            spike_neuron_id = None
-            spike_core_id = None
-            spike_chip_id = None
-            spike_ts = None
+            spike_events = None
 
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
                     packet_container, packet_id)
                 if packet_type == libcaer.SPIKE_EVENT:
-                    ts, neuron_id, core_id, chip_id, num_events = \
-                        self.get_spike_event(packet_header)
-
-                    spike_neuron_id = np.hstack(
-                        (spike_neuron_id, neuron_id)) \
-                        if spike_neuron_id is not None else neuron_id
-                    spike_core_id = np.hstack((spike_core_id, core_id)) \
-                        if spike_core_id is not None else core_id
-                    spike_chip_id = np.hstack((spike_chip_id, chip_id)) \
-                        if spike_chip_id is not None else chip_id
-                    spike_ts = np.hstack((spike_ts, ts)) \
-                        if spike_ts is not None else ts
+                    events, num_events = self.get_spike_event(packet_header)
+                    spike_events = np.hstack((spike_events, events)) \
+                        if spike_events is not None else events
                     num_spike_events += num_events
-        return (spike_ts, spike_neuron_id, spike_core_id, spike_chip_id,
-                num_spike_events)
+        return (spike_events, num_spike_events)

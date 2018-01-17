@@ -31,32 +31,43 @@ print (device.get_bias())
 
 device.start_data_stream()
 
+clip_value = 3
+histrange = [(0, v) for v in (128, 128)]
+
 
 def get_event(device):
-    (pol_ts, pol_xy, pol_pol, num_pol_event,
+    (pol_events, num_pol_event,
      special_ts, special_event_data, num_special_event) = \
         device.get_event()
-    return (pol_ts, pol_xy, pol_pol, num_pol_event,
+    return (pol_events, num_pol_event,
             special_ts, special_event_data, num_special_event)
 
 
 while True:
     try:
-        (pol_ts, pol_xy, pol_pol, num_pol_event,
+        (pol_events, num_pol_event,
          special_ts, special_event_data, num_special_event) = \
             get_event(device)
 
         if num_pol_event != 0:
             img = np.zeros((128, 128), dtype=np.float)
-            for event_id in range(num_pol_event):
-                if pol_pol[event_id] and \
-                        img[pol_xy[1, event_id], pol_xy[0, event_id]] < 3:
-                    img[pol_xy[1, event_id], pol_xy[0, event_id]] += 1
-                elif pol_pol[event_id] is False and \
-                        img[pol_xy[1, event_id], pol_xy[0, event_id]] > -3:
-                    img[pol_xy[1, event_id], pol_xy[0, event_id]] -= 1
-            img = (img+3.)/6.
-            cv2.imshow("image", img)
+
+            pol_on = (pol_events[:, 3] == 1)
+            pol_off = np.logical_not(pol_on)
+            img_on, _, _ = np.histogram2d(
+                    pol_events[pol_on, 2], pol_events[pol_on, 1],
+                    bins=(128, 128), range=histrange)
+            img_off, _, _ = np.histogram2d(
+                    pol_events[pol_off, 1], pol_events[pol_off, 0],
+                    bins=(128, 128), range=histrange)
+            if clip_value is not None:
+                integrated_img = np.clip(
+                    (img_on-img_off), -clip_value, clip_value)
+            else:
+                integrated_img = (img_on-img_off)
+            img = integrated_img+clip_value
+
+            cv2.imshow("image", img/float(clip_value*2))
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

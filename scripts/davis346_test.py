@@ -32,6 +32,7 @@ if flag:
     print ("Default bias set")
 else:
     print ("Default bias set error")
+device.set_bias_from_json("./scripts/configs/davis346_config.json")
 device.start_data_stream()
 
 
@@ -45,9 +46,9 @@ while True:
     try:
         data = get_event(device)
         if data is not None:
-            (pol_ts, pol_xy, pol_pol, num_pol_event,
-             special_ts, special_event_data, num_special_event,
-             frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
+            (pol_events, num_pol_event,
+             special_events, num_special_event,
+             frames_ts, frames, imu_events,
              num_imu_event) = data
             if frames.shape[0] != 0:
                 cv2.imshow("frame", frames[0])

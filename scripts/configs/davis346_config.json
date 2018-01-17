@@ -16,7 +16,7 @@
     "RefrBp_coarse": 3,
     "RefrBp_fine": 7,
     "aps_enabled": true,
-    "dvs_enabled": true,
+    "dvs_enabled": false,
     "exposure": 4000,
     "frame_delay": 0,
     "imu_acc_scale": 3,

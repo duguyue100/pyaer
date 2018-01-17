@@ -199,13 +199,13 @@ class DAVIS(USBDevice):
                 libcaer.DAVIS346_CONFIG_BIAS_ADCREFHIGH,
                 libcaer.vdac_set(
                     bias_obj["ADC_RefHigh_volt"],
-                    bias_obj["ADC_RefHigh_current"]))
+                    bias_obj["ADC_RefHigh_curr"]))
             self.set_config(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_ADCREFLOW,
                 libcaer.vdac_set(
                     bias_obj["ADC_RefLow_volt"],
-                    bias_obj["ADC_RefLow_current"]))
+                    bias_obj["ADC_RefLow_curr"]))
             self.set_config(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_ADCTESTVOLTAGE,
@@ -611,39 +611,25 @@ class DAVIS(USBDevice):
             num_pol_event = 0
             num_special_event = 0
             num_imu_event = 0
-            pol_ts = None
-            pol_xy = None
-            pol_pol = None
-            special_ts = None
-            special_event_data = None
+            pol_events = None
+            special_events = None
             frames = []
             frames_ts = []
-            imu_acc = None
-            imu_gyro = None
-            imu_ts = None
-            imu_temp = None
+            imu_events = None
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
                     packet_container, packet_id)
                 if packet_type == libcaer.POLARITY_EVENT:
-                    ts, xy, pol, num_events = self.get_polarity_event(
+                    events, num_events = self.get_polarity_event(
                         packet_header)
-                    pol_ts = np.hstack((pol_ts, ts)) \
-                        if pol_ts is not None else ts
-                    pol_xy = np.hstack((pol_xy, xy)) \
-                        if pol_xy is not None else xy
-                    pol_pol = np.hstack((pol_pol, pol)) \
-                        if pol_pol is not None else pol
+                    pol_events = np.hstack((pol_events, events)) \
+                        if pol_events is not None else events
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
-                    ts, event_data, num_events = self.get_special_event(
+                    events, num_events = self.get_special_event(
                         packet_header)
-                    special_ts = np.hstack((special_ts, ts)) \
-                        if special_ts is not None else special_ts
-                    special_event_data = np.hstack(
-                        (special_event_data, event_data)) \
-                        if special_event_data is not None \
-                        else special_event_data
+                    special_events = np.hstack((special_events, events)) \
+                        if special_events is not None else events
                     num_special_event += num_events
                 elif packet_type == libcaer.FRAME_EVENT:
                     frame_mat, frame_ts = self.get_frame_event(
@@ -651,25 +637,19 @@ class DAVIS(USBDevice):
                     frames.append(frame_mat)
                     frames_ts.append(frame_ts)
                 elif packet_type == libcaer.IMU6_EVENT:
-                    ts, acc, gyro, temp, num_events = self.get_imu6_event(
+                    events, num_events = self.get_imu6_event(
                         packet_header)
-                    imu_acc = np.hstack((imu_acc, acc)) \
-                        if imu_acc is not None else acc
-                    imu_gyro = np.hstack((imu_gyro, gyro)) \
-                        if imu_gyro is not None else gyro
-                    imu_ts = np.hstack((imu_ts, ts)) \
-                        if imu_ts is not None else ts
-                    imu_temp = np.hstack((imu_temp, temp)) \
-                        if imu_temp is not None else temp
+                    imu_events = np.hstack((imu_events, events)) \
+                        if imu_events is not None else events
                     num_imu_event += num_events
 
             # post processing with frames
-            frames = np.array(frames, dtype=np.uint16)
+            frames = np.array(frames, dtype=np.uint8)
             frames_ts = np.array(frames_ts, dtype=np.uint64)
 
-            return (pol_ts, pol_xy, pol_pol, num_pol_event,
-                    special_ts, special_event_data, num_special_event,
-                    frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
+            return (pol_events, num_pol_event,
+                    special_events, num_special_event,
+                    frames_ts, frames, imu_events,
                     num_imu_event)
         else:
             return None
