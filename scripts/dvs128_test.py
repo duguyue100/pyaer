@@ -37,21 +37,18 @@ histrange = [(0, v) for v in (128, 128)]
 
 def get_event(device):
     (pol_events, num_pol_event,
-     special_ts, special_event_data, num_special_event) = \
+     special_events, num_special_event) = \
         device.get_event()
     return (pol_events, num_pol_event,
-            special_ts, special_event_data, num_special_event)
+            special_events, num_special_event)
 
 
 while True:
     try:
         (pol_events, num_pol_event,
-         special_ts, special_event_data, num_special_event) = \
-            get_event(device)
+         special_events, num_special_event) = get_event(device)
 
         if num_pol_event != 0:
-            img = np.zeros((128, 128), dtype=np.float)
-
             pol_on = (pol_events[:, 3] == 1)
             pol_off = np.logical_not(pol_on)
             img_on, _, _ = np.histogram2d(
