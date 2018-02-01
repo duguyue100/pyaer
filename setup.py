@@ -12,6 +12,8 @@ from distutils.core import Extension
 from sysconfig import get_paths
 from sys import platform
 
+import numpy
+
 classifiers = """
 Development Status :: 3 - Alpha
 Intended Audience :: Science/Research
@@ -32,6 +34,11 @@ __url__ = "https://github.com/duguyue100/pyaer"
 
 python_paths = get_paths()
 
+try:
+    numpy_include = numpy.get_include()
+except AttributeError:
+    numpy_include = numpy.get_numpy_include()
+
 if platform in ["linux", "linux2"]:
     libcaer_include = "/usr/include"
     libcaer_lib = "/usr/lib"
@@ -43,7 +50,7 @@ libcaer_wrap = Extension(
     name="_libcaer_wrap",
     sources=["./pyaer/pyflags.i"],
     include_dirs=[libcaer_include,
-                  python_paths["include"]],
+                  python_paths["include"], numpy_include],
     library_dirs=[libcaer_lib,
                   python_paths["stdlib"]],
     swig_opts=["-I"+libcaer_include],

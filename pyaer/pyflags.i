@@ -6,6 +6,7 @@
 */
 %module libcaer_wrap
 %{
+#define SWIG_FILE_WITH_INIT
 #include <libcaer/libcaer.h>
 #include <libcaer/network.h>
 #include <libcaer/frame_utils.h>
@@ -63,6 +64,12 @@
 %include <libcaer/events/sample.h>
 %include <libcaer/events/special.h>
 %include <libcaer/events/spike.h>
+
+%include "numpy.i"
+
+%init %{
+    import_array();
+%}
 
 %rename(caerDeviceClose) caerDeviceCloseW;
 %rename(caerDeviceConfigGet) caerDeviceConfigGetW;
@@ -213,5 +220,37 @@ bool biasHigh, bool typeNormal, bool sexN, bool enabled) {
     biasValue.biasHigh = biasHigh;
 
     return caerBiasDynapseGenerate(biasValue);
+}
+%}
+
+/*
+Numpy related
+*/
+%apply (int DIM1, double* IN_ARRAY1) {(int len1, double* vec1), (int len2, double* vec2)}
+%apply (int64_t* ARGOUT_ARRAY1, int32_t DIM1) {(int64_t* event_vec, int32_t n)}
+
+%inline %{
+    double my_dot(int len1, double* vec1, int len2, double* vec2) {
+        int i;
+        double d;
+
+        d = 0;
+        for(i=0;i<len1;i++)
+            d += vec1[i]*vec2[i];
+
+        return d;
+}
+%}
+
+%inline %{
+void get_polarity_event(caerPolarityEventPacket event_packet, long long* event_vec, int32_t n) {
+    long i;
+    for (i=0; i<n; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+        event_vec[i*4] = caerPolarityEventGetTimestamp(event);
+        event_vec[i*4+1] = caerPolarityEventGetX(event);
+        event_vec[i*4+2] = caerPolarityEventGetY(event);
+        event_vec[i*4+3] = caerPolarityEventGetPolarity(event);
+    }
 }
 %}
