@@ -23,6 +23,5 @@
     "imu_enabled": true,
     "imu_gyro_scale": 3,
     "imu_low_pass_filter": 0,
-    "max_events": 0,
-    "streaming_rate": 30
+    "max_events": 0
 }
