@@ -21,6 +21,9 @@ test:
 dvs128-test:
 	python ./scripts/dvs128_test.py
 
+dvs128-thread-test:
+	python ./scripts/dvs128_thread_test.py
+
 davis240-test:
 	python ./scripts/davis240_test.py
 
