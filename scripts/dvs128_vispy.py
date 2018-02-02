@@ -113,10 +113,10 @@ class Canvas(vispy.app.Canvas):
             pol_on = (pol_events[:, 3] == 1)
             pol_off = np.logical_not(pol_on)
             img_on, _, _ = np.histogram2d(
-                    pol_events[pol_on, 2], pol_events[pol_on, 1],
+                    pol_events[pol_on, 1], 127-pol_events[pol_on, 2],
                     bins=(128, 128), range=histrange)
             img_off, _, _ = np.histogram2d(
-                    pol_events[pol_off, 1], pol_events[pol_off, 0],
+                    pol_events[pol_off, 1], 127-pol_events[pol_off, 2],
                     bins=(128, 128), range=histrange)
             if clip_value is not None:
                 integrated_img = np.clip(
@@ -125,7 +125,7 @@ class Canvas(vispy.app.Canvas):
                 integrated_img = (img_on-img_off)
 
             img_array = ((integrated_img+clip_value)/float(
-                clip_value*2)).astype(np.float32).T
+                clip_value*2)).astype(np.float32)
         else:
             img_array[...] = np.zeros(
                 (128, 128), dtype=np.uint8).astype(np.float32)

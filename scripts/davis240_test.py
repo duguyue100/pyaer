@@ -64,7 +64,7 @@ while True:
                         pol_events[pol_on, 2], pol_events[pol_on, 1],
                         bins=(180, 240), range=histrange)
                 img_off, _, _ = np.histogram2d(
-                        pol_events[pol_off, 1], pol_events[pol_off, 0],
+                        pol_events[pol_off, 2], pol_events[pol_off, 1],
                         bins=(180, 240), range=histrange)
                 if clip_value is not None:
                     integrated_img = np.clip(
