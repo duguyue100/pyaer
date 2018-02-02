@@ -35,6 +35,7 @@ clip_value = 1
 histrange = [(0, v) for v in (128, 128)]
 
 
+#  @profile
 def get_event(device):
     (pol_events, num_pol_event,
      special_events, num_special_event) = \
@@ -69,4 +70,4 @@ while True:
 
     except KeyboardInterrupt:
         device.shutdown()
-        reak
+        break

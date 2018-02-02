@@ -227,7 +227,9 @@ bool biasHigh, bool typeNormal, bool sexN, bool enabled) {
 Numpy related
 */
 %apply (int DIM1, double* IN_ARRAY1) {(int len1, double* vec1), (int len2, double* vec2)}
-%apply (int64_t* ARGOUT_ARRAY1, int32_t DIM1) {(int64_t* event_vec, int32_t n)}
+%apply (int64_t* ARGOUT_ARRAY1, int32_t DIM1) {(int64_t* event_vec, int32_t packet_len)}
+%apply (float* ARGOUT_ARRAY1, int32_t DIM1) {(float* event_vec_f, int32_t packet_len)}
+%apply (uint8_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint8_t* frame_event_vec, int32_t packet_len)}
 
 %inline %{
     double my_dot(int len1, double* vec1, int len2, double* vec2) {
@@ -243,14 +245,64 @@ Numpy related
 %}
 
 %inline %{
-void get_polarity_event(caerPolarityEventPacket event_packet, long long* event_vec, int32_t n) {
+void get_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
     long i;
-    for (i=0; i<n; i++) {
+    for (i=0; i<(int)packet_len/4; i++) {
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
         event_vec[i*4] = caerPolarityEventGetTimestamp(event);
         event_vec[i*4+1] = caerPolarityEventGetX(event);
         event_vec[i*4+2] = caerPolarityEventGetY(event);
         event_vec[i*4+3] = caerPolarityEventGetPolarity(event);
+    }
+}
+%}
+
+%inline %{
+void get_special_event(caerSpecialEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len/2; i++) {
+        caerSpecialEvent event = caerSpecialEventPacketGetEvent(event_packet, i);
+        event_vec[i*2] = caerSpecialEventGetTimestamp(event);
+        event_vec[i*2+1] = caerSpecialEventGetData(event);
+    }
+}
+%}
+
+%inline %{
+void get_imu6_event(caerIMU6EventPacket event_packet, float* event_vec_f, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len/8; i++) {
+        caerIMU6Event event = caerIMU6EventPacketGetEvent(event_packet, i);
+        event_vec_f[i*8] = caerIMU6EventGetTimestamp(event);
+        event_vec_f[i*8+1] = caerIMU6EventGetAccelX(event);
+        event_vec_f[i*8+2] = caerIMU6EventGetAccelY(event);
+        event_vec_f[i*8+3] = caerIMU6EventGetAccelZ(event);
+        event_vec_f[i*8+4] = caerIMU6EventGetGyroX(event);
+        event_vec_f[i*8+5] = caerIMU6EventGetGyroY(event);
+        event_vec_f[i*8+6] = caerIMU6EventGetGyroZ(event);
+        event_vec_f[i*8+7] = caerIMU6EventGetTemp(event);
+    }
+}
+%}
+
+%inline %{
+void get_spike_event(caerSpikeEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len/4; i++) {
+        caerSpikeEvent event = caerSpikeEventPacketGetEvent(event_packet, i);
+        event_vec[i*4] = caerSpikeEventGetTimestamp(event);
+        event_vec[i*4+1] = caerSpikeEventGetNeuronID(event);
+        event_vec[i*4+2] = caerSpikeEventGetSourceCoreID(event);
+        event_vec[i*4+3] = caerSpikeEventGetChipID(event);
+    }
+}
+%}
+
+%inline %{
+void get_frame_event(caerFrameEventConst event, uint8_t* frame_event_vec, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len; i++) {
+        frame_event_vec[i] = (uint8_t)(le16toh(event->pixels[i]) >> 8);
     }
 }
 %}

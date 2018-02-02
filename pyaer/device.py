@@ -191,14 +191,9 @@ class USBDevice(object):
             packet_header)
         polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
             packet_header)
-        events = np.array(
-            [[libcaer.caerPolarityEventGetTimestamp(event),
-              libcaer.caerPolarityEventGetX(event),
-              libcaer.caerPolarityEventGetY(event),
-              libcaer.caerPolarityEventGetPolarity(event)]
-             for event in [
-                libcaer.caerPolarityEventPacketGetEvent(polarity, event_id)
-                for event_id in range(num_events)]], dtype=np.int64)
+
+        events = libcaer.get_polarity_event(
+            polarity, num_events*4).reshape(num_events, 4)
 
         return events, num_events
 
@@ -220,16 +215,11 @@ class USBDevice(object):
         """
         num_events = libcaer.caerEventPacketHeaderGetEventNumber(
             packet_header)
-        polarity = libcaer.caerSpecialEventPacketFromPacketHeader(
+        special = libcaer.caerSpecialEventPacketFromPacketHeader(
             packet_header)
 
-        events = np.array(
-            [[libcaer.caerSpecialEventGetTimestamp(event),
-              libcaer.caerSpecialEventGetData(event)]
-             for event in [
-                libcaer.caerSpecialEventPacketGetEvent(polarity, event_id)
-                for event_id in range(num_events)]],
-            dtype=np.int64)
+        events = libcaer.get_special_event(
+            special, num_events*2).reshape(num_events, 2)
 
         return events, num_events
 
@@ -255,10 +245,8 @@ class USBDevice(object):
         Y_range = libcaer.caerFrameEventGetLengthY(first_event)
         X_range = libcaer.caerFrameEventGetLengthX(first_event)
 
-        frame_mat = np.array(
-            [libcaer.caerFrameEventGetPixelUnsafe(first_event, x, y) >> 8
-                for y in range(Y_range) for x in range(X_range)],
-            dtype=np.uint8).reshape(Y_range, X_range)
+        frame_mat = libcaer.get_frame_event(
+            first_event, Y_range*X_range).reshape(Y_range, X_range)
 
         return frame_mat, frame_ts
 
@@ -275,19 +263,8 @@ class USBDevice(object):
             packet_header)
         imu = libcaer.caerIMU6EventPacketFromPacketHeader(packet_header)
 
-        events = np.array(
-            [[libcaer.caerIMU6EventGetTimestamp(imu6),
-              libcaer.caerIMU6EventGetAccelX(imu6),
-              libcaer.caerIMU6EventGetAccelY(imu6),
-              libcaer.caerIMU6EventGetAccelZ(imu6),
-              libcaer.caerIMU6EventGetGyroX(imu6),
-              libcaer.caerIMU6EventGetGyroY(imu6),
-              libcaer.caerIMU6EventGetGyroZ(imu6),
-              libcaer.caerIMU6EventGetTemp(imu6)]
-             for imu6 in [
-                libcaer.caerIMU6EventPacketGetEvent(imu, event_id)
-                for event_id in range(num_events)]],
-            dtype=np.float32)
+        events = libcaer.get_imu6_event(
+            imu, num_events*8).reshape(num_events, 8)
 
         return events, num_events
 
@@ -305,14 +282,7 @@ class USBDevice(object):
         spike = libcaer.caerSpikeEventPacketFromPacketHeader(
             packet_header)
 
-        events = np.array(
-            [[libcaer.caerSpikeEventGetTimestamp(event),
-              libcaer.caerSpikeEventGetNeuronID(event),
-              libcaer.caerSpikeEventGetSourceCoreID(event),
-              libcaer.caerSpikeEventGetChipID(event)]
-             for event in [
-                libcaer.caerSpikeEventPacketGetEvent(spike, event_id)
-                for event_id in range(num_events)]],
-            dtype=np.int64)
+        events = libcaer.get_spike_event(
+            spike, num_events*4).reshape(num_events, 4)
 
         return events, num_events
