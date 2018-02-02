@@ -38,7 +38,8 @@ __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/
 Download the compiled wheel file from the [latest release](https://github.com/duguyue100/pyaer/releases/latest) and install it via `pip`
 
 ```bash
-$ pip install pyaer-latest-release.whl
+$ pip install pyaer-latest-release.whl \
+-r https://raw.githubusercontent.com/duguyue100/pyaer/master/requirements.txt
 ```
 
 __NOTE:__ The wheel file is built based on the bleeding-edge of
