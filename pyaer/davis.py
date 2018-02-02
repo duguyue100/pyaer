@@ -529,7 +529,10 @@ class DAVIS(USBDevice):
         return bias_obj
 
     def get_aps_bias(self):
-        """Get APS biases."""
+        """Get APS biases.
+
+        NOTE: This function is very experimental.
+        """
         aps_bias_obj = {}
         aps_bias_obj["column_settle"] = self.get_config(
             libcaer.DAVIS_CONFIG_APS,
@@ -602,10 +605,7 @@ class DAVIS(USBDevice):
         return utils.clip(new_exposure, self.min_exposure, self.max_exposure)
 
     def get_event(self):
-        """Get Event.
-
-        Maybe not so efficient.
-        """
+        """Get Event."""
         packet_container, packet_number = self.get_packet_container()
         if packet_container is not None:
             num_pol_event = 0

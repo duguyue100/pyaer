@@ -215,10 +215,7 @@ class DVS128(USBDevice):
         self.set_data_exchange_blocking()
 
     def get_event(self):
-        """Get event.
-
-        Maybe not so efficient
-        """
+        """Get event."""
         packet_container, packet_number = self.get_packet_container()
         if packet_container is not None:
             num_pol_event = 0

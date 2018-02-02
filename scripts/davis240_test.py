@@ -5,7 +5,7 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function
 
-from scipy.misc import imsave
+import numpy as np
 import cv2
 
 from pyaer.davis import DAVIS
@@ -33,37 +33,53 @@ device.set_bias_from_json("./scripts/configs/davis240c_config.json")
 
 device.start_data_stream()
 
+clip_value = 3
+histrange = [(0, v) for v in (180, 240)]
+
 
 def get_event(device):
-    (pol_ts, pol_xy, pol_pol, num_pol_event,
-     special_ts, special_event_data, num_special_event,
-     frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
-     num_imu_event) = \
-        device.get_event()
-    return (pol_ts, pol_xy, pol_pol, num_pol_event,
-            special_ts, special_event_data, num_special_event,
-            frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
-            num_imu_event)
+    data = device.get_event()
+
+    return data
 
 
 while True:
     try:
-        (pol_ts, pol_xy, pol_pol, num_pol_event,
-         special_ts, special_event_data, num_special_event,
-         frames_ts, frames, imu_ts, imu_acc, imu_gyro, imu_temp,
-         num_imu_event) = \
-            get_event(device)
+        data = get_event(device)
+        if data is not None:
+            (pol_events, num_pol_event,
+             special_events, num_special_event,
+             frames_ts, frames, imu_events,
+             num_imu_event) = data
+            if frames.shape[0] != 0:
+                cv2.imshow("frame", frames[0])
 
-        if frames.shape[0] != 0:
-            imsave("./test.png", frames[0])
-            cv2.imshow("frame", frames[0]/255.)
+            print ("Number of events:", num_pol_event, "Number of Frames:",
+                   frames.shape)
 
-        print ("Number of events:", num_pol_event, "Number of Frames:",
-               frames.shape)
+            if num_pol_event != 0:
+                pol_on = (pol_events[:, 3] == 1)
+                pol_off = np.logical_not(pol_on)
+                img_on, _, _ = np.histogram2d(
+                        pol_events[pol_on, 2], pol_events[pol_on, 1],
+                        bins=(180, 240), range=histrange)
+                img_off, _, _ = np.histogram2d(
+                        pol_events[pol_off, 1], pol_events[pol_off, 0],
+                        bins=(180, 240), range=histrange)
+                if clip_value is not None:
+                    integrated_img = np.clip(
+                        (img_on-img_off), -clip_value, clip_value)
+                else:
+                    integrated_img = (img_on-img_off)
+                img = integrated_img+clip_value
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            device.shutdown()
-            break
+                cv2.imshow("image", img/float(clip_value*2))
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
+            pass
+
     except KeyboardInterrupt:
         device.shutdown()
         break
