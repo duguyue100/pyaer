@@ -60,7 +60,7 @@ fragment = """
     }
 """
 
-window = app.Window(width=512, height=512, aspect=1)
+window = app.Window(width=1024, height=1024, aspect=1)
 
 img_array = (np.random.uniform(
     0, 1, (128, 128, 3))*250).astype(np.uint8)
@@ -84,6 +84,7 @@ def on_draw(dt):
         device.start_data_stream()
         data_stream = True
 
+    lock.acquire()
     (pol_events, num_pol_event,
      special_events, num_special_event) = \
         device.get_event()
@@ -112,10 +113,11 @@ def on_draw(dt):
 
     quad["texture"] = img_array
     quad.draw(gl.GL_TRIANGLE_STRIP)
+    lock.release()
 
 
 quad = gloo.Program(vertex, fragment, count=4)
 quad['position'] = [(-1, -1), (-1, +1), (+1, -1), (+1, +1)]
 quad['texcoord'] = [(0, 1), (0, 0), (1, 1), (1, 0)]
 quad['texture'] = img_array
-app.run(framerate=100)
+app.run(framerate=150)
