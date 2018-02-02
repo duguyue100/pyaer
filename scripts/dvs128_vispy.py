@@ -101,7 +101,7 @@ class Canvas(vispy.app.Canvas):
         self._timer = app.Timer('auto', connect=self.update, start=True)
         self.show()
 
-    @profile
+    #  @profile
     def on_draw(self, ev):
         gloo.clear(color=True, depth=True)
 
@@ -125,7 +125,7 @@ class Canvas(vispy.app.Canvas):
                 integrated_img = (img_on-img_off)
 
             img_array = ((integrated_img+clip_value)/float(
-                clip_value*2)).astype(np.float32)
+                clip_value*2)).astype(np.float32).T
         else:
             img_array[...] = np.zeros(
                 (128, 128), dtype=np.uint8).astype(np.float32)
@@ -133,7 +133,7 @@ class Canvas(vispy.app.Canvas):
         self.texture.set_data(img_array)
         self.program.draw('triangle_strip')
 
-    @profile
+    #  @profile
     def on_resize(self, event):
         width, height = event.physical_size
         gloo.set_viewport(0, 0, width, height)
@@ -153,7 +153,7 @@ class Canvas(vispy.app.Canvas):
             [[x, y], [x + w, y], [x, y + h], [x + w, y + h]])
         self.program.bind(gloo.VertexBuffer(data))
 
-@profile
+#  @profile
 def run():
     win = Canvas()
     app.run()
