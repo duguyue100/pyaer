@@ -81,6 +81,20 @@ $ udevadm control --reload
 
 Unplug and replug the camera.
 
+## Running Examples
+
+The [scripts](./scripts) folder provides some examples for you to play with:
+
+1. `dvs128-test`: you need OpenCV to run this example, note that if you are on Mac, OpenCV's `waitKey()` function may cause delay of displaying frames.
+
+2. `dvs128-glumpy`: you need `glumpy` package to run this example. `glumpy` is a fast visualization library based on OpenGL. We found it's very fast to render images. In our case, we use GLFW backend. If `glumpy` couldn't find your installed GLFW on your system, make sure you set the `GLFW_LIBRARY` variable to `/your/glfw/library/path/libglfw.so`.
+
+3. `dvs240-test`: you need OpenCV to run this example.
+
+4. `dvs346-test`: you need OpenCV to run this example.
+
+More examples are coming...
+
 ## Yeah, you need SWIG
 
 __You only need to read this section if you are planning to compile
