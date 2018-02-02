@@ -67,11 +67,19 @@ img_array = (np.random.uniform(
 
 
 @window.event
+def on_close():
+    global device
+
+    print ("Shutting down the device")
+    device.shutdown()
+    del device
+
+
+@window.event
 def on_draw(dt):
     global data_stream, device, event_list
     window.clear()
 
-    lock.acquire()
     if data_stream is False:
         device.start_data_stream()
         data_stream = True
@@ -104,7 +112,6 @@ def on_draw(dt):
 
     quad["texture"] = img_array
     quad.draw(gl.GL_TRIANGLE_STRIP)
-    lock.release()
 
 
 quad = gloo.Program(vertex, fragment, count=4)
