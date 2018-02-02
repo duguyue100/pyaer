@@ -27,6 +27,9 @@ dvs128-thread-test:
 dvs128-vispy:
 	python ./scripts/dvs128_vispy.py
 
+dvs128-glumpy:
+	python ./scripts/dvs128_glumpy.py
+
 davis240-test:
 	python ./scripts/davis240_test.py
 
