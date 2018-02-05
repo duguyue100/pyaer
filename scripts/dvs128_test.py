@@ -56,11 +56,12 @@ def get_event(device):
         img = integrated_img+clip_value
 
         cv2.imshow("image", img/float(clip_value*2))
-    print ("Number of events:", num_pol_event, "Number of special events:",
-           num_special_event)
+        print ("Number of events:", num_pol_event, "Number of special events:",
+               num_special_event)
+        del pol_events, num_pol_event, special_events, num_special_event
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        return
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            return
 
 
 while True:

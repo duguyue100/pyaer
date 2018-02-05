@@ -226,23 +226,9 @@ bool biasHigh, bool typeNormal, bool sexN, bool enabled) {
 /*
 Numpy related
 */
-%apply (int DIM1, double* IN_ARRAY1) {(int len1, double* vec1), (int len2, double* vec2)}
 %apply (int64_t* ARGOUT_ARRAY1, int32_t DIM1) {(int64_t* event_vec, int32_t packet_len)}
 %apply (float* ARGOUT_ARRAY1, int32_t DIM1) {(float* event_vec_f, int32_t packet_len)}
 %apply (uint8_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint8_t* frame_event_vec, int32_t packet_len)}
-
-%inline %{
-    double my_dot(int len1, double* vec1, int len2, double* vec2) {
-        int i;
-        double d;
-
-        d = 0;
-        for(i=0;i<len1;i++)
-            d += vec1[i]*vec2[i];
-
-        return d;
-}
-%}
 
 %inline %{
 void get_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {

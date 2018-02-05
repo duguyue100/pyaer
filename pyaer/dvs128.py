@@ -237,6 +237,7 @@ class DVS128(USBDevice):
                     special_events = np.hstack((special_events, events)) \
                         if special_events is not None else events
                     num_special_event += num_events
+            libcaer.caerEventPacketContainerFree(packet_container)
 
             return (pol_events, num_pol_event, special_events,
                     num_special_event)

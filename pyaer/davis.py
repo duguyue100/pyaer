@@ -647,6 +647,8 @@ class DAVIS(USBDevice):
             frames = np.array(frames, dtype=np.uint8)
             frames_ts = np.array(frames_ts, dtype=np.uint64)
 
+            libcaer.caerEventPacketContainerFree(packet_container)
+
             return (pol_events, num_pol_event,
                     special_events, num_special_event,
                     frames_ts, frames, imu_events,
