@@ -75,5 +75,6 @@ setup(
     ext_modules=[libcaer_wrap],
 
     classifiers=list(filter(None, classifiers.split("\n"))),
-    description="PyAER: Python bindings for Neuromorphic devices."
+    description="PyAER: Low-level Python APIs for "
+                "Accessing Neuromorphic Devices."
 )

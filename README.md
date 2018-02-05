@@ -10,6 +10,8 @@ Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
 + Supported platform: `Ubuntu`, `macOS`
 + Supported Python: 2.7, 3.6
 
+The project is in its Alpha development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you need our help.
+
 ## Design Principle
 
 + Minimum installation effort
