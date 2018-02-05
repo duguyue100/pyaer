@@ -8,8 +8,7 @@ from __future__ import print_function
 import threading
 
 import numpy as np
-from glumpy import app, gloo, gl, glm, data
-from time import sleep
+from glumpy import app, gloo, gl
 
 from pyaer.dvs128 import DVS128
 
