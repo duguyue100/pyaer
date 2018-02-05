@@ -33,8 +33,9 @@ if flag:
     print ("Default bias set")
 else:
     print ("Default bias set error")
-device.set_bias_from_json("./scripts/configs/davis346_config.json")
 device.start_data_stream()
+# setting bias after data stream started
+device.set_bias_from_json("./scripts/configs/davis346_config.json")
 
 clip_value = 3
 histrange = [(0, v) for v in (260, 346)]

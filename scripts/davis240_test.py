@@ -8,6 +8,7 @@ from __future__ import print_function
 import numpy as np
 import cv2
 
+from pyaer import libcaer
 from pyaer.davis import DAVIS
 
 device = DAVIS()
@@ -29,9 +30,10 @@ print ("Background Activity Filter:",
 
 
 device.send_default_config()
-device.set_bias_from_json("./scripts/configs/davis240c_config.json")
 
 device.start_data_stream()
+# set new bias after data streaming
+device.set_bias_from_json("./scripts/configs/davis240c_config.json")
 
 clip_value = 3
 histrange = [(0, v) for v in (180, 240)]
@@ -77,6 +79,8 @@ while True:
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+
+            del data
         else:
             pass
 

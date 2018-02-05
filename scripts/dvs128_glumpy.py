@@ -29,10 +29,6 @@ print ("Device size X:", device.dvs_size_X)
 print ("Device size Y:", device.dvs_size_Y)
 print ("Logic Version:", device.logic_version)
 
-# load new config
-device.set_bias_from_json("./scripts/configs/dvs128_config.json")
-print (device.get_bias())
-
 data_stream = False
 
 lock = threading.Lock()
@@ -82,6 +78,8 @@ def on_draw(dt):
 
     if data_stream is False:
         device.start_data_stream()
+        # setting bias after data stream
+        device.set_bias_from_json("./scripts/configs/dvs128_config.json")
         data_stream = True
 
     lock.acquire()
