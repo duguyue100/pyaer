@@ -48,6 +48,14 @@ class DAVIS(USBDevice):
         # get camera information
         self.obtain_device_info(self.handle)
 
+        # coarse fine setting functions
+        self.cf_set = {"n_type": libcaer.cf_n_type_set,
+                       "p_type": libcaer.cf_p_type_set,
+                       "n_cas_type": libcaer.cf_n_type_cas_set,
+                       "n_off_type": libcaer.cf_n_type_off_set,
+                       "p_off_type": libcaer.cf_p_type_off_set,
+                       "vdac": libcaer.vdac_set}
+
     def obtain_device_info(self, handle):
         """Obtain DAVIS info."""
         info = libcaer.caerDavisInfoGet(handle)
@@ -129,6 +137,25 @@ class DAVIS(USBDevice):
         bias_obj = utils.load_dvs_bias(file_path, verbose)
         self.set_bias(bias_obj)
 
+    def set_cf_bias(self, param_addr, param, coarse, fine, mode):
+        """Setting coarse fine bias.
+
+        # Parameter
+        param_addr : parameter address
+            such as libcaer.DAVIS_CONFIG_BIAS
+        param : parameter
+            such as libcaer.DAVIS240_CONFIG_BIAS_ONBN
+        coarse : int
+            coarae value
+        fine : int
+            fine value
+        mode : setting mode
+            n_type, p_type, n_cas_type, n_off_type, p_off_type, vdac
+        """
+        return self.set_config(
+            param_addr, param,
+            self.cf_set[mode](coarse, fine))
+
     def set_bias(self, bias_obj):
         """Set bias from bias dictionary.
 
@@ -194,214 +221,212 @@ class DAVIS(USBDevice):
         if self.chip_id == libcaer.DAVIS_CHIP_DAVIS346B:
             # VDAC
             # APSOverflowLevel
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_APSOVERFLOWLEVEL,
-                libcaer.vdac_set(27, 6))
+                27, 6, "vdac")
 
             # APSCas
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_APSCAS,
-                libcaer.vdac_set(21, 6))
+                21, 6, "vdac")
 
             # ADC_RefHigh_volt
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_ADCREFHIGH,
-                libcaer.vdac_set(
-                    bias_obj["ADC_RefHigh_volt"],
-                    bias_obj["ADC_RefHigh_curr"]))
+                bias_obj["ADC_RefHigh_volt"],
+                bias_obj["ADC_RefHigh_curr"], "vdac")
 
             # ADC_RefLow_volt
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_ADCREFLOW,
-                libcaer.vdac_set(
-                    bias_obj["ADC_RefLow_volt"],
-                    bias_obj["ADC_RefLow_curr"]))
+                bias_obj["ADC_RefLow_volt"],
+                bias_obj["ADC_RefLow_curr"], "vdac")
 
             # ADCTestVoltage
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_ADCTESTVOLTAGE,
-                libcaer.vdac_set(21, 7))
+                21, 7, "vdac")
 
             # CF biases
             # LocalBufBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_LOCALBUFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["LocalBufBn_coarse"],
-                    bias_obj["LocalBufBn_fine"]))
+                bias_obj["LocalBufBn_coarse"],
+                bias_obj["LocalBufBn_fine"],
+                "n_type")
 
             # PadFollBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_PADFOLLBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["PadFollBn_coarse"],
-                    bias_obj["PadFollBn_fine"]))
+                bias_obj["PadFollBn_coarse"],
+                bias_obj["PadFollBn_fine"],
+                "n_type")
 
             # DiffBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_DIFFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["DiffBn_coarse"],
-                    bias_obj["DiffBn_fine"]))
+                bias_obj["DiffBn_coarse"],
+                bias_obj["DiffBn_fine"],
+                "n_type")
 
             # ONBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_ONBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["ONBn_coarse"],
-                    bias_obj["ONBn_fine"]))
+                bias_obj["ONBn_coarse"],
+                bias_obj["ONBn_fine"],
+                "n_type")
 
             # OFFBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_OFFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["OFFBn_coarse"],
-                    bias_obj["OFFBn_fine"]))
+                bias_obj["OFFBn_coarse"],
+                bias_obj["OFFBn_fine"],
+                "n_type")
 
             # PixInvBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_PIXINVBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["PixInvBn_coarse"],
-                    bias_obj["PixInvBn_fine"]))
+                bias_obj["PixInvBn_coarse"],
+                bias_obj["PixInvBn_fine"],
+                "n_type")
 
             # PrBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_PRBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["PrBp_coarse"],
-                    bias_obj["PrBp_fine"]))
+                bias_obj["PrBp_coarse"],
+                bias_obj["PrBp_fine"],
+                "p_type")
 
             # PrSFBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_PRSFBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["PrSFBp_coarse"],
-                    bias_obj["PrSFBp_fine"]))
+                bias_obj["PrSFBp_coarse"],
+                bias_obj["PrSFBp_fine"],
+                "p_type")
 
             # RefrBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_REFRBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["RefrBp_coarse"],
-                    bias_obj["RefrBp_fine"]))
+                bias_obj["RefrBp_coarse"],
+                bias_obj["RefrBp_fine"],
+                "p_type")
 
             # ReadoutBufBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_READOUTBUFBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["ReadoutBufBp_coarse"],
-                    bias_obj["ReadoutBufBp_fine"]))
+                bias_obj["ReadoutBufBp_coarse"],
+                bias_obj["ReadoutBufBp_fine"],
+                "p_type")
 
             # APSROSFBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_APSROSFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["APSROSFBn_coarse"],
-                    bias_obj["APSROSFBn_fine"]))
+                bias_obj["APSROSFBn_coarse"],
+                bias_obj["APSROSFBn_fine"],
+                "n_type")
 
             # ADCCompBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_ADCCOMPBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["ADCCompBp_coarse"],
-                    bias_obj["ADCCompBp_fine"]))
+                bias_obj["ADCCompBp_coarse"],
+                bias_obj["ADCCompBp_fine"],
+                "p_type")
 
             # COLSELLowBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_COLSELLOWBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["COLSELLowBn_coarse"],
-                    bias_obj["COLSELLowBn_fine"]))
+                bias_obj["COLSELLowBn_coarse"],
+                bias_obj["COLSELLowBn_fine"],
+                "n_type")
 
             # DACBufBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_DACBUFBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["DACBufBp_coarse"],
-                    bias_obj["DACBufBp_fine"]))
+                bias_obj["DACBufBp_coarse"],
+                bias_obj["DACBufBp_fine"],
+                "p_type")
 
             # LcolTimeoutBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_LCOLTIMEOUTBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["LcolTimeoutBn_coarse"],
-                    bias_obj["LcolTimeoutBn_fine"]))
+                bias_obj["LcolTimeoutBn_coarse"],
+                bias_obj["LcolTimeoutBn_fine"],
+                "n_type")
 
             # AEPdBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_AEPDBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["AEPdBn_coarse"],
-                    bias_obj["AEPdBn_fine"]))
+                bias_obj["AEPdBn_coarse"],
+                bias_obj["AEPdBn_fine"],
+                "n_type")
 
             # AEPuXBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_AEPUXBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["AEPuXBp_coarse"],
-                    bias_obj["AEPuXBp_fine"]))
+                bias_obj["AEPuXBp_coarse"],
+                bias_obj["AEPuXBp_fine"],
+                "p_type")
 
             # AEPuYBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_AEPUYBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["AEPuYBp_coarse"],
-                    bias_obj["AEPuYBp_fine"]))
+                bias_obj["AEPuYBp_coarse"],
+                bias_obj["AEPuYBp_fine"],
+                "p_type")
 
             # IFRefrBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_IFREFRBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["IFRefrBn_coarse"],
-                    bias_obj["IFRefrBn_fine"]))
+                bias_obj["IFRefrBn_coarse"],
+                bias_obj["IFRefrBn_fine"],
+                "n_type")
 
             # IFThrBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_IFTHRBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["IFThrBn_coarse"],
-                    bias_obj["IFThrBn_fine"]))
+                bias_obj["IFThrBn_coarse"],
+                bias_obj["IFThrBn_fine"],
+                "n_type")
 
             # BiasBuffer
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_BIASBUFFER,
-                libcaer.cf_n_type_set(
-                    bias_obj["BiasBuffer_coarse"],
-                    bias_obj["BiasBuffer_fine"]))
+                bias_obj["BiasBuffer_coarse"],
+                bias_obj["BiasBuffer_fine"],
+                "n_type")
 
             # Special Biases
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_SSP,
                 libcaer.shiftsource_set(1, 33, libcaer.SHIFTED_SOURCE))
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_SSN,
                 libcaer.shiftsource_set(1, 33, libcaer.SHIFTED_SOURCE))
@@ -426,164 +451,164 @@ class DAVIS(USBDevice):
 
         elif self.chip_id == libcaer.DAVIS_CHIP_DAVIS240C:
             # DiffBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_DIFFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["DiffBn_coarse"],
-                    bias_obj["DiffBn_fine"]))
+                bias_obj["DiffBn_coarse"],
+                bias_obj["DiffBn_fine"],
+                "n_type")
 
             # ONBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_ONBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["ONBn_coarse"],
-                    bias_obj["ONBn_fine"]))
+                bias_obj["ONBn_coarse"],
+                bias_obj["ONBn_fine"],
+                "n_type")
 
             # OFFBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_OFFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["OFFBn_coarse"],
-                    bias_obj["OFFBn_fine"]))
+                bias_obj["OFFBn_coarse"],
+                bias_obj["OFFBn_fine"],
+                "n_type")
 
             # APSCasEPC
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_APSCASEPC,
-                libcaer.cf_n_type_cas_set(
-                    bias_obj["APSCasEPC_coarse"],
-                    bias_obj["APSCasEPC_fine"]))
+                bias_obj["APSCasEPC_coarse"],
+                bias_obj["APSCasEPC_fine"],
+                "n_cas_type")
 
             # DiffCasBNC
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_DIFFCASBNC,
-                libcaer.cf_n_type_cas_set(
-                    bias_obj["DiffCasBNC_coarse"],
-                    bias_obj["DiffCasBNC_fine"]))
+                bias_obj["DiffCasBNC_coarse"],
+                bias_obj["DiffCasBNC_fine"],
+                "n_cas_type")
 
             # APSROSFBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_APSROSFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["APSROSFBn_coarse"],
-                    bias_obj["APSROSFBn_fine"]))
+                bias_obj["APSROSFBn_coarse"],
+                bias_obj["APSROSFBn_fine"],
+                "n_type")
 
             # LocalBufBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_LOCALBUFBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["LocalBufBn_coarse"],
-                    bias_obj["LocalBufBn_fine"]))
+                bias_obj["LocalBufBn_coarse"],
+                bias_obj["LocalBufBn_fine"],
+                "n_type")
 
             # PixInvBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_PIXINVBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["PixInvBn_coarse"],
-                    bias_obj["PixInvBn_fine"]))
+                bias_obj["PixInvBn_coarse"],
+                bias_obj["PixInvBn_fine"],
+                "n_type")
 
             # PrBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_PRBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["PrBp_coarse"],
-                    bias_obj["PrBp_fine"]))
+                bias_obj["PrBp_coarse"],
+                bias_obj["PrBp_fine"],
+                "p_type")
 
             # PrSFBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_PRSFBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["PrSFBp_coarse"],
-                    bias_obj["PrSFBp_fine"]))
+                bias_obj["PrSFBp_coarse"],
+                bias_obj["PrSFBp_fine"],
+                "p_type")
 
             # RefrBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_REFRBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["RefrBp_coarse"],
-                    bias_obj["RefrBp_fine"]))
+                bias_obj["RefrBp_coarse"],
+                bias_obj["RefrBp_fine"],
+                "p_type")
 
             # AEPdBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_AEPDBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["AEPdBn_coarse"],
-                    bias_obj["AEPdBn_fine"]))
+                bias_obj["AEPdBn_coarse"],
+                bias_obj["AEPdBn_fine"],
+                "n_type")
 
             # LcolTimeoutBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_LCOLTIMEOUTBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["LcolTimeoutBn_coarse"],
-                    bias_obj["LcolTimeoutBn_fine"]))
+                bias_obj["LcolTimeoutBn_coarse"],
+                bias_obj["LcolTimeoutBn_fine"],
+                "n_type")
 
             # AEPuXBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_AEPUXBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["AEPuXBp_coarse"],
-                    bias_obj["AEPuXBp_fine"]))
+                bias_obj["AEPuXBp_coarse"],
+                bias_obj["AEPuXBp_fine"],
+                "p_type")
 
             # AEPuYBp
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_AEPUYBP,
-                libcaer.cf_p_type_set(
-                    bias_obj["AEPuYBp_coarse"],
-                    bias_obj["AEPuYBp_fine"]))
+                bias_obj["AEPuYBp_coarse"],
+                bias_obj["AEPuYBp_fine"],
+                "p_type")
 
             # IFThrBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_IFTHRBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["IFThrBn_coarse"],
-                    bias_obj["IFThrBn_fine"]))
+                bias_obj["IFThrBn_coarse"],
+                bias_obj["IFThrBn_fine"],
+                "n_type")
 
             # IFRefrBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_IFREFRBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["IFRefrBn_coarse"],
-                    bias_obj["IFRefrBn_fine"]))
+                bias_obj["IFRefrBn_coarse"],
+                bias_obj["IFRefrBn_fine"],
+                "n_type")
 
             # PadFollBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_PADFOLLBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["PadFollBn_coarse"],
-                    bias_obj["PadFollBn_fine"]))
+                bias_obj["PadFollBn_coarse"],
+                bias_obj["PadFollBn_fine"],
+                "n_type")
 
             # APSOverflowLevelBn
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_APSOVERFLOWLEVELBN,
-                libcaer.cf_n_type_set(
-                    bias_obj["APSOverflowLevelBn_coarse"],
-                    bias_obj["APSOverflowLevelBn_fine"]))
+                bias_obj["APSOverflowLevelBn_coarse"],
+                bias_obj["APSOverflowLevelBn_fine"],
+                "n_type")
 
             # BiasBuffer
-            self.set_config(
+            self.set_cf_bias(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS240_CONFIG_BIAS_BIASBUFFER,
-                libcaer.cf_n_type_set(
-                    bias_obj["BiasBuffer_coarse"],
-                    bias_obj["BiasBuffer_fine"]))
+                bias_obj["BiasBuffer_coarse"],
+                bias_obj["BiasBuffer_fine"],
+                "n_type")
 
     def get_cf_bias(self, param_addr, param):
         """Get coarse-fine bias.
