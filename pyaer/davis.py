@@ -655,3 +655,219 @@ class DAVIS(USBDevice):
                     num_imu_event)
         else:
             return None
+
+
+class DAVISFX2(DAVIS):
+    """DAVIS FX2."""
+    def __init__(self,
+                 device_id=1,
+                 bus_number_restrict=0,
+                 dev_address_restrict=0,
+                 serial_number=""):
+        """DAVIS FX2.
+
+        TODO: there may be more features to write
+
+        Parameters
+        ----------
+        device_id : int
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.
+            default is 1
+        bus_number_restrict : int
+            restrict the search for viable devices to only this USB
+            bus number.
+            default is 0
+        dev_address_restrict : int
+            restrict the search for viable devices to only this USB
+            device address.
+            default is 0
+        serial_number : str
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.
+            default is ""
+        """
+        super(DAVISFX2, self).__init__()
+        # open device
+        self.open(device_id, bus_number_restrict,
+                  dev_address_restrict, serial_number)
+        # get camera information
+        self.obtain_device_info(self.handle)
+
+    def open(self,
+             device_id=1,
+             bus_number_restrict=0,
+             dev_address_restrict=0,
+             serial_number=""):
+        """Open DAVIS FX2 device.
+
+        Parameters
+        ----------
+        device_id : int
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.
+            default is 1
+        bus_number_restrict : int
+            restrict the search for viable devices to only this USB
+            bus number.
+            default is 0
+        dev_address_restrict : int
+            restrict the search for viable devices to only this USB
+            device address.
+            default is 0
+        serial_number : str
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.
+            default is ""
+        """
+        USBDevice.open(libcaer.CAER_DEVICE_DAVIS_FX2, device_id,
+                       bus_number_restrict, dev_address_restrict,
+                       serial_number)
+
+
+class DAVISFX3(DAVIS):
+    """DAVIS FX3."""
+    def __init__(self,
+                 device_id=1,
+                 bus_number_restrict=0,
+                 dev_address_restrict=0,
+                 serial_number=""):
+        """DAVIS FX3.
+
+        TODO: there may be more features to write
+
+        Parameters
+        ----------
+        device_id : int
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.
+            default is 1
+        bus_number_restrict : int
+            restrict the search for viable devices to only this USB
+            bus number.
+            default is 0
+        dev_address_restrict : int
+            restrict the search for viable devices to only this USB
+            device address.
+            default is 0
+        serial_number : str
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.
+            default is ""
+        """
+        super(DAVISFX3, self).__init__()
+        # open device
+        self.open(device_id, bus_number_restrict,
+                  dev_address_restrict, serial_number)
+        # get camera information
+        self.obtain_device_info(self.handle)
+
+    def open(self,
+             device_id=1,
+             bus_number_restrict=0,
+             dev_address_restrict=0,
+             serial_number=""):
+        """Open DAVIS FX3 device.
+
+        Parameters
+        ----------
+        device_id : int
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.
+            default is 1
+        bus_number_restrict : int
+            restrict the search for viable devices to only this USB
+            bus number.
+            default is 0
+        dev_address_restrict : int
+            restrict the search for viable devices to only this USB
+            device address.
+            default is 0
+        serial_number : str
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.
+            default is ""
+        """
+        USBDevice.open(libcaer.CAER_DEVICE_DAVIS_FX3, device_id,
+                       bus_number_restrict, dev_address_restrict,
+                       serial_number)
+
+
+class DAVISRPI(DAVIS):
+    """DAVIS RPI."""
+    def __init__(self,
+                 device_id=1,
+                 bus_number_restrict=0,
+                 dev_address_restrict=0,
+                 serial_number=""):
+        """DAVIS RPI.
+
+        TODO: there may be more features to write
+
+        Parameters
+        ----------
+        device_id : int
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.
+            default is 1
+        bus_number_restrict : int
+            restrict the search for viable devices to only this USB
+            bus number.
+            default is 0
+        dev_address_restrict : int
+            restrict the search for viable devices to only this USB
+            device address.
+            default is 0
+        serial_number : str
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.
+            default is ""
+        """
+        super(DAVISRPI, self).__init__()
+        # open device
+        self.open(device_id, bus_number_restrict,
+                  dev_address_restrict, serial_number)
+        # get camera information
+        self.obtain_device_info(self.handle)
+
+    def open(self,
+             device_id=1,
+             bus_number_restrict=0,
+             dev_address_restrict=0,
+             serial_number=""):
+        """Open DAVIS RPI device.
+
+        Parameters
+        ----------
+        device_id : int
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.
+            default is 1
+        bus_number_restrict : int
+            restrict the search for viable devices to only this USB
+            bus number.
+            default is 0
+        dev_address_restrict : int
+            restrict the search for viable devices to only this USB
+            device address.
+            default is 0
+        serial_number : str
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.
+            default is ""
+        """
+        USBDevice.open(libcaer.CAER_DEVICE_DAVIS_RPI, device_id,
+                       bus_number_restrict, dev_address_restrict,
+                       serial_number)

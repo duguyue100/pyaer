@@ -76,12 +76,19 @@ before_install:
         brew install automake;
         brew install bison;
       fi
+    - git clone git://sigrok.org/libserialport
+    - cd libserialport
+    - ./autogen.sh
+    - ./configure
+    - make
+    - sudo make install
+    - cd ..
     - git clone https://github.com/inilabs/libcaer
     - cd libcaer
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        cmake -DCMAKE_INSTALL_PREFIX=/usr .;
+        cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_SERIALDEV=1 .;
       else
-        cmake -DCMAKE_INSTALL_PREFIX=/usr/local .;
+        cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SERIALDEV=1 .;
       fi
     - make
     - sudo make install
