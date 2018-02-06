@@ -57,7 +57,10 @@ while True:
                 cv2.imshow("frame", frames[0])
 
             print ("Number of events:", num_pol_event, "Number of Frames:",
-                   frames.shape)
+                   frames.shape, "Exposure:",
+                   device.get_config(
+                       libcaer.DAVIS_CONFIG_APS,
+                       libcaer.DAVIS_CONFIG_APS_EXPOSURE))
 
             if num_pol_event != 0:
                 pol_on = (pol_events[:, 3] == 1)
