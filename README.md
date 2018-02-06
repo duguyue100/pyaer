@@ -27,13 +27,15 @@ The project is in its Alpha development stage, please submit an [issue](https://
 $ sudo apt-get install libusb-1.0-0-dev
 $ git clone https://github.com/inilabs/libcaer.git
 $ cd libcaer
-$ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
-# for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
+$ cmake -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_SERIALDEV=1 .  # for Linux
+# for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_SERIALDEV=1 .
 $ make
 $ make install
 ```
 
 __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
+
+__NOTE:__ From 0.1.0a18, we also build with serial port devices support, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport).
 
 2. Directly install from pip (RECOMMEND)
 

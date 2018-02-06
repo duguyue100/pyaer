@@ -1,7 +1,7 @@
 """Setup script for the pyaer package.
 
 Author: Yuhuang Hu
-Email : yuhuang.hu@uzh.ch
+Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
 from setuptools import setup
