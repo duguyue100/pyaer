@@ -275,4 +275,5 @@ class DYNAPSE(USBDevice):
                     spike_events = np.hstack((spike_events, events)) \
                         if spike_events is not None else events
                     num_spike_events += num_events
+            libcaer.caerEventPacketContainerFree(packet_container)
         return (spike_events, num_spike_events)
