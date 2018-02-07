@@ -46,7 +46,7 @@
     "BiasBuffer_coarse": 5,
     "BiasBuffer_fine": 254,
     "aps_enabled": true,
-    "dvs_enabled": false,
+    "dvs_enabled": true,
     "exposure": 4000,
     "autoexposure": true,
     "frame_delay": 0,

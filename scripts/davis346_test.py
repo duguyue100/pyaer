@@ -8,6 +8,7 @@ from __future__ import print_function
 import cv2
 import numpy as np
 
+from pyaer import libcaer
 from pyaer.davis import DAVIS
 
 device = DAVIS()
@@ -37,7 +38,7 @@ device.start_data_stream()
 # setting bias after data stream started
 device.set_bias_from_json("./scripts/configs/davis346_config.json")
 
-clip_value = 3
+clip_value = 8
 histrange = [(0, v) for v in (260, 346)]
 
 
@@ -59,7 +60,10 @@ while True:
                 cv2.imshow("frame", frames[0])
 
             print ("Number of events:", num_pol_event, "Number of Frames:",
-                   frames.shape)
+                   frames.shape, "Exposure:",
+                   device.get_config(
+                       libcaer.DAVIS_CONFIG_APS,
+                       libcaer.DAVIS_CONFIG_APS_EXPOSURE))
 
             if num_pol_event != 0:
                 pol_on = (pol_events[:, 3] == 1)

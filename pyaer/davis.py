@@ -422,11 +422,11 @@ class DAVIS(USBDevice):
                 "n_type")
 
             # Special Biases
-            self.set_cf_bias(
+            self.set_config(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_SSP,
                 libcaer.shiftsource_set(1, 33, libcaer.SHIFTED_SOURCE))
-            self.set_cf_bias(
+            self.set_config(
                 libcaer.DAVIS_CONFIG_BIAS,
                 libcaer.DAVIS346_CONFIG_BIAS_SSN,
                 libcaer.shiftsource_set(1, 33, libcaer.SHIFTED_SOURCE))
@@ -692,7 +692,7 @@ class DAVIS(USBDevice):
             bias_obj["LocalBufBn_coarse"], bias_obj["LocalBufBn_fine"] = \
                 self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
-                    libcaer.DAVIS_CONFIG_BIAS_LOCALBUFBN)
+                    libcaer.DAVIS346_CONFIG_BIAS_LOCALBUFBN)
 
             # PadFollBn
             bias_obj["PadFollBn_coarse"], bias_obj["PadFollBn_fine"] = \
@@ -708,7 +708,7 @@ class DAVIS(USBDevice):
 
             # ONBn
             bias_obj["ONBn_coarse"], bias_obj["ONBn_fine"] = \
-                self.get_config(
+                self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
                     libcaer.DAVIS346_CONFIG_BIAS_ONBN)
 
@@ -738,13 +738,13 @@ class DAVIS(USBDevice):
 
             # RefrBp
             bias_obj["RefrBp_coarse"], bias_obj["RefrBp_fine"] = \
-                self.get_config(
+                self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
                     libcaer.DAVIS346_CONFIG_BIAS_REFRBP)
 
             # ReadoutBufBp
             bias_obj["ReadoutBufBp_coarse"], bias_obj["ReadoutBufBp_fine"] = \
-                self.get_config(
+                self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
                     libcaer.DAVIS346_CONFIG_BIAS_READOUTBUFBP)
 
@@ -820,7 +820,7 @@ class DAVIS(USBDevice):
                     self.get_config(
                         libcaer.DAVIS_CONFIG_DVS,
                         libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY)
-                bias_obj["background_activity_filter_time"] = self.set_config(
+                bias_obj["background_activity_filter_time"] = self.get_config(
                     libcaer.DAVIS_CONFIG_DVS,
                     libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_TIME)
 
