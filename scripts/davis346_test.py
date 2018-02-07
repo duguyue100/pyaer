@@ -63,7 +63,10 @@ while True:
                    frames.shape, "Exposure:",
                    device.get_config(
                        libcaer.DAVIS_CONFIG_APS,
-                       libcaer.DAVIS_CONFIG_APS_EXPOSURE))
+                       libcaer.DAVIS_CONFIG_APS_EXPOSURE),
+                   "Autoexposure:", device.get_config(
+                       libcaer.DAVIS_CONFIG_APS,
+                       libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE))
 
             if num_pol_event != 0:
                 pol_on = (pol_events[:, 3] == 1)
