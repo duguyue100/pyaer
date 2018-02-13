@@ -120,7 +120,8 @@ class DYNAPSE(USBDevice):
             bus_number_restrict, dev_address_restrict,
             serial_number)
 
-    def set_bias_from_json(self, file_path, verbose=False):
+    def set_bias_from_json(self, file_path, clear_sram=False,
+                           setup_sram=False, verbose=False):
         """Set bias from loading JSON configuration file.
 
         # Parameters
@@ -128,7 +129,7 @@ class DYNAPSE(USBDevice):
             absolute path of the JSON bias file.
         """
         bias_obj = utils.load_dvs_bias(file_path, verbose)
-        self.set_bias(bias_obj)
+        self.set_bias(bias_obj, clear_sram=clear_sram, setup_sram=setup_sram)
 
     def set_bias(self, bias_obj, clear_sram=False, setup_sram=False):
         """Set bias from bias dictionary.
@@ -1297,11 +1298,7 @@ class DYNAPSE(USBDevice):
             libcaer.DYNAPSE_CONFIG_USB_EARLY_PACKET_DELAY)
 
         # Get biases for each core
-        chip_content = self.get_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT)
-
-        print (chip_content)
+        # TODO
 
         return bias_obj
 
@@ -1450,15 +1447,11 @@ class DYNAPSE(USBDevice):
             synapseType=synapse_type)
 
     def get_event(self):
-        """Get Event.
-
-        Maybe not so efficient.
-        """
+        """Get Event."""
         packet_container, packet_number = self.get_packet_container()
         if packet_container is not None:
             num_spike_events = 0
             spike_events = None
-
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
                     packet_container, packet_id)
@@ -1468,4 +1461,6 @@ class DYNAPSE(USBDevice):
                         if spike_events is not None else events
                     num_spike_events += num_events
             libcaer.caerEventPacketContainerFree(packet_container)
-        return (spike_events, num_spike_events)
+            return (spike_events, num_spike_events)
+        else:
+            return None

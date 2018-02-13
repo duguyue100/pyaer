@@ -25,23 +25,19 @@ print ("AER has statistics:", device.aer_has_statistics)
 print ("MUX has statistics:", device.mux_has_statistics)
 
 device.send_default_config()
+device.set_bias_from_json("./scripts/configs/dynapse_config.json",
+                          clear_sram=False, setup_sram=False)
 device.start_data_stream()
-
-device.set_bias_from_json("./scripts/configs/dynapse_config.json")
 print (device.get_bias())
 
+while True:
+    try:
+        events = device.get_event()
 
-print ("Device shutting down...")
-device.shutdown()
-
-#  while True:
-#      try:
-#          (events, num_spike_events) = \
-#              device.get_event()
-#
-#          print ("Number of events from DYNAPSE : %d" %
-#                 (num_spike_events))
-#      except KeyboardInterrupt:
-#          print ("Device shutting down...")
-#          device.shutdown()
-#          break
+        if events is not None:
+            print ("Number of events from DYNAPSE : %d" %
+                   (events[1]))
+    except KeyboardInterrupt:
+        print ("Device shutting down...")
+        device.shutdown()
+        break
