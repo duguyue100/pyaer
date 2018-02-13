@@ -59,7 +59,7 @@
     "c0_npdpie_thr_f_p_coarse": 7,
     "c0_npdpie_thr_f_p_fine": 0,
     "c0_r2r_p_coarse": 4,
-    "c0_r2r_p_coarse": 85,
+    "c0_r2r_p_fine": 85,
 
     "c1_if_buf_p_coarse": 3,
     "c1_if_buf_p_fine": 80,
@@ -110,7 +110,7 @@
     "c1_npdpie_thr_f_p_coarse": 7,
     "c1_npdpie_thr_f_p_fine": 0,
     "c1_r2r_p_coarse": 4,
-    "c1_r2r_p_coarse": 85,
+    "c1_r2r_p_fine": 85,
 
     "c2_if_buf_p_coarse": 3,
     "c2_if_buf_p_fine": 80,
@@ -161,7 +161,7 @@
     "c2_npdpie_thr_f_p_coarse": 7,
     "c2_npdpie_thr_f_p_fine": 0,
     "c2_r2r_p_coarse": 4,
-    "c2_r2r_p_coarse": 85,
+    "c2_r2r_p_fine": 85,
 
     "c3_if_buf_p_coarse": 3,
     "c3_if_buf_p_fine": 80,
@@ -212,5 +212,18 @@
     "c3_npdpie_thr_f_p_coarse": 7,
     "c3_npdpie_thr_f_p_fine": 0,
     "c3_r2r_p_coarse": 4,
-    "c3_r2r_p_coarse": 85
+    "c3_r2r_p_fine": 85,
+
+    "d_buffer_coarse": 1,
+    "d_buffer_fine": 2,
+    "d_ssp_coarse": 0,
+    "d_ssp_fine": 7,
+    "d_ssn_coarse": 0,
+    "d_ssn_fine": 15,
+    "u_buffer_coarse": 1,
+    "u_buffer_fine": 2,
+    "u_ssp_coarse": 0,
+    "u_ssp_fine": 7,
+    "u_ssn_coarse": 0,
+    "u_ssn_fine": 15
 }
