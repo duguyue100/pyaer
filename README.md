@@ -152,6 +152,29 @@ e.g.
 LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
 ```
 
+## Limitations and Notes
+
++ Current status of the project is meant for single device use. Potentially,
+this library supports multiple devices at the same time by giving concrete
+device names and serial numbers. Supporting and testing for multiple devices
+setup is in long-term plan, but we are not working on this right now.
+
++ Once the data stream is open, the data will be streamed through USB connection
+at certain publishing frequency (e.g. 100Hz). This is a hardware configuration,
+therefore you couldn't drop event packets by putting software-level delay.
+You can either skip processing the coming packets by some conditions or
+implement a queuing system that can do a particular dynamic fetching.
+
++ It's recommended to implement a multi-processing or multi-threading
+program so that each process or thread only deals with one particular task.
+The fetching of the event packets may be very fast, your program may be delayed
+if you are not carefully coping with this fact.
+
++ DYNAP is generally supported. We are currently looking for the correct
+bias configuration mechanism so that it can easily support the use of the
+device. We have mapped some core functions that are essential to device
+configuration.
+
 ## Contacts
 
 Yuhuang Hu  
