@@ -5,8 +5,10 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
 from builtins import range
+import time
 import numpy as np
 from pyaer import libcaer
+from pyaer import utils
 from pyaer.device import USBDevice
 
 
@@ -117,6 +119,134 @@ class DYNAPSE(USBDevice):
             libcaer.CAER_DEVICE_DYNAPSE, device_id,
             bus_number_restrict, dev_address_restrict,
             serial_number)
+
+    def set_bias_from_json(self, file_path, verbose=False):
+        """Set bias from loading JSON configuration file.
+
+        # Parameters
+        file_path : string
+            absolute path of the JSON bias file.
+        """
+        bias_obj = utils.load_dvs_bias(file_path, verbose)
+        self.set_bias(bias_obj)
+
+    def set_bias(self, bias_obj):
+        """Set bias from bias dictionary.
+
+        # Parameters
+        bias_obj : dict
+            dictionary that contains DVS128 biases.
+
+        # Returns
+        flag : bool
+            True if set successful, False otherwise.
+            TODO: make this flag check possible
+        """
+        # DYNAPSE_CONFIG_MUX
+        self.set_config(libcaer.DYNAPSE_CONFIG_MUX,
+                        libcaer.DYNAPSE_CONFIG_MUX_TIMESTAMP_RESET,
+                        bias_obj["mux_timestamp_reset"])
+        self.set_config(libcaer.DYNAPSE_CONFIG_MUX,
+                        libcaer.DYNAPSE_CONFIG_MUX_FORCE_CHIP_BIAS_ENABLE,
+                        bias_obj["mux_force_chip_bias_enable"])
+        self.set_config(libcaer.DYNAPSE_CONFIG_MUX,
+                        libcaer.DYNAPSE_CONFIG_MUX_DROP_AER_ON_TRANSFER_STALL,
+                        bias_obj["mux_drop_aer_on_transfer_stall"])
+
+        # DYNAPSE_CONFIG_AER
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_ACK_DELAY,
+                        bias_obj["aer_ack_delay"])
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_ACK_EXTENSION,
+                        bias_obj["aer_ack_extension"])
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_WAIT_ON_TRANSFER_STALL,
+                        bias_obj["aer_wait_on_transfer_stall"])
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_EXTERNAL_AER_CONTROL,
+                        bias_obj["aer_external_aer_control"])
+
+        # DYNAPSE_CONFIG_CHIP
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_REQ_DELAY,
+                        bias_obj["chip_req_delay"])
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_REQ_EXTENSION,
+                        bias_obj["chip_req_extension"])
+
+        self.set_config(libcaer.DYNAPSE_CONFIG_USB,
+                        libcaer.DYNAPSE_CONFIG_USB_EARLY_PACKET_DELAY,
+                        bias_obj["usb_early_packet_delay"])
+
+        # Turn on chip and AER communication for configuration.
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        True)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        True)
+
+        # Set silent biases (not activity)
+        # TODO
+
+        # Clear all SRAM
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U1)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U2)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U3)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+
+        # Set low power biases (some activity)
+        # TODO
+
+        # Setup SRAM for USB monitoring of spike events
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U0,
+                        0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U1)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U1,
+                        0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U2)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U2,
+                        0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U3)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U3,
+                        0)
+
+        # Turn off chip/AER once done
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        False)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        False)
+
+        # Essential: wait for chip to be stable
+        time.sleep(1)
 
     def start_data_stream(self):
         """Start streaming data."""

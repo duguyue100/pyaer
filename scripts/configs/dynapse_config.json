@@ -1,0 +1,12 @@
+{
+    "mux_timestamp_reseet": false,
+    "mux_force_chip_bias_enable": false,
+    "mux_drop_aer_on_transfer_stall": false,
+    "aer_ack_delay": 0,
+    "aer_ack_extension": 0,
+    "aer_wait_on_transfer_stall": false,
+    "aer_external_aer_control": false,
+    "chip_req_delay": 30,
+    "chip_req_extension": 30,
+    "usb_early_packet_delay": 8
+}
