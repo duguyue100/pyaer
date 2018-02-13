@@ -142,6 +142,7 @@ class DYNAPSE(USBDevice):
             True if set successful, False otherwise.
             TODO: make this flag check possible
         """
+        time.sleep(1)
         # DYNAPSE_CONFIG_MUX
         self.set_config(libcaer.DYNAPSE_CONFIG_MUX,
                         libcaer.DYNAPSE_CONFIG_MUX_TIMESTAMP_RESET,
@@ -1229,6 +1230,85 @@ class DYNAPSE(USBDevice):
                 bias_obj["u_ssn_coarse"],
                 bias_obj["u_ssn_fine"],
                 True, True, False, True))
+
+    def get_cf_bias(self, param_addr, param):
+        """Get coarse-fine bias.
+
+        # Parameters
+        param_addr : parameter address
+            such as libcaer.DAVIS_CONFIG_BIAS
+        param : parameter
+            such as libcaer.DAVIS240_CONFIG_BIAS_ONBN
+
+        Returns
+        coarse_value : uint
+            coarse value
+        fine_value :uint
+            fine value
+        """
+        cf_param = libcaer.caerBiasCoarseFineParse(
+            self.get_config(param_addr, param))
+
+        return cf_param.coarseValue, cf_param.fineValue
+
+    def get_bias(self):
+        """Get bias settings.
+
+        # Returns
+        bias_obj : dict
+            dictionary that contains DVS128 current bias settings.
+        """
+        bias_obj = {}
+        # DYNAPSE_CONFIG_MUX
+        bias_obj["mux_timestamp_reset"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_MUX,
+            libcaer.DYNAPSE_CONFIG_MUX_TIMESTAMP_RESET)
+        bias_obj["mux_force_chip_bias_enable"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_MUX,
+            libcaer.DYNAPSE_CONFIG_MUX_FORCE_CHIP_BIAS_ENABLE)
+        bias_obj["mux_drop_aer_on_transfer_stall"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_MUX,
+            libcaer.DYNAPSE_CONFIG_MUX_DROP_AER_ON_TRANSFER_STALL)
+
+        # DYNAPSE_CONFIG_AER
+        bias_obj["aer_ack_delay"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_AER,
+            libcaer.DYNAPSE_CONFIG_AER_ACK_DELAY)
+        bias_obj["aer_ack_extension"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_AER,
+            libcaer.DYNAPSE_CONFIG_AER_ACK_EXTENSION)
+        bias_obj["aer_wait_on_transfer_stall"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_AER,
+            libcaer.DYNAPSE_CONFIG_AER_WAIT_ON_TRANSFER_STALL)
+        bias_obj["aer_external_aer_control"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_AER,
+            libcaer.DYNAPSE_CONFIG_AER_EXTERNAL_AER_CONTROL)
+
+        # DYNAPSE_CONFIG_CHIP
+        bias_obj["chip_req_delay"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_CHIP,
+            libcaer.DYNAPSE_CONFIG_CHIP_REQ_DELAY)
+        bias_obj["chip_req_extension"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_CHIP,
+            libcaer.DYNAPSE_CONFIG_CHIP_REQ_EXTENSION)
+
+        bias_obj["usb_early_packet_delay"] = self.get_config(
+            libcaer.DYNAPSE_CONFIG_USB,
+            libcaer.DYNAPSE_CONFIG_USB_EARLY_PACKET_DELAY)
+
+        # Get biases for each core
+        chip_content = self.get_config(
+            libcaer.DYNAPSE_CONFIG_CHIP,
+            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT)
+
+        print (chip_content)
+
+        return bias_obj
+
+    def save_bias_to_json(self, file_path):
+        """Save bias to JSON."""
+        bias_obj = self.get_bias()
+        return utils.write_json(file_path, bias_obj)
 
     def start_data_stream(self):
         """Start streaming data."""

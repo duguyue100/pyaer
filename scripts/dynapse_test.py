@@ -27,44 +27,21 @@ print ("MUX has statistics:", device.mux_has_statistics)
 device.send_default_config()
 device.start_data_stream()
 
-neuron_1 = device.core_xy_to_neuron_id(0, 3, 4)
-neuron_2 = device.core_xy_to_neuron_id(0, 5, 7)
+device.set_bias_from_json("./scripts/configs/dynapse_config.json")
+print (device.get_bias())
 
-print ("Core 0, Column 3, Row 4:", neuron_1)
-print ("Core 0, Column 5, Row 7:", neuron_2)
 
-while True:
-    try:
-        (spike_ts, spike_neuron_id, spike_core_id, spike_chip_id,
-         num_spike_events) = \
-            device.get_event()
+print ("Device shutting down...")
+device.shutdown()
 
-        num_event_1 = (spike_neuron_id == neuron_1).sum()
-        num_event_2 = (spike_neuron_id == neuron_2).sum()
-
-        print ("Number of events from neuron 1: %d, neuron 2: %d" %
-               (num_event_1, num_event_2))
-    except KeyboardInterrupt:
-        break
-
-# connect neuron 1 to neuron 2
-device.write_cam(neuron_1, neuron_2, 5,
-                 device.DYNAPSE_CONFIG_CAMTYPE_F_EXC)
-
-# send spiker to neuron 1
-device.write_poisson_spikerate(neuron_1, 2000)
-
-while True:
-    try:
-        (spike_ts, spike_neuron_id, spike_core_id, spike_chip_id,
-         num_spike_events) = \
-            device.get_event()
-
-        num_event_1 = (spike_neuron_id == neuron_1).sum()
-        num_event_2 = (spike_neuron_id == neuron_2).sum()
-
-        print ("Number of events from neuron %d: %d, neuron %d: %d" %
-               (neuron_1, num_event_1, neuron_2, num_event_2))
-    except KeyboardInterrupt:
-        device.shutdown()
-        break
+#  while True:
+#      try:
+#          (events, num_spike_events) = \
+#              device.get_event()
+#
+#          print ("Number of events from DYNAPSE : %d" %
+#                 (num_spike_events))
+#      except KeyboardInterrupt:
+#          print ("Device shutting down...")
+#          device.shutdown()
+#          break
