@@ -609,6 +609,7 @@ class DAVIS(USBDevice):
                 bias_obj["BiasBuffer_coarse"],
                 bias_obj["BiasBuffer_fine"],
                 "n_type")
+        self.bias_obj = bias_obj
 
     def get_cf_bias(self, param_addr, param):
         """Get coarse-fine bias.
@@ -963,8 +964,11 @@ class DAVIS(USBDevice):
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
-    def start_data_stream(self):
+    def start_data_stream(self, send_default_config=True):
         """Start streaming data."""
+        if send_default_config is True:
+            self.send_default_config()
+            self.bias_obj = self.get_bias()
         self.data_start()
         self.set_data_exchange_blocking()
 

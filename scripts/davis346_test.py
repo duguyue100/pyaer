@@ -28,12 +28,6 @@ print ("Logic Version:", device.logic_version)
 print ("Background Activity Filter:",
        device.dvs_has_background_activity_filter)
 
-
-flag = device.send_default_config()
-if flag:
-    print ("Default bias set")
-else:
-    print ("Default bias set error")
 device.start_data_stream()
 # setting bias after data stream started
 device.set_bias_from_json("./scripts/configs/davis346_config.json")

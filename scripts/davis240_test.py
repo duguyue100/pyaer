@@ -29,8 +29,6 @@ print ("Background Activity Filter:",
        device.dvs_has_background_activity_filter)
 
 
-device.send_default_config()
-
 device.start_data_stream()
 # set new bias after data streaming
 device.set_bias_from_json("./scripts/configs/davis240c_config.json")

@@ -69,6 +69,8 @@ class DYNAPSE(USBDevice):
         self.DYNAPSE_CONFIG_CAMTYPE_S_INH = \
             libcaer.DYNAPSE_CONFIG_CAMTYPE_S_INH
 
+        self.bias_obj = None
+
     def obtain_device_info(self, handle):
         """Obtain DYNAPSE info."""
         if handle is not None:
@@ -133,6 +135,9 @@ class DYNAPSE(USBDevice):
 
     def set_bias(self, bias_obj, clear_sram=False, setup_sram=False):
         """Set bias from bias dictionary.
+
+        You don't have to turn on the clear_sram and setup_sram
+        for reloading biases.
 
         # Parameters
         bias_obj : dict
@@ -255,6 +260,7 @@ class DYNAPSE(USBDevice):
 
         # Essential: wait for chip to be stable
         time.sleep(1)
+        self.bias_obj = bias_obj
 
     def set_activity_bias(self, chip_id, bias_obj):
         """Set biases for each chip.
@@ -1252,12 +1258,12 @@ class DYNAPSE(USBDevice):
 
         return cf_param.coarseValue, cf_param.fineValue
 
-    def get_bias(self):
-        """Get bias settings.
+    def get_fpga_bias(self):
+        """Get bias settings from FPGA.
 
         # Returns
         bias_obj : dict
-            dictionary that contains DVS128 current bias settings.
+            dictionary that contains DYNAPSE current bias settings.
         """
         bias_obj = {}
         # DYNAPSE_CONFIG_MUX
@@ -1297,18 +1303,19 @@ class DYNAPSE(USBDevice):
             libcaer.DYNAPSE_CONFIG_USB,
             libcaer.DYNAPSE_CONFIG_USB_EARLY_PACKET_DELAY)
 
-        # Get biases for each core
-        # TODO
-
         return bias_obj
 
     def save_bias_to_json(self, file_path):
         """Save bias to JSON."""
-        bias_obj = self.get_bias()
-        return utils.write_json(file_path, bias_obj)
+        if self.bias_obj is not None:
+            return utils.write_json(file_path, self.bias_obj)
+        else:
+            return None
 
-    def start_data_stream(self):
+    def start_data_stream(self, send_default_config=True):
         """Start streaming data."""
+        if send_default_config is True:
+            self.send_default_config()
         self.data_start()
         self.set_data_exchange_blocking()
 

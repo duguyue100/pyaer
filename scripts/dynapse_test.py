@@ -24,11 +24,11 @@ print ("Chip ID:", device.chip_id)
 print ("AER has statistics:", device.aer_has_statistics)
 print ("MUX has statistics:", device.mux_has_statistics)
 
-device.send_default_config()
+device.start_data_stream()
+
 device.set_bias_from_json("./scripts/configs/dynapse_config.json",
                           clear_sram=False, setup_sram=False)
-device.start_data_stream()
-print (device.get_bias())
+print (device.get_fpga_bias())
 
 while True:
     try:
