@@ -213,7 +213,6 @@ class DVS128(USBDevice):
         """Start streaming data."""
         if send_default_config is True:
             self.send_default_config()
-            self.bias_obj = self.get_bias()
         self.data_start()
         self.set_data_exchange_blocking()
 

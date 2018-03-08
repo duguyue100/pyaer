@@ -69,8 +69,6 @@ class DYNAPSE(USBDevice):
         self.DYNAPSE_CONFIG_CAMTYPE_S_INH = \
             libcaer.DYNAPSE_CONFIG_CAMTYPE_S_INH
 
-        self.bias_obj = None
-
     def obtain_device_info(self, handle):
         """Obtain DYNAPSE info."""
         if handle is not None:
@@ -260,7 +258,6 @@ class DYNAPSE(USBDevice):
 
         # Essential: wait for chip to be stable
         time.sleep(1)
-        self.bias_obj = bias_obj
 
     def set_activity_bias(self, chip_id, bias_obj):
         """Set biases for each chip.
@@ -1305,12 +1302,13 @@ class DYNAPSE(USBDevice):
 
         return bias_obj
 
-    def save_bias_to_json(self, file_path):
-        """Save bias to JSON."""
-        if self.bias_obj is not None:
-            return utils.write_json(file_path, self.bias_obj)
-        else:
-            return None
+    def save_fpga_bias_to_json(self, file_path):
+        """Save FPGA bias to JSON.
+
+        Only the bias from FPGA can be retrieved.
+        """
+        bias_obj = self.get_fpga_bias()
+        return utils.write_json(file_path, bias_obj)
 
     def start_data_stream(self, send_default_config=True):
         """Start streaming data."""
