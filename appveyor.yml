@@ -6,12 +6,14 @@ environment:
           MSYS2_ARCH: x86_64
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
+          MINICONDA: Miniconda-x64
         - compiler: msys2
           ARCH: x64
           PYTHON_VERSION: "3.6"
           MSYS2_ARCH: x86_64
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
+          MINICONDA: Miniconda-x64
 
 platform:
     - x64
@@ -20,9 +22,10 @@ matrix:
     fast_finish: true
 
 install:
-    - set PATH=C:\Miniconda\Scripts
-    - ps: If ($env:Platform -Match "x64") {$env:PATH="C:\Miniconda-x64\Scripts"}
-    - conda info -a
+    - set PATH=C:\%MINICONDA%\Scripts;%PATH%
+    - cd C:\%MSYS2_DIR%\home
+    - git clone https://github.com/inilabs/libcaer
+    - git clone https://github.com/duguyue100/swig
     - conda config --set always_yes yes --set changeps1 no
     - conda update --yes conda
     - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION%
@@ -36,8 +39,5 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-pkg-config
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-libusb
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison
-    - cd C:\%MSYS2_DIR%\home
-    - git clone https://github.com/inilabs/libcaer
-    - git clone https://github.com/duguyue100/swig
 
 build: off
