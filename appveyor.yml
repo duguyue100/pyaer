@@ -1,0 +1,32 @@
+environment:
+    matrix:
+        - PYTHON_VERSION: "2.7"
+        - PYTHON_VERSION: "3.6"
+
+platform:
+    - x64
+
+matrix:
+    fast_finish: true
+
+install:
+    - set PATH=C:\Miniconda\Scripts
+    - ps: If ($env:Platform -Match "x64") {$env:PATH="C:\Miniconda-x64\Scripts"}
+    - conda info -a
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update --yes conda
+    - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION%
+    - activate python%PYTHON_VERSION%
+    - python.exe setup.py install
+    - pip install numpy -U
+    - conda list
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm --noprogressbar -Syu
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm --noprogressbar -Su
+    - C:\%MSYS2_DIR%\usr\bin\pacman -S mingw-w64-x86_64-gcc
+    - C:\%MSYS2_DIR%\usr\bin\pacman -S make mingw-w64-x86_64-cmake
+    - C:\%MSYS2_DIR%\usr\bin\pacman -S mingw-w64-x86_64-pkg-config
+    - C:\%MSYS2_DIR%\usr\bin\pacman -S mingw-w64-x86_64-libusb
+    - cd C:\%MSYS2_DIR%\home
+    - git clone https://github.com/inilabs/libcaer
+
+build: off
