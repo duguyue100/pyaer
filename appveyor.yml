@@ -1,7 +1,17 @@
 environment:
     matrix:
-        - PYTHON_VERSION: "2.7"
-        - PYTHON_VERSION: "3.6"
+        - compiler: msys2
+          ARCH: x64
+          PYTHON_VERSION: "2.7"
+          MSYS2_ARCH: x86_64
+          MSYS2_DIR: msys64
+          MSYSTEM: MINGW64
+        - compiler: msys2
+          ARCH: x64
+          PYTHON_VERSION: "3.6"
+          MSYS2_ARCH: x86_64
+          MSYS2_DIR: msys64
+          MSYSTEM: MINGW64
 
 platform:
     - x64
