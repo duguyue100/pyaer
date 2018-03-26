@@ -3,6 +3,7 @@ environment:
         - compiler: msys2
           ARCH: x64
           PYTHON_VERSION: "2.7"
+          PYTHON: python3
           MSYS2_ARCH: x86_64
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
@@ -10,6 +11,7 @@ environment:
         - compiler: msys2
           ARCH: x64
           PYTHON_VERSION: "3.6"
+          PYTHON: python3
           MSYS2_ARCH: x86_64
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
@@ -39,5 +41,8 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-pkg-config
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-libusb
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison
+    - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && cmake -G "MSYS Makefiles" -DCMAKE_INSTALL_PREFIX=/mingw64 ."
+    - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && make && make install"
+    - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --with-python=$(command -v python) --without-%PYTHON% && make && make install"
 
 build: off
