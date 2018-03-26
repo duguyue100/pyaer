@@ -31,11 +31,13 @@ install:
     - conda list
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm --noprogressbar -Syu
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm --noprogressbar -Su
-    - C:\%MSYS2_DIR%\usr\bin\pacman -S mingw-w64-x86_64-gcc
-    - C:\%MSYS2_DIR%\usr\bin\pacman -S make mingw-w64-x86_64-cmake
-    - C:\%MSYS2_DIR%\usr\bin\pacman -S mingw-w64-x86_64-pkg-config
-    - C:\%MSYS2_DIR%\usr\bin\pacman -S mingw-w64-x86_64-libusb
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gcc
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S make mingw-w64-x86_64-cmake
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-pkg-config
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-libusb
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison
     - cd C:\%MSYS2_DIR%\home
     - git clone https://github.com/inilabs/libcaer
+    - git clone https://github.com/duguyue100/swig
 
 build: off
