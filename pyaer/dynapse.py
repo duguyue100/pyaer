@@ -146,6 +146,8 @@ class DYNAPSE(USBDevice):
             True if set successful, False otherwise.
             TODO: make this flag check possible
         """
+        # stop data stream
+        self.data_stop()
         time.sleep(1)
         # DYNAPSE_CONFIG_MUX
         self.set_config(libcaer.DYNAPSE_CONFIG_MUX,
@@ -258,6 +260,8 @@ class DYNAPSE(USBDevice):
 
         # Essential: wait for chip to be stable
         time.sleep(1)
+        # restart data stream
+        self.start_data_stream(send_default_config=False)
 
     def set_activity_bias(self, chip_id, bias_obj):
         """Set biases for each chip.
@@ -1468,4 +1472,5 @@ class DYNAPSE(USBDevice):
             libcaer.caerEventPacketContainerFree(packet_container)
             return (spike_events, num_spike_events)
         else:
+            print ("I'm getting None")
             return None
