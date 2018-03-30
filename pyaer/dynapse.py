@@ -69,6 +69,12 @@ class DYNAPSE(USBDevice):
         self.DYNAPSE_CONFIG_CAMTYPE_S_INH = \
             libcaer.DYNAPSE_CONFIG_CAMTYPE_S_INH
 
+        # chip configurations
+        self.chip_config = [libcaer.DYNAPSE_CONFIG_DYNAPSE_U0,
+                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U1,
+                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U2,
+                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U3]
+
     def obtain_device_info(self, handle):
         """Obtain DYNAPSE info."""
         if handle is not None:
@@ -131,7 +137,46 @@ class DYNAPSE(USBDevice):
         bias_obj = utils.load_dvs_bias(file_path, verbose)
         self.set_bias(bias_obj, clear_sram=clear_sram, setup_sram=setup_sram)
 
-    def set_bias(self, bias_obj, clear_sram=False, setup_sram=False):
+    def set_chip_bias(self, bias_obj, chip_id):
+        """Set bias for a single chip.
+
+        # Parameters
+        bias_obj : dictionary
+            a dictionary that consists of all 4 core's biases
+        chip_id : int
+            chip id is between 0-3
+        """
+        # stop data stream
+        self.data_stop()
+        time.sleep(1)
+
+        # Turn on chip and AER communication for configuration.
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        True)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        True)
+
+        # set chip bias
+        self.set_activity_bias(self.chip_config[chip_id],
+                               bias_obj)
+
+        # Turn off chip/AER once done
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        False)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        False)
+
+        # Essential: wait for chip to be stable
+        time.sleep(1)
+        # restart data stream
+        self.start_data_stream(send_default_config=False)
+
+    def set_bias(self, bias_obj,
+                 clear_sram=False, setup_sram=False):
         """Set bias from bias dictionary.
 
         You don't have to turn on the clear_sram and setup_sram
