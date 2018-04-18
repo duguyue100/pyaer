@@ -159,8 +159,7 @@ class DYNAPSE(USBDevice):
                         True)
 
         # set chip bias
-        self.set_activity_bias(self.chip_config[chip_id],
-                               bias_obj)
+        self.set_activity_bias(bias_obj, self.chip_config[chip_id])
 
         # Turn off chip/AER once done
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
@@ -259,14 +258,10 @@ class DYNAPSE(USBDevice):
             self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
 
         # Set biases for some activity
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U0,
-                               bias_obj)
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U1,
-                               bias_obj)
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U2,
-                               bias_obj)
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U3,
-                               bias_obj)
+        self.set_activity_bias(bias_obj, libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
+        self.set_activity_bias(bias_obj, libcaer.DYNAPSE_CONFIG_DYNAPSE_U1)
+        self.set_activity_bias(bias_obj, libcaer.DYNAPSE_CONFIG_DYNAPSE_U2)
+        self.set_activity_bias(bias_obj, libcaer.DYNAPSE_CONFIG_DYNAPSE_U3)
 
         # Setup SRAM for USB monitoring of spike events
         if setup_sram is True:
@@ -308,20 +303,20 @@ class DYNAPSE(USBDevice):
         # restart data stream
         self.start_data_stream(send_default_config=False)
 
-    def set_activity_bias(self, chip_id, bias_obj,
+    def set_activity_bias(self, bias_obj, chip_id,
                           core_ids=["0", "1", "2", "3"]):
         """Set biases for each chip.
 
         Parameters
         ----------
+        bias_obj : dict
+            dictionary that contains DVS128 biases.
         chip_id : uint8_t
             one of
             DYNAPSE_CONFIG_DYNAPSE_U0,
             DYNAPSE_CONFIG_DYNAPSE_U1,
             DYNAPSE_CONFIG_DYNAPSE_U2,
             DYNAPSE_CONFIG_DYNAPSE_U3
-        bias_obj : dict
-            dictionary that contains DVS128 biases.
         core_ids : list
             list of core ids from 0 to 3, each element is a string,
             the default is ["0", "1", "2", "3"]
@@ -670,6 +665,8 @@ class DYNAPSE(USBDevice):
 
     def get_cf_bias(self, param_addr, param):
         """Get coarse-fine bias.
+
+        Note: biases for neurons currently cannot be recalled.
 
         # Parameters
         param_addr : parameter address
