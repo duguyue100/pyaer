@@ -185,7 +185,7 @@ class DYNAPSE(USBDevice):
                         0)
 
     def set_chip_bias(self, bias_obj, chip_id,
-                      core_ids=["0", "1", "2", "3"]):
+                      core_ids=[0, 1, 2, 3]):
         """Set bias for a single chip.
 
         # Parameters
@@ -195,10 +195,10 @@ class DYNAPSE(USBDevice):
             chip id is between 0-3
         core_ids : list
             list of core ids from 0 to 3, each element is a string,
-            the default is ["0", "1", "2", "3"]
+            the default is [0, 1, 2, 3]
             e.g.,
-                ["0", "3"]: set core 0 and core 3
-                ["2"]: set core 2
+                [0, 3]: set core 0 and core 3
+                [2]: set core 2
                 []: do not set core level biases
         """
         # stop data stream
@@ -256,10 +256,10 @@ class DYNAPSE(USBDevice):
             set everything if the argument is "all"
             Here is a basic template for chip description
             chip_des = {
-                0: ["0", "1", "2", "3"],
-                1: ["0", "1", "2", "3"],
-                2: ["0", "1", "2", "3"],
-                3: ["0", "1", "2", "3"],
+                0: [0, 1, 2, 3],
+                1: [0, 1, 2, 3],
+                2: [0, 1, 2, 3],
+                3: [0, 1, 2, 3],
                 }
 
         # Returns
@@ -289,11 +289,14 @@ class DYNAPSE(USBDevice):
 
         if chip_des == "all":
             chip_des = {
-                0: ["0", "1", "2", "3"],
-                1: ["0", "1", "2", "3"],
-                2: ["0", "1", "2", "3"],
-                3: ["0", "1", "2", "3"],
+                0: [0, 1, 2, 3],
+                1: [0, 1, 2, 3],
+                2: [0, 1, 2, 3],
+                3: [0, 1, 2, 3],
                 }
+        else:
+            # make sure the chip description is a dictionary
+            assert isinstance(chip_des, dict)
 
         # Set biases for some activity
         for (chip_id, core_ids) in iteritems(chip_des):
@@ -363,7 +366,7 @@ class DYNAPSE(USBDevice):
                         bias_obj["usb_early_packet_delay"])
 
     def set_activity_bias(self, bias_obj, chip_id,
-                          core_ids=["0", "1", "2", "3"]):
+                          core_ids=[0, 1, 2, 3]):
         """Set biases for each chip.
 
         Parameters
@@ -377,11 +380,11 @@ class DYNAPSE(USBDevice):
             DYNAPSE_CONFIG_DYNAPSE_U2,
             DYNAPSE_CONFIG_DYNAPSE_U3
         core_ids : list
-            list of core ids from 0 to 3, each element is a string,
-            the default is ["0", "1", "2", "3"]
+            list of core ids from 0 to 3, each element is a int,
+            the default is [0, 1, 2, 3]
             e.g.,
-                ["0", "3"]: set core 0 and core 3
-                ["2"]: set core 2
+                [0, 3]: set core 0 and core 3
+                [2]: set core 2
                 []: do not set core level biases
         """
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
@@ -389,6 +392,9 @@ class DYNAPSE(USBDevice):
                         chip_id)
 
         for core_id in core_ids:
+            # make sure teh core id is in the range
+            assert core_id >= 0 and core_id <= 3
+            core_id = str(core_id)
             # IF BUF P
             self.set_config(
                 libcaer.DYNAPSE_CONFIG_CHIP,
