@@ -127,16 +127,39 @@ class DYNAPSE(USBDevice):
             bus_number_restrict, dev_address_restrict,
             serial_number)
 
-    def set_bias_from_json(self, file_path, clear_sram=False,
-                           setup_sram=False, verbose=False):
+    def set_bias_from_json(self, file_path, fpga_bias=True, clear_sram=False,
+                           setup_sram=False, scope="all", verbose=False):
         """Set bias from loading JSON configuration file.
 
-        # Parameters
+        Parameters
+        ----------
         file_path : string
             absolute path of the JSON bias file.
+        fpga_bias : bool
+            Set FPGA biases if True, False otherwise,
+            Default is True
+        clear_sram : bool
+            Clear SRAM if True, False otherwise,
+            Default is False
+        setup_sram : bool
+            Setup SRAM if True, False otherwise,
+            Default is False
+        scope : string, dict
+            a dictionary that describe the bias setting profile,
+            set everything if the argument is "all"
+            Here is a basic template for scope description
+            scope = {
+                0: [0, 1, 2, 3],
+                1: [0, 1, 2, 3],
+                2: [0, 1, 2, 3],
+                3: [0, 1, 2, 3],
+                }
         """
         bias_obj = utils.load_dvs_bias(file_path, verbose)
-        self.set_bias(bias_obj, clear_sram=clear_sram, setup_sram=setup_sram)
+        self.set_bias(bias_obj,
+                      fpga_bias=fpga_bias,
+                      clear_sram=clear_sram, setup_sram=setup_sram,
+                      scope=scope)
 
     def clear_sram(self):
         """Clear SRAM for all chips."""
@@ -189,7 +212,8 @@ class DYNAPSE(USBDevice):
                       clear_sram=False, setup_sram=False):
         """Set bias for a single chip.
 
-        # Parameters
+        Parameters
+        ----------
         bias_obj : dictionary
             a dictionary that consists of all 4 core's biases
         chip_id : int
@@ -257,7 +281,7 @@ class DYNAPSE(USBDevice):
     def set_bias(self, bias_obj,
                  fpga_bias=True,
                  clear_sram=False, setup_sram=False,
-                 chip_des="all"):
+                 scope="all"):
         """Set bias from bias dictionary.
 
         You don't have to turn on the clear_sram and setup_sram
@@ -275,11 +299,11 @@ class DYNAPSE(USBDevice):
         setup_sram : bool
             Setup SRAM if True, False otherwise,
             Default is False
-        chip_des : string, dict
+        scope : string, dict
             a dictionary that describe the bias setting profile,
             set everything if the argument is "all"
-            Here is a basic template for chip description
-            chip_des = {
+            Here is a basic template for scope description
+            scope = {
                 0: [0, 1, 2, 3],
                 1: [0, 1, 2, 3],
                 2: [0, 1, 2, 3],
@@ -311,8 +335,8 @@ class DYNAPSE(USBDevice):
         if clear_sram is True:
             self.clear_sram()
 
-        if chip_des == "all":
-            chip_des = {
+        if scope == "all":
+            scope = {
                 0: [0, 1, 2, 3],
                 1: [0, 1, 2, 3],
                 2: [0, 1, 2, 3],
@@ -320,10 +344,10 @@ class DYNAPSE(USBDevice):
                 }
         else:
             # make sure the chip description is a dictionary
-            assert isinstance(chip_des, dict)
+            assert isinstance(scope, dict)
 
         # Set biases for some activity
-        for (chip_id, core_ids) in iteritems(chip_des):
+        for (chip_id, core_ids) in iteritems(scope):
             self.set_activity_bias(bias_obj, self.chip_config[chip_id],
                                    core_ids=core_ids)
 
