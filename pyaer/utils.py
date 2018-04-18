@@ -88,7 +88,30 @@ def load_davis_bias(file_path, verbose=False):
 
     # Returns
     bias_obj : dict
-        A dictionary that contains valid DVS128 bias.
+        A dictionary that contains valid DAVIS bias.
+    """
+    bias_obj = load_json(file_path)
+
+    if bias_obj is not None:
+        if verbose:
+            for key, value in bias_obj.iteritems():
+                logger.debug("%s: %d" % (key, value))
+        # TODO: to check validity of the bias file
+        return bias_obj
+    else:
+        return None
+
+
+def load_dynapse_bias(file_path, verbose=False):
+    """Load DYNAPSE bias.
+
+    # Parameters
+    file_path : str
+        the absolute path to the JSON string.
+
+    # Returns
+    bias_obj : dict
+        A dictionary that contains valid DYNAPSE bias.
     """
     bias_obj = load_json(file_path)
 

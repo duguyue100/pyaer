@@ -134,7 +134,7 @@ class DAVIS(USBDevice):
         file_path : string
             absolute path of the JSON bias file.
         """
-        bias_obj = utils.load_dvs_bias(file_path, verbose)
+        bias_obj = utils.load_davis_bias(file_path, verbose)
         self.set_bias(bias_obj)
 
     def set_cf_bias(self, param_addr, param, coarse, fine, mode):

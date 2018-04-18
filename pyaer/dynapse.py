@@ -155,7 +155,7 @@ class DYNAPSE(USBDevice):
                 3: [0, 1, 2, 3],
                 }
         """
-        bias_obj = utils.load_dvs_bias(file_path, verbose)
+        bias_obj = utils.load_dynapse_bias(file_path, verbose)
         self.set_bias(bias_obj,
                       fpga_bias=fpga_bias,
                       clear_sram=clear_sram, setup_sram=setup_sram,
