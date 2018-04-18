@@ -139,7 +139,7 @@ class DYNAPSE(USBDevice):
         self.set_bias(bias_obj, clear_sram=clear_sram, setup_sram=setup_sram)
 
     def clear_sram(self):
-        """Clear SRAM."""
+        """Clear SRAM for all chips."""
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
                         libcaer.DYNAPSE_CONFIG_CHIP_ID,
                         libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
@@ -158,7 +158,7 @@ class DYNAPSE(USBDevice):
         self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
 
     def setup_sram(self):
-        """Setup SRAM."""
+        """Setup SRAM for all chips."""
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
                         libcaer.DYNAPSE_CONFIG_CHIP_ID,
                         libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
@@ -185,7 +185,8 @@ class DYNAPSE(USBDevice):
                         0)
 
     def set_chip_bias(self, bias_obj, chip_id,
-                      core_ids=[0, 1, 2, 3]):
+                      core_ids=[0, 1, 2, 3],
+                      clear_sram=False, setup_sram=False):
         """Set bias for a single chip.
 
         # Parameters
@@ -200,6 +201,12 @@ class DYNAPSE(USBDevice):
                 [0, 3]: set core 0 and core 3
                 [2]: set core 2
                 []: do not set core level biases
+        clear_sram : bool
+            Clear SRAM if True, False otherwise,
+            Default is False
+        setup_sram : bool
+            Setup SRAM if True, False otherwise,
+            Default is False
         """
         # stop data stream
         self.data_stop()
@@ -213,9 +220,26 @@ class DYNAPSE(USBDevice):
                         libcaer.DYNAPSE_CONFIG_AER_RUN,
                         True)
 
+        # Clear all SRAM
+        if clear_sram is True:
+            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                            self.chip_config[chip_id])
+            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+
         # set chip bias
         self.set_activity_bias(bias_obj, self.chip_config[chip_id],
                                core_ids=core_ids)
+
+        # Setup SRAM for USB monitoring of spike events
+        if setup_sram is True:
+            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                            self.chip_config[chip_id])
+            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                            self.chip_config[chip_id],
+                            0)
+            self.setup_sram()
 
         # Turn off chip/AER once done
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
@@ -387,13 +411,14 @@ class DYNAPSE(USBDevice):
                 [2]: set core 2
                 []: do not set core level biases
         """
+        assert 0 <= chip_id <= 3
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
                         libcaer.DYNAPSE_CONFIG_CHIP_ID,
                         chip_id)
 
         for core_id in core_ids:
             # make sure teh core id is in the range
-            assert core_id >= 0 and core_id <= 3
+            assert 0 <= core_id <= 3
             core_id = str(core_id)
             # IF BUF P
             self.set_config(
