@@ -7,7 +7,7 @@ PyAER with Swig Bindings
 
 Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
 
-+ Supported platform: `Ubuntu`, `macOS`
++ Supported platform: `Ubuntu`, `macOS`, `Raspbian Stretch`
 + Supported Python: 2.7, 3.6
 
 The project is in its Alpha development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you need our help.
@@ -52,10 +52,12 @@ than from other packaging system.
 
 __NOTE:__ We will start shipping `pypi` release from beta release.
 
+__NOTE:__ We will start shipping Python wheels for Raspberry Pi from beta release.
+
 3. Install from source
 
 ```
-$ git clone https://github.com/duguyue100/pyaer-beta.git
+$ git clone https://github.com/duguyue100/pyaer.git
 $ make install
 ```
 
