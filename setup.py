@@ -9,6 +9,7 @@ from setuptools import find_packages
 
 from distutils.core import Extension
 
+import os
 from sysconfig import get_paths
 from sys import platform
 
@@ -27,7 +28,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-__version__ = "0.1.0a20"
+__version__ = "0.1.0a21"
 __author__ = "Yuhuang Hu"
 __author_email__ = "duguyue100@gmail.com"
 __url__ = "https://github.com/duguyue100/pyaer"
@@ -45,6 +46,10 @@ if platform in ["linux", "linux2"]:
 elif platform == "darwin":
     libcaer_include = "/usr/local/include"
     libcaer_lib = "/usr/local/lib"
+
+# for Raspberry Pi support
+if os.uname()[1] == "raspberrypi":
+    libcaer_lib = "/usr/lib/arm-linux-gnueabihf"
 
 libcaer_wrap = Extension(
     name="_libcaer_wrap",
