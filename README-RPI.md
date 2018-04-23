@@ -42,7 +42,7 @@ Compile `pyaer` with the following steps:
 
 ```
 $ git clone https://github.com/duguyue100/pyaer
-$ make install
+$ sudo make install
 ```
 
 ## Contacts
