@@ -12,11 +12,19 @@ matrix:
           env: TOXENV=py27
         - os: linux
           sudo: required
+          env: TOXENV=py35
+        - os: linux
+          sudo: required
           env: TOXENV=py36
         - os: osx
           sudo: required
           env:
               - TOXENV=py27
+              - HOMEBREW_NO_AUTO_UPDATE=1
+        - os: osx
+          sudo: required
+          env:
+              - TOXENV=py35
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
           sudo: required
@@ -57,6 +65,11 @@ before_install:
     - export PATH=$HOME/miniconda/bin:$PATH
     - conda info -a
     - conda update --yes conda
+    - if [[ "$TOXENV" == "py35" ]]; then
+        conda create -n py35 python=3.5
+        source activate py35
+        python --version
+      fi
     - conda install --yes pip
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test";

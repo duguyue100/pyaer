@@ -28,7 +28,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-__version__ = "0.1.0a21"
+__version__ = "0.1.0a22"
 __author__ = "Yuhuang Hu"
 __author_email__ = "duguyue100@gmail.com"
 __url__ = "https://github.com/duguyue100/pyaer"
