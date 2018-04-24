@@ -66,9 +66,9 @@ before_install:
     - conda info -a
     - conda update --yes conda
     - if [[ "$TOXENV" == "py35" ]]; then
-        conda create -n py35 python=3.5
-        source activate py35
-        python --version
+        conda create -n py35 python=3.5;
+        source activate py35;
+        python --version;
       fi
     - conda install --yes pip
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
