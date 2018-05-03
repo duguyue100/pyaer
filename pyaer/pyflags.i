@@ -17,6 +17,7 @@
 #include <libcaer/devices/edvs.h>
 #include <libcaer/devices/davis.h>
 #include <libcaer/devices/dynapse.h>
+#include <libcaer/devices/device_discover.h>
 #include <libcaer/events/common.h>
 #include <libcaer/events/config.h>
 #include <libcaer/events/ear.h>
@@ -49,6 +50,7 @@
 %include <libcaer/devices/edvs.h>
 %include <libcaer/devices/davis.h>
 %include <libcaer/devices/dynapse.h>
+%include <libcaer/devices/device_discover.h>
 %include <libcaer/events/common.h>
 %include <libcaer/events/config.h>
 %include <libcaer/events/ear.h>
