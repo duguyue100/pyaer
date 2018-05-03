@@ -109,6 +109,16 @@ uint64_t caerDeviceConfigGet64W(caerDeviceHandle handle, int8_t modAddr, uint8_t
 }
 %}
 
+
+%inline %{
+caerDeviceDiscoveryResult caer_device_discover(int16_t deviceType) {
+    caerDeviceDiscoveryResult discoveredDevices;
+    ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
+
+    return discoveredDevices;
+}
+%}
+
 %inline %{
 uint16_t cf_n_type_set(uint8_t coarse_value, uint8_t fine_value) {
     struct caer_bias_coarsefine coarseFineBias;

@@ -21,6 +21,8 @@ Intended Audience :: Science/Research
 Natural Language :: English
 Operating System :: OS Independent
 Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3.5
+Programming Language :: Python :: 3.6
 Topic :: Utilities
 Topic :: Scientific/Engineering
 Topic :: Scientific/Engineering :: Neuromorphic Engineering
@@ -28,7 +30,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-__version__ = "0.1.0a22"
+__version__ = "0.1.0a23"
 __author__ = "Yuhuang Hu"
 __author_email__ = "duguyue100@gmail.com"
 __url__ = "https://github.com/duguyue100/pyaer"
@@ -42,7 +44,7 @@ except AttributeError:
 
 if platform in ["linux", "linux2"]:
     libcaer_include = "/usr/include"
-    libcaer_lib = "/usr/lib"
+    libcaer_lib = "/usr/lib/x86_64-linux-gnu"
 elif platform == "darwin":
     libcaer_include = "/usr/local/include"
     libcaer_lib = "/usr/local/lib"
