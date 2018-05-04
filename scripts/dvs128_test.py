@@ -8,9 +8,13 @@ from __future__ import print_function
 import numpy as np
 import cv2
 
+from pyaer import utils
 from pyaer.dvs128 import DVS128
 
-device = DVS128()
+available_devices = utils.discover_devices(-1)
+print (available_devices)
+
+device = DVS128(1, int(available_devices[0, 1]), int(available_devices[0, 2]))
 
 print ("Device ID:", device.device_id)
 if device.device_is_master:

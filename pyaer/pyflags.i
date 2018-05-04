@@ -111,18 +111,39 @@ uint64_t caerDeviceConfigGet64W(caerDeviceHandle handle, int8_t modAddr, uint8_t
 
 
 %inline %{
-uint16_t * caer_device_discover(int16_t deviceType) {
+uint64_t caer_device_available(int16_t deviceType) {
+    caerDeviceDiscoveryResult discoveredDevices;
+    ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
+
+    free(discoveredDevices);
+
+    return (uint64_t)result;
+}
+%}
+
+
+%inline %{
+uint64_t caer_device_discover(int16_t deviceType) {
     caerDeviceDiscoveryResult discoveredDevices;
     ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
 
     size_t i=0;
-    uint16_t *device_des[(uint16_t)result];
-    for (size_t i=0; i< (size_t) result; i++){
-        /* device type and device serial number as identifier */
-        device_des[i] = (uint16_t)discoveredDevices[i].deviceType;
+    uint64_t discoveredTypes=0;
+    uint64_t curr=1;
+
+    if (result < 0) {
+        return 0;
     }
 
-    return device_des;
+    for (i=0; i< (size_t) result; i++){
+        /* encode discovered device type into one number */
+        discoveredTypes += curr*((uint64_t)discoveredDevices[i].deviceType+1);
+        curr *= 10;
+    }
+
+    free(discoveredDevices);
+
+    return discoveredTypes;
 }
 %}
 
@@ -246,8 +267,63 @@ bool biasHigh, bool typeNormal, bool sexN, bool enabled) {
 Numpy related
 */
 %apply (int64_t* ARGOUT_ARRAY1, int32_t DIM1) {(int64_t* event_vec, int32_t packet_len)}
+%apply (uint64_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint64_t* devices_vec, int32_t device_len)}
 %apply (float* ARGOUT_ARRAY1, int32_t DIM1) {(float* event_vec_f, int32_t packet_len)}
 %apply (uint8_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint8_t* frame_event_vec, int32_t packet_len)}
+
+%inline %{
+void device_discover(int16_t deviceType, uint64_t* devices_vec, int32_t device_len) {
+    caerDeviceDiscoveryResult discoveredDevices;
+    ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
+
+    size_t i=0;
+    for (i=0; i< (size_t) result; i++){
+        devices_vec[i*3] = (uint64_t)discoveredDevices[i].deviceType;
+        switch (discoveredDevices[i].deviceType){
+            case CAER_DEVICE_DVS128: {
+                struct caer_dvs128_info *info = &discoveredDevices[i].deviceInfo.dvs128Info;
+                devices_vec[i*3+1] = (uint64_t)info->deviceUSBBusNumber;
+                devices_vec[i*3+2] = (uint64_t)info->deviceUSBDeviceAddress;
+            break;
+            }
+
+            case CAER_DEVICE_DAVIS_FX2:
+            case CAER_DEVICE_DAVIS_FX3:
+            case CAER_DEVICE_DAVIS: {
+                struct caer_davis_info *info = &discoveredDevices[i].deviceInfo.davisInfo;
+                devices_vec[i*3+1] = (uint64_t)info->deviceUSBBusNumber;
+                devices_vec[i*3+2] = (uint64_t)info->deviceUSBDeviceAddress;
+                break;
+            }
+
+            case CAER_DEVICE_DYNAPSE: {
+                struct caer_dynapse_info *info = &discoveredDevices[i].deviceInfo.dynapseInfo;
+                devices_vec[i*3+1] = (uint64_t)info->deviceUSBBusNumber;
+                devices_vec[i*3+2] = (uint64_t)info->deviceUSBDeviceAddress;
+                break;
+            }
+
+            case CAER_DEVICE_EDVS: {
+                struct caer_edvs_info *info = &discoveredDevices[i].deviceInfo.edvsInfo;
+                devices_vec[i*3+1] = (uint64_t)info->serialPortName;
+                devices_vec[i*3+2] = (uint64_t)info->serialBaudRate;
+                break;
+            }
+
+            case CAER_DEVICE_DAVIS_RPI: {
+                devices_vec[i*3+1] = 0;
+                devices_vec[i*3+2] = 0;
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+
+    free(discoveredDevices);
+}
+%}
 
 %inline %{
 void get_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {

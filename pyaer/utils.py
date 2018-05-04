@@ -9,6 +9,7 @@ from scipy import stats
 
 import pyaer
 from pyaer import log
+from pyaer import libcaer
 
 logger = log.get_logger("utils", pyaer.LOG_LEVEL)
 
@@ -123,6 +124,35 @@ def load_dynapse_bias(file_path, verbose=False):
         return bias_obj
     else:
         return None
+
+
+def discover_devices(device_type):
+    """Automatic discover devices.
+
+    # Parameters
+    device_type : int
+        *-1 - CAER_DEVICE_DISCOVER_ALL
+        * 0 - CAER_DEVICE_DVS128
+        * 1 - CAER_DEVICE_DAVIS_FX2
+        * 2 - CAER_DEVICE_DAVIS_FX3
+        * 3 - CAER_DEVICE_DYNAPSE
+        * 4 - CAER_DEVICE_DAVIS
+        * 5 - CAER_DEVICE_EDVS
+        * 6 - CAER_DEVICE_DAVIS_RPI
+
+    # Returns
+    discovered_devices : list
+        discovered devices type with the order
+    """
+    num_devices = libcaer.caer_device_available(device_type)
+    discovered_devices = libcaer.device_discover(
+        device_type, num_devices*3)
+    if num_devices == 0:
+        return None
+
+    discovered_devices = discovered_devices.reshape(num_devices, 3)
+
+    return discovered_devices
 
 
 def clip(n, lower, upper):
