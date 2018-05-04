@@ -151,6 +151,8 @@ def discover_devices(device_type, max_devices=100):
         the third column is device USB device address or
                             serial Baud rate (if EDVS)
         discovered devices type with the order
+        Note that the array has the data type uint64,
+        please reformat the number if necessary.
     num_devices : int
         number of available devices
     """

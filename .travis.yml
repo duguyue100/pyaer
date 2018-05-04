@@ -12,6 +12,9 @@ matrix:
           env: TOXENV=py27
         - os: linux
           sudo: required
+          env: TOXENV=py34
+        - os: linux
+          sudo: required
           env: TOXENV=py35
         - os: linux
           sudo: required
@@ -20,6 +23,11 @@ matrix:
           sudo: required
           env:
               - TOXENV=py27
+              - HOMEBREW_NO_AUTO_UPDATE=1
+        - os: osx
+          sudo: required
+          env:
+              - TOXENV=py34
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
           sudo: required
@@ -65,6 +73,11 @@ before_install:
     - export PATH=$HOME/miniconda/bin:$PATH
     - conda info -a
     - conda update --yes conda
+    - if [[ "$TOXENV" == "py34" ]]; then
+        conda create -n py34 python=3.4 --yes;
+        source activate py34;
+        python --version;
+      fi
     - if [[ "$TOXENV" == "py35" ]]; then
         conda create -n py35 python=3.5 --yes;
         source activate py35;

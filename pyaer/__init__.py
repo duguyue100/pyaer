@@ -12,6 +12,8 @@ FILE_PATH = os.path.realpath(__file__)
 CURR_PATH = os.path.dirname(os.path.realpath(__file__))
 PKG_PATH = os.path.dirname(CURR_PATH)
 
+__version__ = "0.1.0a23"
+
 # System logging level
 LOG_LEVEL = log.DEBUG
 
