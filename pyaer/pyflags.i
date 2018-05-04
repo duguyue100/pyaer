@@ -111,11 +111,18 @@ uint64_t caerDeviceConfigGet64W(caerDeviceHandle handle, int8_t modAddr, uint8_t
 
 
 %inline %{
-caerDeviceDiscoveryResult caer_device_discover(int16_t deviceType) {
+uint16_t * caer_device_discover(int16_t deviceType) {
     caerDeviceDiscoveryResult discoveredDevices;
     ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
 
-    return discoveredDevices;
+    size_t i=0;
+    uint16_t *device_des[(uint16_t)result];
+    for (size_t i=0; i< (size_t) result; i++){
+        /* device type and device serial number as identifier */
+        device_des[i] = (uint16_t)discoveredDevices[i].deviceType;
+    }
+
+    return device_des;
 }
 %}
 
