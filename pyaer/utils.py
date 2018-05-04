@@ -5,6 +5,7 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
 import json
+import numpy as np
 from scipy import stats
 
 import pyaer
@@ -126,7 +127,7 @@ def load_dynapse_bias(file_path, verbose=False):
         return None
 
 
-def discover_devices(device_type):
+def discover_devices(device_type, max_devices=100):
     """Automatic discover devices.
 
     # Parameters
@@ -141,18 +142,25 @@ def discover_devices(device_type):
         * 6 - CAER_DEVICE_DAVIS_RPI
 
     # Returns
-    discovered_devices : list
+    discovered_devices : numpy.ndarray
+        a (num_devices, 3) array
+        the first column is device type
+        the second column is device USB bus number or
+                             serial port name for EDVS
+                             (cannot detect string, set to 0)
+        the third column is device USB device address or
+                            serial Baud rate (if EDVS)
         discovered devices type with the order
+    num_devices : int
+        number of available devices
     """
-    num_devices = libcaer.caer_device_available(device_type)
     discovered_devices = libcaer.device_discover(
-        device_type, num_devices*3)
-    if num_devices == 0:
-        return None
+        device_type, (max_devices+1)*3)
 
-    discovered_devices = discovered_devices.reshape(num_devices, 3)
+    discovered_devices = discovered_devices.reshape((max_devices+1), 3)
+    num_devices = np.argwhere(discovered_devices == 42)[0][0]
 
-    return discovered_devices
+    return discovered_devices[:num_devices], num_devices
 
 
 def clip(n, lower, upper):

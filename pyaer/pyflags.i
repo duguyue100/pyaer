@@ -109,44 +109,6 @@ uint64_t caerDeviceConfigGet64W(caerDeviceHandle handle, int8_t modAddr, uint8_t
 }
 %}
 
-
-%inline %{
-uint64_t caer_device_available(int16_t deviceType) {
-    caerDeviceDiscoveryResult discoveredDevices;
-    ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
-
-    free(discoveredDevices);
-
-    return (uint64_t)result;
-}
-%}
-
-
-%inline %{
-uint64_t caer_device_discover(int16_t deviceType) {
-    caerDeviceDiscoveryResult discoveredDevices;
-    ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
-
-    size_t i=0;
-    uint64_t discoveredTypes=0;
-    uint64_t curr=1;
-
-    if (result < 0) {
-        return 0;
-    }
-
-    for (i=0; i< (size_t) result; i++){
-        /* encode discovered device type into one number */
-        discoveredTypes += curr*((uint64_t)discoveredDevices[i].deviceType+1);
-        curr *= 10;
-    }
-
-    free(discoveredDevices);
-
-    return discoveredTypes;
-}
-%}
-
 %inline %{
 uint16_t cf_n_type_set(uint8_t coarse_value, uint8_t fine_value) {
     struct caer_bias_coarsefine coarseFineBias;
@@ -305,7 +267,7 @@ void device_discover(int16_t deviceType, uint64_t* devices_vec, int32_t device_l
 
             case CAER_DEVICE_EDVS: {
                 struct caer_edvs_info *info = &discoveredDevices[i].deviceInfo.edvsInfo;
-                devices_vec[i*3+1] = (uint64_t)info->serialPortName;
+                devices_vec[i*3+1] = 0;
                 devices_vec[i*3+2] = (uint64_t)info->serialBaudRate;
                 break;
             }
@@ -320,6 +282,7 @@ void device_discover(int16_t deviceType, uint64_t* devices_vec, int32_t device_l
                 break;
         }
     }
+    devices_vec[(size_t)result*3]=42;
 
     free(discoveredDevices);
 }
