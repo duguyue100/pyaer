@@ -15,8 +15,6 @@ from sys import platform
 
 import numpy
 
-from pyaer import __version__
-
 classifiers = """
 Development Status :: 3 - Alpha
 Intended Audience :: Science/Research
@@ -33,9 +31,12 @@ Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-__author__ = "Yuhuang Hu"
-__author_email__ = "duguyue100@gmail.com"
-__url__ = "https://github.com/duguyue100/pyaer"
+try:
+    from pyaer import __about__
+    about = __about__.__dict__
+except ImportError:
+    about = dict()
+    exec(open("pyaer/__about__.py").read(), about)
 
 python_paths = get_paths()
 
@@ -68,12 +69,12 @@ libcaer_wrap = Extension(
 
 setup(
     name="pyaer",
-    version=__version__,
+    version=about["__version__"],
 
-    author=__author__,
-    author_email=__author_email__,
+    author=about["__author__"],
+    author_email=about["__author_email__"],
 
-    url=__url__,
+    url=about["__url__"],
 
     install_requires=["numpy",
                       "future",
