@@ -26,8 +26,10 @@ Programming Language :: Python :: 3.5
 Programming Language :: Python :: 3.6
 Topic :: Utilities
 Topic :: Scientific/Engineering
-Topic :: Scientific/Engineering :: Neuromorphic Engineering
+Topic :: Scientific/Engineering :: Artificial Intelligence
 Topic :: Software Development :: Libraries :: Python Modules
+Operating System :: MacOS
+Operating System :: POSIX :: Linux
 License :: OSI Approved :: MIT License
 """
 
