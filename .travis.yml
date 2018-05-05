@@ -5,6 +5,10 @@ cache:
 
 language: generic
 
+env:
+    global:
+        - TWINE_USERNAME=duguyue100
+
 matrix:
     include:
         - os: linux
@@ -136,6 +140,7 @@ install:
     - pip install future
     - pip install scipy
     - pip install wheel
+    - pip install twine
     - conda list
 
 script:
@@ -143,6 +148,7 @@ script:
     - make build-wheel
     - make install
     - python -c 'import pyaer; print(dir(pyaer))'
+    - twine upload --repository testpypi dist/*.wheel;
 
 branches:
   except:
