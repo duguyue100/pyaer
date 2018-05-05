@@ -148,7 +148,7 @@ script:
     - make build-wheel
     - make install
     - python -c 'import pyaer; print(dir(pyaer))'
-    - twine upload --repository-url https://test.pypi.org/legacy/ dist/*.whl;
+    - twine upload -u ${TWINE_USERNAME} -p ${TWINE_PASSWORD} --repository-url https://test.pypi.org/legacy/ dist/*.whl;
 
 branches:
   except:
