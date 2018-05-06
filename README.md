@@ -40,7 +40,7 @@ __NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialpor
 2. Directly install from pypi (RECOMMEND)
 
 ```bash
-$ pip install pyaer
+$ pip install pyaer -U
 ```
 
 __NOTE:__ The wheel file is built based on the bleeding-edge of
