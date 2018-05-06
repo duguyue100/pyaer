@@ -148,6 +148,11 @@ script:
     - make build-wheel
     - make install
     - python -c 'import pyaer; print(dir(pyaer))'
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        cd dist;
+        for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
+        cd ..; 
+      fi
     - twine upload -u ${TWINE_USERNAME} -p ${TWINE_PASSWORD} --repository-url https://test.pypi.org/legacy/ dist/*.whl;
 
 branches:
