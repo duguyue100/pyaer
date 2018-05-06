@@ -140,7 +140,9 @@ install:
     - pip install future
     - pip install scipy
     - pip install wheel
-    - pip install twine
+    - if [[ $TRAVIS_TAG ]]; then
+        pip install twine;
+      fi
     - conda list
 
 script:
@@ -153,7 +155,9 @@ script:
         for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
         cd ..; 
       fi
-    - twine upload -u ${TWINE_USERNAME} -p ${TWINE_PASSWORD} --repository-url https://test.pypi.org/legacy/ dist/*.whl;
+    - if [[ $TRAVIS_TAG ]]; then
+        twine upload -u ${TWINE_USERNAME} -p ${TWINE_PASSWORD} dist/*.whl;
+      fi
 
 branches:
   except:
