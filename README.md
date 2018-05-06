@@ -7,8 +7,8 @@ PyAER with Swig Bindings
 
 Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
 
-+ Supported platform: `Ubuntu`, `macOS`
-+ Supported Python: 2.7, 3.6
++ Supported platform: `Ubuntu`, `macOS`, `Raspbian Stretch`
++ Supported Python: 2.7, 3.4, 3.5, 3.6
 
 The project is in its Alpha development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you need our help.
 
@@ -37,25 +37,22 @@ __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/
 
 __NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport). Currently, this support is not built into the release since we are not clear how useful is this feature. If you are interested, you can build the project from scratch.
 
-2. Directly install from pip (RECOMMEND)
-
-Download the compiled wheel file from the [latest release](https://github.com/duguyue100/pyaer/releases/latest) and install it via `pip`
+2. Directly install from pypi (RECOMMEND)
 
 ```bash
-$ pip install pyaer-latest-release.whl \
--r https://raw.githubusercontent.com/duguyue100/pyaer/master/requirements.txt
+$ pip install pyaer -U
 ```
 
 __NOTE:__ The wheel file is built based on the bleeding-edge of
 `libcaer`. It's recommended to install `libcaer` from source
 than from other packaging system.
 
-__NOTE:__ We will start shipping `pypi` release from beta release.
+__NOTE:__ We will start shipping Python wheels for Raspberry Pi from beta release.
 
 3. Install from source
 
 ```
-$ git clone https://github.com/duguyue100/pyaer-beta.git
+$ git clone https://github.com/duguyue100/pyaer.git
 $ make install
 ```
 

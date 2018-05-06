@@ -48,6 +48,9 @@ install:
 develop:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py develop
 
+develop-uninstall:
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py develop --uninstall
+
 build-pyaer:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py build
 

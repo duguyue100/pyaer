@@ -9,6 +9,7 @@ from setuptools import find_packages
 
 from distutils.core import Extension
 
+import os
 from sysconfig import get_paths
 from sys import platform
 
@@ -20,17 +21,22 @@ Intended Audience :: Science/Research
 Natural Language :: English
 Operating System :: OS Independent
 Programming Language :: Python :: 2.7
+Programming Language :: Python :: 3.4
+Programming Language :: Python :: 3.5
+Programming Language :: Python :: 3.6
 Topic :: Utilities
 Topic :: Scientific/Engineering
-Topic :: Scientific/Engineering :: Neuromorphic Engineering
+Topic :: Scientific/Engineering :: Artificial Intelligence
 Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-__version__ = "0.1.0a19"
-__author__ = "Yuhuang Hu"
-__author_email__ = "duguyue100@gmail.com"
-__url__ = "https://github.com/duguyue100/pyaer"
+try:
+    from pyaer import __about__
+    about = __about__.__dict__
+except ImportError:
+    about = dict()
+    exec(open("pyaer/__about__.py").read(), about)
 
 python_paths = get_paths()
 
@@ -41,10 +47,14 @@ except AttributeError:
 
 if platform in ["linux", "linux2"]:
     libcaer_include = "/usr/include"
-    libcaer_lib = "/usr/lib"
+    libcaer_lib = "/usr/lib/x86_64-linux-gnu"
 elif platform == "darwin":
     libcaer_include = "/usr/local/include"
     libcaer_lib = "/usr/local/lib"
+
+# for Raspberry Pi support
+if os.uname()[1] == "raspberrypi":
+    libcaer_lib = "/usr/lib/arm-linux-gnueabihf"
 
 libcaer_wrap = Extension(
     name="_libcaer_wrap",
@@ -59,12 +69,12 @@ libcaer_wrap = Extension(
 
 setup(
     name="pyaer",
-    version=__version__,
+    version=about["__version__"],
 
-    author=__author__,
-    author_email=__author_email__,
+    author=about["__author__"],
+    author_email=about["__author_email__"],
 
-    url=__url__,
+    url=about["__url__"],
 
     install_requires=["numpy",
                       "future",

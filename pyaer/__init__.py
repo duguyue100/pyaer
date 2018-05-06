@@ -7,6 +7,8 @@ from __future__ import print_function, absolute_import
 import os
 
 from pyaer import log
+from pyaer.__about__ import __version__
+from pyaer.__about__ import __author__
 
 FILE_PATH = os.path.realpath(__file__)
 CURR_PATH = os.path.dirname(os.path.realpath(__file__))
