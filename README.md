@@ -1,14 +1,16 @@
 # PyAER
 
 [![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
 [![Build Status](https://api.travis-ci.org/duguyue100/pyaer.svg?branch=master)](https://travis-ci.org/duguyue100/pyaer)
+![Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange.svg)
+![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
+![Raspbian](https://img.shields.io/badge/OS-Raspbian%20Stretch-orange.svg)
+[![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
 
 PyAER with Swig Bindings
 
 Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
-
-+ Supported platform: `Ubuntu`, `macOS`, `Raspbian Stretch`
-+ Supported Python: 2.7, 3.4, 3.5, 3.6
 
 The project is in its Alpha development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you need our help.
 
@@ -55,14 +57,12 @@ $ make install
 ## Got a Linux?
 
 `libcaer` relies on `libusb` based driver, you won't be able
-to access the camera unless fixing the `udev` rules. Refer details
-from [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px)
+to access the camera unless fixing the `udev` rules. Refer to details
+at [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px).
 
 ```bash
 $ sudo bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
 ```
-
-Unplug and replug the camera.
 
 ## Running Examples
 
