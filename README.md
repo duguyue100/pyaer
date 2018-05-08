@@ -30,7 +30,7 @@ The project is in its Alpha development stage, please submit an [issue](https://
     $ git clone https://github.com/inilabs/libcaer.git
     $ cd libcaer
     $ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
-# for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
+    # for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
     $ make
     $ make install
     ```
