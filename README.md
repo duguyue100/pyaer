@@ -21,7 +21,7 @@ The project is in its Alpha development stage, please submit an [issue](https://
 
 ## Installation
 
-1. Install `libcaer` dependency
+1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
 
 ```bash
 $ sudo apt-get install libusb-1.0-0-dev
@@ -43,10 +43,6 @@ __NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialpor
 $ pip install pyaer -U
 ```
 
-__NOTE:__ The wheel file is built based on the bleeding-edge of
-`libcaer`. It's recommended to install `libcaer` from source
-than from other packaging system.
-
 __NOTE:__ We will start shipping Python wheels for Raspberry Pi from beta release.
 
 3. Install from source
@@ -62,23 +58,8 @@ $ make install
 to access the camera unless fixing the `udev` rules. Refer details
 from [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px)
 
-```
-$ sudo touch /etc/udev/rules.d/65-inilabs.rules
-```
-
-Append following contents in the file with `sudo`
-
-```
-# All DVS/DAVIS systems
-SUBSYSTEM=="usb", ATTR{idVendor}=="152a", ATTR{idProduct}=="84[0-1]?", MODE="0666"
-# eDVS 4337
-SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", MODE="0666"
-```
-
-Updating rules
-
-```
-$ udevadm control --reload
+```bash
+$ sudo bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
 ```
 
 Unplug and replug the camera.
