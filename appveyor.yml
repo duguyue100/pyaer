@@ -16,22 +16,6 @@ environment:
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
           MINICONDA: Miniconda-x64
-        - compiler: msys2
-          ARCH: x64
-          PYTHON_VERSION: "3.5"
-          PYTHON: python3
-          MSYS2_ARCH: x86_64
-          MSYS2_DIR: msys64
-          MSYSTEM: MINGW64
-          MINICONDA: Miniconda-x64
-        - compiler: msys2
-          ARCH: x64
-          PYTHON_VERSION: "3.6"
-          PYTHON: python3
-          MSYS2_ARCH: x86_64
-          MSYS2_DIR: msys64
-          MSYSTEM: MINGW64
-          MINICONDA: Miniconda-x64
 
 platform:
     - x64
@@ -74,5 +58,5 @@ install:
 build: off
 
 artifacts:
-    - path: "C:\\projects\\pyaer\\*.whl"
+    - path: "dist\\*.whl"
       name: Wheels
