@@ -10,6 +10,22 @@ environment:
           MINICONDA: Miniconda-x64
         - compiler: msys2
           ARCH: x64
+          PYTHON_VERSION: "3.4"
+          PYTHON: python3
+          MSYS2_ARCH: x86_64
+          MSYS2_DIR: msys64
+          MSYSTEM: MINGW64
+          MINICONDA: Miniconda-x64
+        - compiler: msys2
+          ARCH: x64
+          PYTHON_VERSION: "3.5"
+          PYTHON: python3
+          MSYS2_ARCH: x86_64
+          MSYS2_DIR: msys64
+          MSYSTEM: MINGW64
+          MINICONDA: Miniconda-x64
+        - compiler: msys2
+          ARCH: x64
           PYTHON_VERSION: "3.6"
           PYTHON: python3
           MSYS2_ARCH: x86_64
@@ -45,5 +61,18 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && make && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --with-python=$(command -v python) --without-%PYTHON% --without-pcre && make && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /c/projects/pyaer && make build-win && make build-wheel && make build-wheel"
+    - >
+      IF "%APPVEYOR_REPO_TAG%" == "false"
+      (
+      pip install twine -U
+      &&
+      cd C:\projects\pyaer
+      &&
+      twine upload -u %TWINE_USERNAME% -p %TWINE_PASSWORD% --repository-url https://test.pypi.org/legacy/ dist/*.whl
+      )
 
 build: off
+
+artifacts:
+    - path: "C:\\projects\\pyaer\\*.whl"
+      name: Wheels
