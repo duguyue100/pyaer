@@ -1,14 +1,16 @@
 # PyAER
 
 [![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
 [![Build Status](https://api.travis-ci.org/duguyue100/pyaer.svg?branch=master)](https://travis-ci.org/duguyue100/pyaer)
+![Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange.svg)
+![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
+![Raspbian](https://img.shields.io/badge/OS-Raspbian%20Stretch-orange.svg)
+[![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
 
 PyAER with Swig Bindings
 
 Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
-
-+ Supported platform: `Ubuntu`, `macOS`
-+ Supported Python: 2.7, 3.6
 
 The project is in its Alpha development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you need our help.
 
@@ -21,70 +23,46 @@ The project is in its Alpha development stage, please submit an [issue](https://
 
 ## Installation
 
-1. Install `libcaer` dependency
+1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
 
-```bash
-$ sudo apt-get install libusb-1.0-0-dev
-$ git clone https://github.com/inilabs/libcaer.git
-$ cd libcaer
-$ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
-# for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
-$ make
-$ make install
-```
+    ```bash
+    $ sudo apt-get install libusb-1.0-0-dev
+    $ git clone https://github.com/inilabs/libcaer.git
+    $ cd libcaer
+    $ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
+    # for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
+    $ make
+    $ make install
+    ```
 
-__NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
+    __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
-__NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport). Currently, this support is not built into the release since we are not clear how useful is this feature. If you are interested, you can build the project from scratch.
+    __NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport). Currently, this support is not built into the release since we are not clear how useful is this feature. If you are interested, you can build the project from scratch.
 
-2. Directly install from pip (RECOMMEND)
+2. Directly install from pypi (RECOMMEND)
 
-Download the compiled wheel file from the [latest release](https://github.com/duguyue100/pyaer/releases/latest) and install it via `pip`
+    ```bash
+    $ pip install pyaer -U
+    ```
 
-```bash
-$ pip install pyaer-latest-release.whl \
--r https://raw.githubusercontent.com/duguyue100/pyaer/master/requirements.txt
-```
-
-__NOTE:__ The wheel file is built based on the bleeding-edge of
-`libcaer`. It's recommended to install `libcaer` from source
-than from other packaging system.
-
-__NOTE:__ We will start shipping `pypi` release from beta release.
+    __NOTE:__ We will start shipping Python wheels for Raspberry Pi from beta release.
 
 3. Install from source
 
-```
-$ git clone https://github.com/duguyue100/pyaer-beta.git
-$ make install
-```
+    ```
+    $ git clone https://github.com/duguyue100/pyaer.git
+    $ make install
+    ```
 
 ## Got a Linux?
 
 `libcaer` relies on `libusb` based driver, you won't be able
-to access the camera unless fixing the `udev` rules. Refer details
-from [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px)
+to access the camera unless fixing the `udev` rules. Refer to details
+at [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px).
 
+```bash
+$ sudo bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
 ```
-$ sudo touch /etc/udev/rules.d/65-inilabs.rules
-```
-
-Append following contents in the file with `sudo`
-
-```
-# All DVS/DAVIS systems
-SUBSYSTEM=="usb", ATTR{idVendor}=="152a", ATTR{idProduct}=="84[0-1]?", MODE="0666"
-# eDVS 4337
-SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", MODE="0666"
-```
-
-Updating rules
-
-```
-$ udevadm control --reload
-```
-
-Unplug and replug the camera.
 
 ## Running Examples
 
@@ -111,46 +89,46 @@ cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
 
 1. Install compilation dependency
 
-```
-$ sudo apt-get install automake
-$ sudo apt-get install bison
-```
+    ```
+    $ sudo apt-get install automake
+    $ sudo apt-get install bison
+    ```
 
-_There might be other dependencies for compiling SWIG_
+    _There might be other dependencies for compiling SWIG_
 
 2. Compile SIWG
 
-```
-$ git clone https://github.com/duguyue100/swig
-$ cd swig
-$ ./autogen.sh
-$ ./configure
-$ make
-$ sudo make install
-```
+    ```
+    $ git clone https://github.com/duguyue100/swig
+    $ cd swig
+    $ ./autogen.sh
+    $ ./configure
+    $ make
+    $ sudo make install
+    ```
 
-For compiling SWIG with Python
+    For compiling SWIG with Python
 
-```
-$ ./configure --with-python=$(command -v python) --without-python3
-```
+    ```
+    $ ./configure --with-python=$(command -v python) --without-python3
+    ```
 
-The above is an example with Python 2, you can configure for Python 3 as well
+    The above is an example with Python 2, you can configure for Python 3 as well
 
-```
-$ ./configure --with-python=$(command -v python) --without-python2
-```
+    ```
+    $ ./configure --with-python=$(command -v python) --without-python2
+    ```
 
-__Note:__ If you are not compile the SWIG with system Python distribution,
-it won't link to the custom Python automatically.
+    __Note:__ If you are not compile the SWIG with system Python distribution,
+    it won't link to the custom Python automatically.
 
-You will need to configure `LD_LIBRARY_PATH` for swig running properly.
+    You will need to configure `LD_LIBRARY_PATH` for swig running properly.
 
-e.g.
+    e.g.
 
-```
-LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
-```
+    ```
+    LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
+    ```
 
 ## Limitations and Notes
 

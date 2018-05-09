@@ -6,6 +6,7 @@ Email : duguyue100@gmail.com
 from __future__ import print_function
 
 from pyaer.dynapse import DYNAPSE
+from pyaer import utils
 
 device = DYNAPSE()
 
@@ -26,9 +27,21 @@ print ("MUX has statistics:", device.mux_has_statistics)
 
 device.start_data_stream()
 
+bias_obj = utils.load_dynapse_bias("./scripts/configs/dynapse_config.json")
+
+# set bias from json file
+scope = {
+    0: [0, 1, 2, 3],
+    }
+
 device.set_bias_from_json("./scripts/configs/dynapse_config.json",
-                          clear_sram=False, setup_sram=False)
+                          clear_sram=False, setup_sram=False,
+                          fpga_bias=True, scope=scope)
+# print FPGA biases
 print (device.get_fpga_bias())
+
+# set biases for a single chip
+device.set_chip_bias(bias_obj, chip_id=1)
 
 while True:
     try:

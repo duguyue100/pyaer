@@ -4,6 +4,7 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
+from future.utils import iteritems
 from builtins import range
 import time
 import numpy as np
@@ -69,6 +70,12 @@ class DYNAPSE(USBDevice):
         self.DYNAPSE_CONFIG_CAMTYPE_S_INH = \
             libcaer.DYNAPSE_CONFIG_CAMTYPE_S_INH
 
+        # chip configurations
+        self.chip_config = [libcaer.DYNAPSE_CONFIG_DYNAPSE_U0,
+                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U1,
+                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U2,
+                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U3]
+
     def obtain_device_info(self, handle):
         """Obtain DYNAPSE info."""
         if handle is not None:
@@ -120,18 +127,161 @@ class DYNAPSE(USBDevice):
             bus_number_restrict, dev_address_restrict,
             serial_number)
 
-    def set_bias_from_json(self, file_path, clear_sram=False,
-                           setup_sram=False, verbose=False):
+    def set_bias_from_json(self, file_path, fpga_bias=True, clear_sram=False,
+                           setup_sram=False, scope="all", verbose=False):
         """Set bias from loading JSON configuration file.
 
-        # Parameters
+        Parameters
+        ----------
         file_path : string
             absolute path of the JSON bias file.
+        fpga_bias : bool
+            Set FPGA biases if True, False otherwise,
+            Default is True
+        clear_sram : bool
+            Clear SRAM if True, False otherwise,
+            Default is False
+        setup_sram : bool
+            Setup SRAM if True, False otherwise,
+            Default is False
+        scope : string, dict
+            a dictionary that describe the bias setting profile,
+            set everything if the argument is "all"
+            Here is a basic template for scope description
+            scope = {
+                0: [0, 1, 2, 3],
+                1: [0, 1, 2, 3],
+                2: [0, 1, 2, 3],
+                3: [0, 1, 2, 3],
+                }
         """
-        bias_obj = utils.load_dvs_bias(file_path, verbose)
-        self.set_bias(bias_obj, clear_sram=clear_sram, setup_sram=setup_sram)
+        bias_obj = utils.load_dynapse_bias(file_path, verbose)
+        self.set_bias(bias_obj,
+                      fpga_bias=fpga_bias,
+                      clear_sram=clear_sram, setup_sram=setup_sram,
+                      scope=scope)
 
-    def set_bias(self, bias_obj, clear_sram=False, setup_sram=False):
+    def clear_sram(self):
+        """Clear SRAM for all chips."""
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U1)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U2)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U3)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+
+    def setup_sram(self):
+        """Setup SRAM for all chips."""
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U0,
+                        0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U1)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U1,
+                        0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U2)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U2,
+                        0)
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U3)
+        self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                        libcaer.DYNAPSE_CONFIG_DYNAPSE_U3,
+                        0)
+
+    def set_chip_bias(self, bias_obj, chip_id,
+                      core_ids=[0, 1, 2, 3],
+                      clear_sram=False, setup_sram=False):
+        """Set bias for a single chip.
+
+        Parameters
+        ----------
+        bias_obj : dictionary
+            a dictionary that consists of all 4 core's biases
+        chip_id : int
+            chip id is between 0-3
+        core_ids : list
+            list of core ids from 0 to 3, each element is a string,
+            the default is [0, 1, 2, 3]
+            e.g.,
+                [0, 3]: set core 0 and core 3
+                [2]: set core 2
+                []: do not set core level biases
+        clear_sram : bool
+            Clear SRAM if True, False otherwise,
+            Default is False
+        setup_sram : bool
+            Setup SRAM if True, False otherwise,
+            Default is False
+        """
+        # stop data stream
+        self.data_stop()
+        time.sleep(1)
+
+        # Turn on chip and AER communication for configuration.
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        True)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        True)
+
+        # Clear all SRAM
+        if clear_sram is True:
+            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                            self.chip_config[chip_id])
+            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
+
+        # set chip bias
+        self.set_activity_bias(bias_obj, self.chip_config[chip_id],
+                               core_ids=core_ids)
+
+        # Setup SRAM for USB monitoring of spike events
+        if setup_sram is True:
+            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
+                            self.chip_config[chip_id])
+            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
+                            self.chip_config[chip_id],
+                            0)
+            self.setup_sram()
+
+        # Turn off chip/AER once done
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        False)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        False)
+
+        # Essential: wait for chip to be stable
+        time.sleep(1)
+        # restart data stream
+        self.start_data_stream(send_default_config=False)
+
+    def set_bias(self, bias_obj,
+                 fpga_bias=True,
+                 clear_sram=False, setup_sram=False,
+                 scope="all"):
         """Set bias from bias dictionary.
 
         You don't have to turn on the clear_sram and setup_sram
@@ -139,14 +289,93 @@ class DYNAPSE(USBDevice):
 
         # Parameters
         bias_obj : dict
-            dictionary that contains DVS128 biases.
+            dictionary that contains DYNAPSE biases.
+        fpga_bias : bool
+            Set FPGA biases if True, False otherwise,
+            Default is True
+        clear_sram : bool
+            Clear SRAM if True, False otherwise,
+            Default is False
+        setup_sram : bool
+            Setup SRAM if True, False otherwise,
+            Default is False
+        scope : string, dict
+            a dictionary that describe the bias setting profile,
+            set everything if the argument is "all"
+            Here is a basic template for scope description
+            scope = {
+                0: [0, 1, 2, 3],
+                1: [0, 1, 2, 3],
+                2: [0, 1, 2, 3],
+                3: [0, 1, 2, 3],
+                }
 
         # Returns
         flag : bool
             True if set successful, False otherwise.
             TODO: make this flag check possible
         """
+        # stop data stream
+        self.data_stop()
         time.sleep(1)
+
+        # set FPGA biases
+        if fpga_bias is True:
+            self.set_fpga_bias(bias_obj)
+
+        # Turn on chip and AER communication for configuration.
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        True)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        True)
+
+        # Clear all SRAM
+        if clear_sram is True:
+            self.clear_sram()
+
+        if scope == "all":
+            scope = {
+                0: [0, 1, 2, 3],
+                1: [0, 1, 2, 3],
+                2: [0, 1, 2, 3],
+                3: [0, 1, 2, 3],
+                }
+        else:
+            # make sure the chip description is a dictionary
+            assert isinstance(scope, dict)
+
+        # Set biases for some activity
+        for (chip_id, core_ids) in iteritems(scope):
+            self.set_activity_bias(bias_obj, self.chip_config[chip_id],
+                                   core_ids=core_ids)
+
+        # Setup SRAM for USB monitoring of spike events
+        if setup_sram is True:
+            self.setup_sram()
+
+        # Turn off chip/AER once done
+        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
+                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
+                        False)
+        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
+                        libcaer.DYNAPSE_CONFIG_AER_RUN,
+                        False)
+
+        # Essential: wait for chip to be stable
+        time.sleep(1)
+        # restart data stream
+        self.start_data_stream(send_default_config=False)
+
+    def set_fpga_bias(self, bias_obj):
+        """Set FPGA biases.
+
+        Parameters
+        ----------
+        bias_obj : dict
+            dictionary that contains FPGA biases for the device.
+        """
         # DYNAPSE_CONFIG_MUX
         self.set_config(libcaer.DYNAPSE_CONFIG_MUX,
                         libcaer.DYNAPSE_CONFIG_MUX_TIMESTAMP_RESET,
@@ -184,1003 +413,317 @@ class DYNAPSE(USBDevice):
                         libcaer.DYNAPSE_CONFIG_USB_EARLY_PACKET_DELAY,
                         bias_obj["usb_early_packet_delay"])
 
-        # Turn on chip and AER communication for configuration.
-        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
-                        True)
-        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
-                        libcaer.DYNAPSE_CONFIG_AER_RUN,
-                        True)
-
-        # Clear all SRAM
-        if clear_sram is True:
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U1)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U2)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U3)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
-
-        # Set biases for some activity
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U0,
-                               bias_obj)
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U1,
-                               bias_obj)
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U2,
-                               bias_obj)
-        self.set_activity_bias(libcaer.DYNAPSE_CONFIG_DYNAPSE_U3,
-                               bias_obj)
-
-        # Setup SRAM for USB monitoring of spike events
-        if setup_sram is True:
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U0,
-                            0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U1)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U1,
-                            0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U2)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U2,
-                            0)
-            self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                            libcaer.DYNAPSE_CONFIG_CHIP_ID,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U3)
-            self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM,
-                            libcaer.DYNAPSE_CONFIG_DYNAPSE_U3,
-                            0)
-
-        # Turn off chip/AER once done
-        self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
-                        libcaer.DYNAPSE_CONFIG_CHIP_RUN,
-                        False)
-        self.set_config(libcaer.DYNAPSE_CONFIG_AER,
-                        libcaer.DYNAPSE_CONFIG_AER_RUN,
-                        False)
-
-        # Essential: wait for chip to be stable
-        time.sleep(1)
-
-    def set_activity_bias(self, chip_id, bias_obj):
+    def set_activity_bias(self, bias_obj, chip_id,
+                          core_ids=[0, 1, 2, 3]):
         """Set biases for each chip.
 
         Parameters
         ----------
+        bias_obj : dict
+            dictionary that contains activity biases for target chip.
         chip_id : uint8_t
             one of
             DYNAPSE_CONFIG_DYNAPSE_U0,
             DYNAPSE_CONFIG_DYNAPSE_U1,
             DYNAPSE_CONFIG_DYNAPSE_U2,
             DYNAPSE_CONFIG_DYNAPSE_U3
-        bias_obj : dict
-            dictionary that contains DVS128 biases.
+        core_ids : list
+            list of core ids from 0 to 3, each element is a int,
+            the default is [0, 1, 2, 3]
+            e.g.,
+                [0, 3]: set core 0 and core 3
+                [2]: set core 2
+                []: do not set core level biases
         """
+        assert 0 <= chip_id <= 3
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
                         libcaer.DYNAPSE_CONFIG_CHIP_ID,
                         chip_id)
 
-        # Core 0
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_BUF_P,
-                bias_obj["c0_if_buf_p_coarse"],
-                bias_obj["c0_if_buf_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_RFR_N,
-                bias_obj["c0_if_rfr_n_coarse"],
-                bias_obj["c0_if_rfr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_NMDA_N,
-                bias_obj["c0_if_nmda_n_coarse"],
-                bias_obj["c0_if_nmda_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_DC_P,
-                bias_obj["c0_if_dc_p_coarse"],
-                bias_obj["c0_if_dc_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_TAU1_N,
-                bias_obj["c0_if_tau1_coarse"],
-                bias_obj["c0_if_tau1_fine"],
-                False, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_TAU2_N,
-                bias_obj["c0_if_tau2_coarse"],
-                bias_obj["c0_if_tau2_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_THR_N,
-                bias_obj["c0_if_thr_n_coarse"],
-                bias_obj["c0_if_thr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_AHW_P,
-                bias_obj["c0_if_ahw_p_coarse"],
-                bias_obj["c0_if_ahw_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_AHTAU_N,
-                bias_obj["c0_if_ahtau_n_coarse"],
-                bias_obj["c0_if_ahtau_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_AHTHR_N,
-                bias_obj["c0_if_ahthr_n_coarse"],
-                bias_obj["c0_if_ahthr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_IF_CASC_N,
-                bias_obj["c0_if_casc_n_coarse"],
-                bias_obj["c0_if_casc_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_PULSE_PWLK_P,
-                bias_obj["c0_pulse_pwlk_p_coarse"],
-                bias_obj["c0_pulse_pwlk_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_PS_WEIGHT_INH_S_N,
-                bias_obj["c0_ps_weight_inh_s_n_coarse"],
-                bias_obj["c0_ps_weight_inh_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_PS_WEIGHT_INH_F_N,
-                bias_obj["c0_ps_weight_inh_f_n_coarse"],
-                bias_obj["c0_ps_weight_inh_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_PS_WEIGHT_EXC_S_N,
-                bias_obj["c0_ps_weight_exc_s_n_coarse"],
-                bias_obj["c0_ps_weight_exc_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_PS_WEIGHT_EXC_F_N,
-                bias_obj["c0_ps_weight_exc_f_n_coarse"],
-                bias_obj["c0_ps_weight_exc_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPII_TAU_S_P,
-                bias_obj["c0_npdpii_tau_s_p_coarse"],
-                bias_obj["c0_npdpii_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPII_TAU_F_P,
-                bias_obj["c0_npdpii_tau_f_p_coarse"],
-                bias_obj["c0_npdpii_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPII_THR_S_P,
-                bias_obj["c0_npdpii_thr_s_p_coarse"],
-                bias_obj["c0_npdpii_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPII_THR_F_P,
-                bias_obj["c0_npdpii_thr_f_p_coarse"],
-                bias_obj["c0_npdpii_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPIE_TAU_S_P,
-                bias_obj["c0_npdpie_tau_s_p_coarse"],
-                bias_obj["c0_npdpie_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPIE_TAU_F_P,
-                bias_obj["c0_npdpie_tau_f_p_coarse"],
-                bias_obj["c0_npdpie_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPIE_THR_S_P,
-                bias_obj["c0_npdpie_thr_s_p_coarse"],
-                bias_obj["c0_npdpie_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_NPDPIE_THR_F_P,
-                bias_obj["c0_npdpie_thr_f_p_coarse"],
-                bias_obj["c0_npdpie_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C0_R2R_P,
-                bias_obj["c0_r2r_p_coarse"],
-                bias_obj["c0_r2r_p_fine"],
-                True, True, False, True))
-
-        # Core 1
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_BUF_P,
-                bias_obj["c1_if_buf_p_coarse"],
-                bias_obj["c1_if_buf_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_RFR_N,
-                bias_obj["c1_if_rfr_n_coarse"],
-                bias_obj["c1_if_rfr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_NMDA_N,
-                bias_obj["c1_if_nmda_n_coarse"],
-                bias_obj["c1_if_nmda_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_DC_P,
-                bias_obj["c1_if_dc_p_coarse"],
-                bias_obj["c1_if_dc_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_TAU1_N,
-                bias_obj["c1_if_tau1_coarse"],
-                bias_obj["c1_if_tau1_fine"],
-                False, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_TAU2_N,
-                bias_obj["c1_if_tau2_coarse"],
-                bias_obj["c1_if_tau2_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_THR_N,
-                bias_obj["c1_if_thr_n_coarse"],
-                bias_obj["c1_if_thr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_AHW_P,
-                bias_obj["c1_if_ahw_p_coarse"],
-                bias_obj["c1_if_ahw_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_AHTAU_N,
-                bias_obj["c1_if_ahtau_n_coarse"],
-                bias_obj["c1_if_ahtau_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_AHTHR_N,
-                bias_obj["c1_if_ahthr_n_coarse"],
-                bias_obj["c1_if_ahthr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_IF_CASC_N,
-                bias_obj["c1_if_casc_n_coarse"],
-                bias_obj["c1_if_casc_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_PULSE_PWLK_P,
-                bias_obj["c1_pulse_pwlk_p_coarse"],
-                bias_obj["c1_pulse_pwlk_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_PS_WEIGHT_INH_S_N,
-                bias_obj["c1_ps_weight_inh_s_n_coarse"],
-                bias_obj["c1_ps_weight_inh_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_PS_WEIGHT_INH_F_N,
-                bias_obj["c1_ps_weight_inh_f_n_coarse"],
-                bias_obj["c1_ps_weight_inh_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_PS_WEIGHT_EXC_S_N,
-                bias_obj["c1_ps_weight_exc_s_n_coarse"],
-                bias_obj["c1_ps_weight_exc_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_PS_WEIGHT_EXC_F_N,
-                bias_obj["c1_ps_weight_exc_f_n_coarse"],
-                bias_obj["c1_ps_weight_exc_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPII_TAU_S_P,
-                bias_obj["c1_npdpii_tau_s_p_coarse"],
-                bias_obj["c1_npdpii_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPII_TAU_F_P,
-                bias_obj["c1_npdpii_tau_f_p_coarse"],
-                bias_obj["c1_npdpii_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPII_THR_S_P,
-                bias_obj["c1_npdpii_thr_s_p_coarse"],
-                bias_obj["c1_npdpii_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPII_THR_F_P,
-                bias_obj["c1_npdpii_thr_f_p_coarse"],
-                bias_obj["c1_npdpii_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPIE_TAU_S_P,
-                bias_obj["c1_npdpie_tau_s_p_coarse"],
-                bias_obj["c1_npdpie_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPIE_TAU_F_P,
-                bias_obj["c1_npdpie_tau_f_p_coarse"],
-                bias_obj["c1_npdpie_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPIE_THR_S_P,
-                bias_obj["c1_npdpie_thr_s_p_coarse"],
-                bias_obj["c1_npdpie_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_NPDPIE_THR_F_P,
-                bias_obj["c1_npdpie_thr_f_p_coarse"],
-                bias_obj["c1_npdpie_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C1_R2R_P,
-                bias_obj["c1_r2r_p_coarse"],
-                bias_obj["c1_r2r_p_fine"],
-                True, True, False, True))
-
-        # Core 2
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_BUF_P,
-                bias_obj["c2_if_buf_p_coarse"],
-                bias_obj["c2_if_buf_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_RFR_N,
-                bias_obj["c2_if_rfr_n_coarse"],
-                bias_obj["c2_if_rfr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_NMDA_N,
-                bias_obj["c2_if_nmda_n_coarse"],
-                bias_obj["c2_if_nmda_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_DC_P,
-                bias_obj["c2_if_dc_p_coarse"],
-                bias_obj["c2_if_dc_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_TAU1_N,
-                bias_obj["c2_if_tau1_coarse"],
-                bias_obj["c2_if_tau1_fine"],
-                False, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_TAU2_N,
-                bias_obj["c2_if_tau2_coarse"],
-                bias_obj["c2_if_tau2_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_THR_N,
-                bias_obj["c2_if_thr_n_coarse"],
-                bias_obj["c2_if_thr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_AHW_P,
-                bias_obj["c2_if_ahw_p_coarse"],
-                bias_obj["c2_if_ahw_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_AHTAU_N,
-                bias_obj["c2_if_ahtau_n_coarse"],
-                bias_obj["c2_if_ahtau_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_AHTHR_N,
-                bias_obj["c2_if_ahthr_n_coarse"],
-                bias_obj["c2_if_ahthr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_IF_CASC_N,
-                bias_obj["c2_if_casc_n_coarse"],
-                bias_obj["c2_if_casc_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_PULSE_PWLK_P,
-                bias_obj["c2_pulse_pwlk_p_coarse"],
-                bias_obj["c2_pulse_pwlk_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_PS_WEIGHT_INH_S_N,
-                bias_obj["c2_ps_weight_inh_s_n_coarse"],
-                bias_obj["c2_ps_weight_inh_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_PS_WEIGHT_INH_F_N,
-                bias_obj["c2_ps_weight_inh_f_n_coarse"],
-                bias_obj["c2_ps_weight_inh_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_PS_WEIGHT_EXC_S_N,
-                bias_obj["c2_ps_weight_exc_s_n_coarse"],
-                bias_obj["c2_ps_weight_exc_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_PS_WEIGHT_EXC_F_N,
-                bias_obj["c2_ps_weight_exc_f_n_coarse"],
-                bias_obj["c2_ps_weight_exc_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPII_TAU_S_P,
-                bias_obj["c2_npdpii_tau_s_p_coarse"],
-                bias_obj["c2_npdpii_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPII_TAU_F_P,
-                bias_obj["c2_npdpii_tau_f_p_coarse"],
-                bias_obj["c2_npdpii_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPII_THR_S_P,
-                bias_obj["c2_npdpii_thr_s_p_coarse"],
-                bias_obj["c2_npdpii_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPII_THR_F_P,
-                bias_obj["c2_npdpii_thr_f_p_coarse"],
-                bias_obj["c2_npdpii_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPIE_TAU_S_P,
-                bias_obj["c2_npdpie_tau_s_p_coarse"],
-                bias_obj["c2_npdpie_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPIE_TAU_F_P,
-                bias_obj["c2_npdpie_tau_f_p_coarse"],
-                bias_obj["c2_npdpie_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPIE_THR_S_P,
-                bias_obj["c2_npdpie_thr_s_p_coarse"],
-                bias_obj["c2_npdpie_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_NPDPIE_THR_F_P,
-                bias_obj["c2_npdpie_thr_f_p_coarse"],
-                bias_obj["c2_npdpie_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C2_R2R_P,
-                bias_obj["c2_r2r_p_coarse"],
-                bias_obj["c2_r2r_p_fine"],
-                True, True, False, True))
-
-        # Core 3
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_BUF_P,
-                bias_obj["c3_if_buf_p_coarse"],
-                bias_obj["c3_if_buf_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_RFR_N,
-                bias_obj["c3_if_rfr_n_coarse"],
-                bias_obj["c3_if_rfr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_NMDA_N,
-                bias_obj["c3_if_nmda_n_coarse"],
-                bias_obj["c3_if_nmda_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_DC_P,
-                bias_obj["c3_if_dc_p_coarse"],
-                bias_obj["c3_if_dc_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_TAU1_N,
-                bias_obj["c3_if_tau1_coarse"],
-                bias_obj["c3_if_tau1_fine"],
-                False, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_TAU2_N,
-                bias_obj["c3_if_tau2_coarse"],
-                bias_obj["c3_if_tau2_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_THR_N,
-                bias_obj["c3_if_thr_n_coarse"],
-                bias_obj["c3_if_thr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_AHW_P,
-                bias_obj["c3_if_ahw_p_coarse"],
-                bias_obj["c3_if_ahw_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_AHTAU_N,
-                bias_obj["c3_if_ahtau_n_coarse"],
-                bias_obj["c3_if_ahtau_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_AHTHR_N,
-                bias_obj["c3_if_ahthr_n_coarse"],
-                bias_obj["c3_if_ahthr_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_IF_CASC_N,
-                bias_obj["c3_if_casc_n_coarse"],
-                bias_obj["c3_if_casc_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_PULSE_PWLK_P,
-                bias_obj["c3_pulse_pwlk_p_coarse"],
-                bias_obj["c3_pulse_pwlk_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_PS_WEIGHT_INH_S_N,
-                bias_obj["c3_ps_weight_inh_s_n_coarse"],
-                bias_obj["c3_ps_weight_inh_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_PS_WEIGHT_INH_F_N,
-                bias_obj["c3_ps_weight_inh_f_n_coarse"],
-                bias_obj["c3_ps_weight_inh_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_PS_WEIGHT_EXC_S_N,
-                bias_obj["c3_ps_weight_exc_s_n_coarse"],
-                bias_obj["c3_ps_weight_exc_s_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_PS_WEIGHT_EXC_F_N,
-                bias_obj["c3_ps_weight_exc_f_n_coarse"],
-                bias_obj["c3_ps_weight_exc_f_n_fine"],
-                True, True, True, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPII_TAU_S_P,
-                bias_obj["c3_npdpii_tau_s_p_coarse"],
-                bias_obj["c3_npdpii_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPII_TAU_F_P,
-                bias_obj["c3_npdpii_tau_f_p_coarse"],
-                bias_obj["c3_npdpii_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPII_THR_S_P,
-                bias_obj["c3_npdpii_thr_s_p_coarse"],
-                bias_obj["c3_npdpii_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPII_THR_F_P,
-                bias_obj["c3_npdpii_thr_f_p_coarse"],
-                bias_obj["c3_npdpii_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPIE_TAU_S_P,
-                bias_obj["c3_npdpie_tau_s_p_coarse"],
-                bias_obj["c3_npdpie_tau_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPIE_TAU_F_P,
-                bias_obj["c3_npdpie_tau_f_p_coarse"],
-                bias_obj["c3_npdpie_tau_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPIE_THR_S_P,
-                bias_obj["c3_npdpie_thr_s_p_coarse"],
-                bias_obj["c3_npdpie_thr_s_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_NPDPIE_THR_F_P,
-                bias_obj["c3_npdpie_thr_f_p_coarse"],
-                bias_obj["c3_npdpie_thr_f_p_fine"],
-                True, True, False, True))
-
-        self.set_config(
-            libcaer.DYNAPSE_CONFIG_CHIP,
-            libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
-            libcaer.set_dynapse_bias(
-                libcaer.DYNAPSE_CONFIG_BIAS_C3_R2R_P,
-                bias_obj["c3_r2r_p_coarse"],
-                bias_obj["c3_r2r_p_fine"],
-                True, True, False, True))
-
+        for core_id in core_ids:
+            # make sure teh core id is in the range
+            assert 0 <= core_id <= 3
+            core_id = str(core_id)
+            # IF BUF P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_BUF_P"),
+                    bias_obj["c"+core_id+"_if_buf_p_coarse"],
+                    bias_obj["c"+core_id+"_if_buf_p_fine"],
+                    True, True, False, True))
+
+            # IF RFR N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_RFR_N"),
+                    bias_obj["c"+core_id+"_if_rfr_n_coarse"],
+                    bias_obj["c"+core_id+"_if_rfr_n_fine"],
+                    True, True, True, True))
+
+            # IF NMDA N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_NMDA_N"),
+                    bias_obj["c"+core_id+"_if_nmda_n_coarse"],
+                    bias_obj["c"+core_id+"_if_nmda_n_fine"],
+                    True, True, True, True))
+
+            # IF DC P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_DC_P"),
+                    bias_obj["c"+core_id+"_if_dc_p_coarse"],
+                    bias_obj["c"+core_id+"_if_dc_p_fine"],
+                    True, True, False, True))
+
+            # IF TAU1 N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_TAU1_N"),
+                    bias_obj["c"+core_id+"_if_tau1_coarse"],
+                    bias_obj["c"+core_id+"_if_tau1_fine"],
+                    False, True, True, True))
+
+            # IF TAU2 N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_TAU2_N"),
+                    bias_obj["c"+core_id+"_if_tau2_coarse"],
+                    bias_obj["c"+core_id+"_if_tau2_fine"],
+                    True, True, True, True))
+
+            # IF THR N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_THR_N"),
+                    bias_obj["c"+core_id+"_if_thr_n_coarse"],
+                    bias_obj["c"+core_id+"_if_thr_n_fine"],
+                    True, True, True, True))
+
+            # IF AHW P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_AHW_P"),
+                    bias_obj["c"+core_id+"_if_ahw_p_coarse"],
+                    bias_obj["c"+core_id+"_if_ahw_p_fine"],
+                    True, True, False, True))
+
+            # IF AHTAU N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_AHTAU_N"),
+                    bias_obj["c"+core_id+"_if_ahtau_n_coarse"],
+                    bias_obj["c"+core_id+"_if_ahtau_n_fine"],
+                    True, True, True, True))
+
+            # IF AHTHR N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_AHTHR_N"),
+                    bias_obj["c"+core_id+"_if_ahthr_n_coarse"],
+                    bias_obj["c"+core_id+"_if_ahthr_n_fine"],
+                    True, True, True, True))
+
+            # IF CASC N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_IF_CASC_N"),
+                    bias_obj["c"+core_id+"_if_casc_n_coarse"],
+                    bias_obj["c"+core_id+"_if_casc_n_fine"],
+                    True, True, True, True))
+
+            # PULSE PWLK P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_PULSE_PWLK_P"),
+                    bias_obj["c"+core_id+"_pulse_pwlk_p_coarse"],
+                    bias_obj["c"+core_id+"_pulse_pwlk_p_fine"],
+                    True, True, False, True))
+
+            # PS WEIGHT INH S N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(
+                        libcaer,
+                        "DYNAPSE_CONFIG_BIAS_C"+core_id+"_PS_WEIGHT_INH_S_N"),
+                    bias_obj["c"+core_id+"_ps_weight_inh_s_n_coarse"],
+                    bias_obj["c"+core_id+"_ps_weight_inh_s_n_fine"],
+                    True, True, True, True))
+
+            # PS WEIGHT IN F N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(
+                        libcaer,
+                        "DYNAPSE_CONFIG_BIAS_C"+core_id+"_PS_WEIGHT_INH_F_N"),
+                    bias_obj["c"+core_id+"_ps_weight_inh_f_n_coarse"],
+                    bias_obj["c"+core_id+"_ps_weight_inh_f_n_fine"],
+                    True, True, True, True))
+
+            # PS WEIGHT EXC S N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(
+                        libcaer,
+                        "DYNAPSE_CONFIG_BIAS_C"+core_id+"_PS_WEIGHT_EXC_S_N"),
+                    bias_obj["c"+core_id+"_ps_weight_exc_s_n_coarse"],
+                    bias_obj["c"+core_id+"_ps_weight_exc_s_n_fine"],
+                    True, True, True, True))
+
+            # PS WEIGHT EXC F N
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(
+                        libcaer,
+                        "DYNAPSE_CONFIG_BIAS_C"+core_id+"_PS_WEIGHT_EXC_F_N"),
+                    bias_obj["c"+core_id+"_ps_weight_exc_f_n_coarse"],
+                    bias_obj["c"+core_id+"_ps_weight_exc_f_n_fine"],
+                    True, True, True, True))
+
+            # NPDPII TAU S P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPII_TAU_S_P"),
+                    bias_obj["c"+core_id+"_npdpii_tau_s_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpii_tau_s_p_fine"],
+                    True, True, False, True))
+
+            # NPDPII TAU F P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPII_TAU_F_P"),
+                    bias_obj["c"+core_id+"_npdpii_tau_f_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpii_tau_f_p_fine"],
+                    True, True, False, True))
+
+            # NPDPII THR S P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPII_THR_S_P"),
+                    bias_obj["c"+core_id+"_npdpii_thr_s_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpii_thr_s_p_fine"],
+                    True, True, False, True))
+
+            # NPDPII THR F P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPII_THR_F_P"),
+                    bias_obj["c"+core_id+"_npdpii_thr_f_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpii_thr_f_p_fine"],
+                    True, True, False, True))
+
+            # NPDPIE TAU S P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPIE_TAU_S_P"),
+                    bias_obj["c"+core_id+"_npdpie_tau_s_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpie_tau_s_p_fine"],
+                    True, True, False, True))
+
+            # NPDPIE TAU F P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPIE_TAU_F_P"),
+                    bias_obj["c"+core_id+"_npdpie_tau_f_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpie_tau_f_p_fine"],
+                    True, True, False, True))
+
+            # NPDPIE THR S P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPIE_THR_S_P"),
+                    bias_obj["c"+core_id+"_npdpie_thr_s_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpie_thr_s_p_fine"],
+                    True, True, False, True))
+
+            # NPDPIE THR F P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_NPDPIE_THR_F_P"),
+                    bias_obj["c"+core_id+"_npdpie_thr_f_p_coarse"],
+                    bias_obj["c"+core_id+"_npdpie_thr_f_p_fine"],
+                    True, True, False, True))
+
+            # R2R P
+            self.set_config(
+                libcaer.DYNAPSE_CONFIG_CHIP,
+                libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
+                libcaer.set_dynapse_bias(
+                    getattr(libcaer,
+                            "DYNAPSE_CONFIG_BIAS_C"+core_id+"_R2R_P"),
+                    bias_obj["c"+core_id+"_r2r_p_coarse"],
+                    bias_obj["c"+core_id+"_r2r_p_fine"],
+                    True, True, False, True))
+
+        # biases for all the cores
         self.set_config(
             libcaer.DYNAPSE_CONFIG_CHIP,
             libcaer.DYNAPSE_CONFIG_CHIP_CONTENT,
@@ -1237,6 +780,8 @@ class DYNAPSE(USBDevice):
 
     def get_cf_bias(self, param_addr, param):
         """Get coarse-fine bias.
+
+        Note: biases for neurons currently cannot be recalled.
 
         # Parameters
         param_addr : parameter address
@@ -1468,4 +1013,5 @@ class DYNAPSE(USBDevice):
             libcaer.caerEventPacketContainerFree(packet_container)
             return (spike_events, num_spike_events)
         else:
+            print ("I'm getting None")
             return None
