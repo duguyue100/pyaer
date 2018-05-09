@@ -56,8 +56,8 @@ elif platform == "darwin":
     libcaer_include = "/usr/local/include"
     libcaer_lib = "/usr/local/lib"
 elif "win" in platform:
-    libcaer_include = "/c/msys64/mingw64/include"
-    libcaer_lib = "/c/msys64/mingw64/lib"
+    libcaer_include = "C:/msys64/mingw64/include"
+    libcaer_lib = "C:/msys64/mingw64/lib"
 
 libcaer_wrap = Extension(
     name="_libcaer_wrap",
