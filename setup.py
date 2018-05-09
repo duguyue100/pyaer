@@ -48,16 +48,16 @@ except AttributeError:
 if platform in ["linux", "linux2"]:
     libcaer_include = "/usr/include"
     libcaer_lib = "/usr/lib/x86_64-linux-gnu"
+
+    # for Raspberry Pi support
+    if os.uname()[1] == "raspberrypi":
+        libcaer_lib = "/usr/lib/arm-linux-gnueabihf"
 elif platform == "darwin":
     libcaer_include = "/usr/local/include"
     libcaer_lib = "/usr/local/lib"
 elif "win" in platform:
     libcaer_include = "/mingw64/include"
     libcaer_lib = "/mingw64/lib"
-
-# for Raspberry Pi support
-if os.uname()[1] == "raspberrypi":
-    libcaer_lib = "/usr/lib/arm-linux-gnueabihf"
 
 libcaer_wrap = Extension(
     name="_libcaer_wrap",
