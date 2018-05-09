@@ -6,6 +6,7 @@
 ![Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange.svg)
 ![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
 ![Raspbian](https://img.shields.io/badge/OS-Raspbian%20Stretch-orange.svg)
+![Windows](https://img.shields.io/badge/OS-Windows-orange.svg)
 [![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
 
 PyAER with Swig Bindings
