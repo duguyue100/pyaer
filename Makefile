@@ -43,7 +43,7 @@ dynapse-test:
 	python ./scripts/dynapse_test.py
 
 install:
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
+	CC=gcc LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
 
 develop:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py develop
@@ -55,6 +55,6 @@ build-pyaer:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py build
 
 build-wheel:
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py bdist_wheel
+	CC=gcc LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py bdist_wheel
 
 cleanall:
