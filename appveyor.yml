@@ -24,9 +24,6 @@ platform:
 matrix:
     fast_finish: true
 
-init:
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
 install:
     - set PATH=C:\%MINICONDA%\Scripts;%PATH%
     - cd C:\%MSYS2_DIR%\home
