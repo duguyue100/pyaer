@@ -20,7 +20,7 @@ deploy:
   provider: GitHub
   description: ''
   auth_token:
-    secure: %GITHUB_TOKEN%
+    secure: QE/sriy9Y07epK5S7dQvJqzStTbHuncavO4ODI7tJVRhR26YDL819doQed6tfT2C
   artifact: /.*\.whl/              # upload all wheel files to release assets
   draft: false
   prerelease: false
