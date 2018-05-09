@@ -56,6 +56,7 @@ elif platform == "darwin":
     libcaer_include = "/usr/local/include"
     libcaer_lib = "/usr/local/lib"
 elif "win" in platform:
+    os.environ["CC"] = "gcc"
     libcaer_include = "C:/msys64/mingw64/include"
     libcaer_lib = "C:/msys64/mingw64/lib"
 
