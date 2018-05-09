@@ -16,6 +16,17 @@ environment:
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
           MINICONDA: Miniconda-x64
+deploy:
+  provider: GitHub
+  description: ''
+  auth_token:
+    secure: %GITHUB_TOKEN%
+  artifact: /.*\.whl/              # upload all wheel files to release assets
+  draft: false
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
 
 platform:
     - x64
@@ -46,13 +57,13 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --with-python=$(command -v python) --without-%PYTHON% --without-pcre && make && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /c/projects/pyaer && make build-win && make build-wheel && make build-wheel"
     - >
-      IF "%APPVEYOR_REPO_TAG%" == "false"
+      IF "%APPVEYOR_REPO_TAG%" == "true"
       (
       pip install twine
       &&
       cd C:\projects\pyaer
       &&
-      twine upload -u %TWINE_USERNAME% -p %TWINE_PASSWORD% --repository-url https://test.pypi.org/legacy/ dist/*.whl
+      twine upload -u %TWINE_USERNAME% -p %TWINE_PASSWORD% dist/*.whl
       )
 
 build: off
