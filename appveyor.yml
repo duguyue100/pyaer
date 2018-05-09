@@ -43,7 +43,7 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S make mingw-w64-x86_64-cmake
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-pkg-config
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-libusb
-    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison pcre-devel
+    - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison mingw-w64-pcre
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && cmake -G 'MSYS Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 ."
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && make && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --with-python=$(command -v python) --without-%PYTHON% && make && make install"
