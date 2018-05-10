@@ -64,10 +64,10 @@ install:
     - pip install future -U
     - conda list
     - if [%PYTHON_VERSION%]==[3.5] (
-      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py35.py /c/%MINICONDA/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py35.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
       )
     - if [%PYTHON_VERSION%]==[3.6] (
-      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py36.py /c/%MINICONDA/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py36.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
       )
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gcc
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S make mingw-w64-x86_64-cmake
