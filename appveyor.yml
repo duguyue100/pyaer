@@ -65,13 +65,9 @@ install:
     - if [%PYTHON_VERSION%]==[3.5] (
       C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py35.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
       &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/%MINICONDA%/envs/python%PYTHON_VERSION%/vcruntime140.dll /c/%MINICONDA%/envs/python%PYTHON_VERSION%/libs"
+      &&
       C:\%MSYS2_DIR%\usr\bin\bash -lc "echo 'File copied'"
-      &&
-      C:\%MSYS2_DIR%\usr\bin\bash -lc "ls /c/%MINICONDA%/envs/python%PYTHON_VERSION%"
-      &&
-      C:\%MSYS2_DIR%\usr\bin\bash -lc "ls /c/%MINICONDA%/envs/python%PYTHON_VERSION%/libs"
-      &&
-      C:\%MSYS2_DIR%\usr\bin\bash -lc "ls /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib"
       )
     - if [%PYTHON_VERSION%]==[3.6] (
       C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py36.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
