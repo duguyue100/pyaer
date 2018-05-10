@@ -1,21 +1,21 @@
 environment:
     matrix:
-        - compiler: msys2
-          ARCH: x64
-          PYTHON_VERSION: "2.7"
-          PYTHON: python3
-          MSYS2_ARCH: x86_64
-          MSYS2_DIR: msys64
-          MSYSTEM: MINGW64
-          MINICONDA: Miniconda-x64
-        - compiler: msys2
-          ARCH: x64
-          PYTHON_VERSION: "3.4"
-          PYTHON: python3
-          MSYS2_ARCH: x86_64
-          MSYS2_DIR: msys64
-          MSYSTEM: MINGW64
-          MINICONDA: Miniconda-x64
+        # - compiler: msys2
+        #   ARCH: x64
+        #   PYTHON_VERSION: "2.7"
+        #   PYTHON: python3
+        #   MSYS2_ARCH: x86_64
+        #   MSYS2_DIR: msys64
+        #   MSYSTEM: MINGW64
+        #   MINICONDA: Miniconda-x64
+        # - compiler: msys2
+        #   ARCH: x64
+        #   PYTHON_VERSION: "3.4"
+        #   PYTHON: python3
+        #   MSYS2_ARCH: x86_64
+        #   MSYS2_DIR: msys64
+        #   MSYSTEM: MINGW64
+        #   MINICONDA: Miniconda-x64
         - compiler: msys2
           ARCH: x64
           PYTHON_VERSION: "3.5"
@@ -64,9 +64,19 @@ install:
     - conda list
     - if [%PYTHON_VERSION%]==[3.5] (
       C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py35.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "echo 'File copied'"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "ls /c/%MINICONDA%/envs/python%PYTHON_VERSION%"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "ls /c/%MINICONDA%/envs/python%PYTHON_VERSION%/libs"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "ls /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib"
       )
     - if [%PYTHON_VERSION%]==[3.6] (
       C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py36.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "echo 'File copied'"
       )
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gcc
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S make mingw-w64-x86_64-cmake
