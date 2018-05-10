@@ -3,10 +3,13 @@
 [![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
 [![Build Status](https://api.travis-ci.org/duguyue100/pyaer.svg?branch=master)](https://travis-ci.org/duguyue100/pyaer)
+[![Build status](https://ci.appveyor.com/api/projects/status/uf13jm7690abu11i/branch/master?svg=true)](https://ci.appveyor.com/project/duguyue100/pyaer/branch/master)
+[![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
+
 ![Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange.svg)
 ![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
 ![Raspbian](https://img.shields.io/badge/OS-Raspbian%20Stretch-orange.svg)
-[![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
+![Windows](https://img.shields.io/badge/OS-Windows-orange.svg)
 
 PyAER with Swig Bindings
 
@@ -26,7 +29,8 @@ The project is in its Alpha development stage, please submit an [issue](https://
 1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
 
     ```bash
-    $ sudo apt-get install libusb-1.0-0-dev
+    $ sudo apt-get install build-essential cmake pkg-config libusb-1.0-0-dev
+    # for macOS: $ brew install cmake pkg-config libusb
     $ git clone https://github.com/inilabs/libcaer.git
     $ cd libcaer
     $ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
@@ -34,6 +38,8 @@ The project is in its Alpha development stage, please submit an [issue](https://
     $ make
     $ make install
     ```
+
+    __NOTE:__ To build `libcaer` on Windows, please follow [this description](https://github.com/inilabs/libcaer/blob/master/README.Windows).
 
     __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
@@ -44,8 +50,6 @@ The project is in its Alpha development stage, please submit an [issue](https://
     ```bash
     $ pip install pyaer -U
     ```
-
-    __NOTE:__ We will start shipping Python wheels for Raspberry Pi from beta release.
 
 3. Install from source
 
@@ -61,7 +65,7 @@ to access the camera unless fixing the `udev` rules. Refer to details
 at [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px).
 
 ```bash
-$ sudo bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
+$ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
 ```
 
 ## Running Examples
