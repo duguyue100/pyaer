@@ -65,7 +65,7 @@ to access the camera unless fixing the `udev` rules. Refer to details
 at [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px).
 
 ```bash
-$ sudo bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
+$ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
 ```
 
 ## Running Examples
