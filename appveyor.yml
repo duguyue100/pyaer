@@ -16,14 +16,14 @@ environment:
         #   MSYS2_DIR: msys64
         #   MSYSTEM: MINGW64
         #   MINICONDA: Miniconda-x64
-        - compiler: msys2
-          ARCH: x64
-          PYTHON_VERSION: "3.5"
-          PYTHON: python3
-          MSYS2_ARCH: x86_64
-          MSYS2_DIR: msys64
-          MSYSTEM: MINGW64
-          MINICONDA: Miniconda-x64
+        # - compiler: msys2
+        #   ARCH: x64
+        #   PYTHON_VERSION: "3.5"
+        #   PYTHON: python3
+        #   MSYS2_ARCH: x86_64
+        #   MSYS2_DIR: msys64
+        #   MSYSTEM: MINGW64
+        #   MINICONDA: Miniconda-x64
         - compiler: msys2
           ARCH: x64
           PYTHON_VERSION: "3.6"
@@ -71,6 +71,8 @@ install:
       )
     - if [%PYTHON_VERSION%]==[3.6] (
       C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py36.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/%MINICONDA%/envs/python%PYTHON_VERSION%/vcruntime140.dll /c/%MINICONDA%/envs/python%PYTHON_VERSION%/libs"
       &&
       C:\%MSYS2_DIR%\usr\bin\bash -lc "echo 'File copied'"
       )
