@@ -33,6 +33,7 @@
 #include <libcaer/events/sample.h>
 #include <libcaer/events/special.h>
 #include <libcaer/events/spike.h>
+#include <libcaer/filters/dvs_noise.h>
 %}
 
 %feature("autodoc", "1");
@@ -66,6 +67,7 @@
 %include <libcaer/events/sample.h>
 %include <libcaer/events/special.h>
 %include <libcaer/events/spike.h>
+%include <libcaer/filters/dvs_noise.h>
 
 %include "numpy.i"
 
