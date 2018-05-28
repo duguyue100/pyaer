@@ -181,11 +181,11 @@ class DAVIS(USBDevice):
 
         # global settings for APS
         self.set_config(libcaer.DAVIS_CONFIG_APS,
-                        libcaer.DAVIS_CONFIG_APS_EXPOSURE,
-                        bias_obj["exposure"])
-        self.set_config(libcaer.DAVIS_CONFIG_APS,
                         libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE,
                         bias_obj["autoexposure"])
+        self.set_config(libcaer.DAVIS_CONFIG_APS,
+                        libcaer.DAVIS_CONFIG_APS_EXPOSURE,
+                        bias_obj["exposure"])
         self.set_config(libcaer.DAVIS_CONFIG_APS,
                         libcaer.DAVIS_CONFIG_APS_FRAME_DELAY,
                         bias_obj["frame_delay"])
@@ -434,20 +434,20 @@ class DAVIS(USBDevice):
             if self.dvs_has_background_activity_filter:
                 self.set_config(
                     libcaer.DAVIS_CONFIG_DVS,
-                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY,
-                    bias_obj["background_activity_filter_enabled"])
-                self.set_config(
-                    libcaer.DAVIS_CONFIG_DVS,
                     libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_TIME,
                     bias_obj["background_activity_filter_time"])
                 self.set_config(
                     libcaer.DAVIS_CONFIG_DVS,
-                    libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD,
-                    bias_obj["refractory_period_enabled"])
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY,
+                    bias_obj["background_activity_filter_enabled"])
                 self.set_config(
                     libcaer.DAVIS_CONFIG_DVS,
                     libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD_TIME,
                     bias_obj["refractory_period_time"])
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD,
+                    bias_obj["refractory_period_enabled"])
 
         elif self.chip_id == libcaer.DAVIS_CHIP_DAVIS240C:
             # DiffBn
