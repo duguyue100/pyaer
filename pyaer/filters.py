@@ -33,7 +33,7 @@ class DVSNoise(object):
         """Destroy DVS noise filter to free up memory."""
         libcaer.caerFilterDVSNoiseDestroy(self.handle)
 
-    def configure(self, config_obj):
+    def set_configs(self, config_obj):
         """Configure filter.
 
         Parameters
@@ -79,6 +79,39 @@ class DVSNoise(object):
             self.set_config(
                 libcaer.CAER_FILTER_DVS_HOTPIXEL_COUNT,
                 config_obj["sw_hotpixel_count"])
+
+    def get_configs(self):
+        """Export configuration."""
+        config_obj = {}
+
+        config_obj["sw_background_activity_two_levels"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TWO_LEVELS)
+        config_obj["sw_background_activity_support_min"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MIN)
+        config_obj["sw_background_activity_support_max"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MAX)
+        config_obj["sw_background_activity_time"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TIME)
+        config_obj["sw_background_activity_enable"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_ENABLE)
+
+        config_obj["sw_refractory_period_time"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_TIME)
+        config_obj["sw_refractory_period_enable"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_ENABLE)
+
+        config_obj["sw_hotpixel_enable"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_HOTPIXEL_ENABLE)
+
+        config_obj["sw_hotpixel_learn"] = self.get_config(
+            libcaer.CAER_FILTER_DVS_HOTPIXEL_LEARN)
+        if config_obj["sw_hotpixel_enable"] is True:
+            config_obj["sw_hotpixel_time"] = self.get_config(
+                libcaer.CAER_FILTER_DVS_HOTPIXEL_TIME)
+            config_obj["sw_hotpixel_count"] = self.get_config(
+                libcaer.CAER_FILTER_DVS_HOTPIXEL_COUNT)
+
+        return config_obj
 
     def set_config(self, param_addr, param):
         """Set configuration.
