@@ -434,12 +434,21 @@ class DAVIS(USBDevice):
             if self.dvs_has_background_activity_filter:
                 self.set_config(
                     libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_SUPPORT_MIN,
+                    bias_obj["background_activity_filter_support_min"])
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
+                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_SUPPORT_MAX,
+                    bias_obj["background_activity_filter_support_max"])
+                self.set_config(
+                    libcaer.DAVIS_CONFIG_DVS,
                     libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_TIME,
                     bias_obj["background_activity_filter_time"])
                 self.set_config(
                     libcaer.DAVIS_CONFIG_DVS,
                     libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY,
                     bias_obj["background_activity_filter_enabled"])
+
                 self.set_config(
                     libcaer.DAVIS_CONFIG_DVS,
                     libcaer.DAVIS_CONFIG_DVS_FILTER_REFRACTORY_PERIOD_TIME,
