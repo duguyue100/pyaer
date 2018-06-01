@@ -42,6 +42,9 @@ davis346-test:
 dynapse-test:
 	python ./scripts/dynapse_test.py
 
+dvs-noise-filter-test:
+	python ./scripts/dvs_noise_filter_test.py
+
 install:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
 

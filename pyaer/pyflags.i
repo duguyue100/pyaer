@@ -78,6 +78,7 @@
 %rename(caerDeviceClose) caerDeviceCloseW;
 %rename(caerDeviceConfigGet) caerDeviceConfigGetW;
 %rename(caerDeviceConfigGet64) caerDeviceConfigGet64W;
+%rename(caerFilterDVSNoiseConfigGet) caerFilterDVSNoiseConfigGetW;
 
 %inline %{
 bool caerDeviceCloseW(caerDeviceHandle handle) {
@@ -110,6 +111,20 @@ uint64_t caerDeviceConfigGet64W(caerDeviceHandle handle, int8_t modAddr, uint8_t
     }
 }
 %}
+
+%inline %{
+uint64_t caerFilterDVSNoiseConfigGetW(caerFilterDVSNoise noiseFilter, uint8_t paramAddr) {
+    uint64_t param;
+    bool flag = caerFilterDVSNoiseConfigGet(noiseFilter, paramAddr, &param);
+    if (flag == true) {
+        return param;
+    }
+    else {
+        return 0;
+    }
+}
+%}
+
 
 %inline %{
 uint16_t cf_n_type_set(uint8_t coarse_value, uint8_t fine_value) {
