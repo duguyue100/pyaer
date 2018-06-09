@@ -168,6 +168,45 @@ class USBDevice(object):
             return packet_header, packet_type
 
     @staticmethod
+    def get_event_packet(packet_header, packet_type):
+        """Get event packet from packet header."""
+        if packet_type == libcaer.POLARITY_EVENT:
+            # get polarity event
+            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
+                packet_header)
+            polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
+                packet_header)
+            return num_events, polarity
+        elif packet_type == libcaer.SPECIAL_EVENT:
+            # get special event
+            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
+                packet_header)
+            special = libcaer.caerSpecialEventPacketFromPacketHeader(
+                packet_header)
+            return num_events, special
+        elif packet_type == libcaer.FRAME_EVENT:
+            # get frame event
+            frame = libcaer.caerFrameEventPacketFromPacketHeader(
+                packet_header)
+            return frame
+        elif packet_type == libcaer.IMU6_EVENT:
+            # get IMU6 event
+            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
+                packet_header)
+            imu = libcaer.caerIMU6EventPacketFromPacketHeader(packet_header)
+            return num_events, imu
+        elif packet_type == libcaer.SPIKE_EVENT:
+            # get spike event
+            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
+                packet_header)
+            spike = libcaer.caerSpikeEventPacketFromPacketHeader(
+                packet_header)
+            return num_events, spike
+        else:
+            return None
+            
+
+    @staticmethod
     def get_polarity_event(packet_header):
         """Get a packet of polarity event.
 
