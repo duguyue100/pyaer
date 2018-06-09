@@ -14,6 +14,30 @@ class USBDevice(object):
         """Device."""
         self.handle = None
 
+        # functions for get events number and packet functions
+        self.get_event_number_funcs = {
+            libcaer.POLARITY_EVENT: \
+                libcaer.caerEventPacketHeaderGetEventNumber,
+            libcaer.SPECIAL_EVENT: \
+                libcaer.caerEventPacketHeaderGetEventNumber,
+            libcaer.IMU6_EVENT: \
+                libcaer.caerEventPacketHeaderGetEventNumber,
+            libcaer.SPIKE_EVENT: \
+                libcaer.caerEventPacketHeaderGetEventNumber
+            }
+        self.get_event_packet_funcs = {
+            libcaer.POLARITY_EVENT: \
+                libcaer.caerPolarityEventPacketFromPacketHeader,
+            libcaer.SPECIAL_EVENT: \
+                libcaer.caerSpecialEventPacketFromPacketHeader,
+            libcaer.FRAME_EVENT: \
+                libcaer.caerFrameEventPacketFromPacketHeader,
+            libcaer.IMU6_EVENT: \
+                libcaer.caerIMU6EventPacketFromPacketHeader,
+            libcaer.SPIKE_EVENT: \
+                libcaer.caerSpikeEventPacketFromPacketHeader
+            }
+
     @abc.abstractmethod
     def obtain_device_info(self, handle):
         """Obtain device handle."""
@@ -170,40 +194,15 @@ class USBDevice(object):
     @staticmethod
     def get_event_packet(packet_header, packet_type):
         """Get event packet from packet header."""
-        if packet_type == libcaer.POLARITY_EVENT:
-            # get polarity event
-            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-                packet_header)
-            polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
-                packet_header)
-            return num_events, polarity
-        elif packet_type == libcaer.SPECIAL_EVENT:
-            # get special event
-            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-                packet_header)
-            special = libcaer.caerSpecialEventPacketFromPacketHeader(
-                packet_header)
-            return num_events, special
-        elif packet_type == libcaer.FRAME_EVENT:
-            # get frame event
-            frame = libcaer.caerFrameEventPacketFromPacketHeader(
-                packet_header)
-            return frame
-        elif packet_type == libcaer.IMU6_EVENT:
-            # get IMU6 event
-            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-                packet_header)
-            imu = libcaer.caerIMU6EventPacketFromPacketHeader(packet_header)
-            return num_events, imu
-        elif packet_type == libcaer.SPIKE_EVENT:
-            # get spike event
-            num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-                packet_header)
-            spike = libcaer.caerSpikeEventPacketFromPacketHeader(
-                packet_header)
-            return num_events, spike
-        else:
-            return None
+        num_events = self.get_event_number_funcs[packet_type](
+            packet_header) if packet_type in self.get_event_number_funcs \
+                else None
+
+        event_packet = self.get_event_packet_funcs[packet_type](
+            packet_header) if packet_type in self.get_event_packet_funcs \
+                else None
+
+        return num_events, event_packet
             
 
     @staticmethod
