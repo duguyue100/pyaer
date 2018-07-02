@@ -16,6 +16,7 @@ The `libcaer` can be installed as follows
 ```bash
 $ git clone https://github.com/inilabs/libcaer.git
 $ cd libcaer
+$ git checkout 88a8f54684ca0626ed4caa50a1f20414597bab18
 $ cmake -DCMAKE_INSTALL_PREFIX=/usr .
 $ make
 $ sudo make install

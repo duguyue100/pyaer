@@ -33,6 +33,7 @@ The project is in its Alpha development stage, please submit an [issue](https://
     # for macOS: $ brew install cmake pkg-config libusb
     $ git clone https://github.com/inilabs/libcaer.git
     $ cd libcaer
+    $ git checkout 88a8f54684ca0626ed4caa50a1f20414597bab18
     $ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
     # for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
     $ make
@@ -62,7 +63,7 @@ The project is in its Alpha development stage, please submit an [issue](https://
 
 `libcaer` relies on `libusb` based driver, you won't be able
 to access the camera unless fixing the `udev` rules. Refer to details
-at [here](https://inilabs.com/support/hardware/davis240/#h.eok9q1yrz7px).
+at [here](https://inivation.com/support/hardware/davis240/#linux).
 
 ```bash
 $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
