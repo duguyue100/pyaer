@@ -740,7 +740,7 @@ class DAVIS(USBDevice):
                     libcaer.DAVIS346_CONFIG_BIAS_PRBP)
 
             # PrSFBp
-            bias_obj["PrSFBp_coarse"], bias_obj["PrSFPb_fine"] = \
+            bias_obj["PrSFBp_coarse"], bias_obj["PrSFBp_fine"] = \
                 self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
                     libcaer.DAVIS346_CONFIG_BIAS_PRSFBP)
@@ -789,7 +789,7 @@ class DAVIS(USBDevice):
                     libcaer.DAVIS346_CONFIG_BIAS_LCOLTIMEOUTBN)
 
             # AEPdBn
-            bias_obj["AEPdBn_coarse"], bias_obj["AEPdBn_fien"] = \
+            bias_obj["AEPdBn_coarse"], bias_obj["AEPdBn_fine"] = \
                 self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
                     libcaer.DAVIS346_CONFIG_BIAS_AEPDBN)
@@ -898,7 +898,7 @@ class DAVIS(USBDevice):
                     libcaer.DAVIS240_CONFIG_BIAS_PRBP)
 
             # PrSFBp
-            bias_obj["PrSFBp_coarse"], bias_obj["PrSFPb_fine"] = \
+            bias_obj["PrSFBp_coarse"], bias_obj["PrSFBp_fine"] = \
                 self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
                     libcaer.DAVIS240_CONFIG_BIAS_PRSFBP)
@@ -910,7 +910,7 @@ class DAVIS(USBDevice):
                     libcaer.DAVIS240_CONFIG_BIAS_REFRBP)
 
             # AEPdBn
-            bias_obj["AEPdBn_coarse"], bias_obj["AEPdBn_fien"] = \
+            bias_obj["AEPdBn_coarse"], bias_obj["AEPdBn_fine"] = \
                 self.get_cf_bias(
                     libcaer.DAVIS_CONFIG_BIAS,
                     libcaer.DAVIS240_CONFIG_BIAS_AEPDBN)
