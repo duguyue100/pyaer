@@ -29,15 +29,7 @@ The project is in its Alpha development stage, please submit an [issue](https://
 1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
 
     ```bash
-    $ sudo apt-get install build-essential cmake pkg-config libusb-1.0-0-dev
-    # for macOS: $ brew install cmake pkg-config libusb
-    $ git clone https://github.com/inilabs/libcaer.git
-    $ cd libcaer
-    $ git checkout 88a8f54684ca0626ed4caa50a1f20414597bab18
-    $ cmake -DCMAKE_INSTALL_PREFIX=/usr .  # for Linux
-    # for macOS: cmake -DCMAKE_INSTALL_PREFIX=/usr/local .
-    $ make
-    $ make install
+    $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
     ```
 
     __NOTE:__ To build `libcaer` on Windows, please follow [this description](https://github.com/inilabs/libcaer/blob/master/README.Windows).
