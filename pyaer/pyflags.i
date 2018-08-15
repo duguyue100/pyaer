@@ -246,6 +246,7 @@ bool biasHigh, bool typeNormal, bool sexN, bool enabled) {
 Numpy related
 */
 %apply (int64_t* ARGOUT_ARRAY1, int32_t DIM1) {(int64_t* event_vec, int32_t packet_len)}
+%apply (uint16_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint16_t* hotpixel_vec, int32_t hotpixel_len)}
 %apply (uint64_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint64_t* devices_vec, int32_t device_len)}
 %apply (float* ARGOUT_ARRAY1, int32_t DIM1) {(float* event_vec_f, int32_t packet_len)}
 %apply (uint8_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint8_t* frame_event_vec, int32_t packet_len)}
@@ -365,5 +366,46 @@ void get_frame_event(caerFrameEventConst event, uint8_t* frame_event_vec, int32_
     for (i=0; i<(int)packet_len; i++) {
         frame_event_vec[i] = (uint8_t)(le16toh(event->pixels[i]) >> 8);
     }
+}
+%}
+
+
+/*
+Filters related
+*/
+
+%inline %{
+caerPolarityEventPacket apply_dvs_noise_filter(caerFilterDVSNoise noiseFilter, caerPolarityEventPacket polarity) {
+    caerFilterDVSNoiseApply(noiseFilter, polarity);
+    return polarity;
+}
+%}
+
+%inline %{
+void get_filtered_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len/5; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+        event_vec[i*5] = caerPolarityEventGetTimestamp(event);
+        event_vec[i*5+1] = caerPolarityEventGetX(event);
+        event_vec[i*5+2] = caerPolarityEventGetY(event);
+        event_vec[i*5+3] = caerPolarityEventGetPolarity(event);
+        event_vec[i*5+4] = caerPolarityEventIsValid(event);
+    }
+}
+%}
+
+%inline %{
+void get_hot_pixels(caerFilterDVSNoise noiseFilter, uint16_t* hotpix_vec, int32_t hotpix_len) {
+    caerFilterDVSPixel hotPixels;
+    ssize_t numHotPixels = caerFilterDVSNoiseGetHotPixels(noiseFilter, &hotPixels);
+
+    long i;
+    for (i=0; i<(int)hotpix_len/2; i++) {
+        hotpix_vec[i*2] = hotPixels[i].x;
+        hotpix_vec[i*2+1] = hotPixels[i].y;
+    }
+
+    free(hotPixels);
 }
 %}
