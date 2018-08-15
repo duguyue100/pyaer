@@ -82,9 +82,6 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-libusb
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "/c/projects/pyaer/install-libcaer.sh ci"
-    # - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && git checkout 88a8f54684ca0626ed4caa50a1f20414597bab18"
-    # - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && cmake -G 'MSYS Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 ."
-    # - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/libcaer && make && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --with-python=$(command -v python) --without-%PYTHON% --without-pcre && make && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /c/projects/pyaer && make build-win && make build-wheel && make build-wheel"
     - >
