@@ -16,25 +16,25 @@ class USBDevice(object):
 
         # functions for get events number and packet functions
         self.get_event_number_funcs = {
-            libcaer.POLARITY_EVENT: \
+            libcaer.POLARITY_EVENT:
                 libcaer.caerEventPacketHeaderGetEventNumber,
-            libcaer.SPECIAL_EVENT: \
+            libcaer.SPECIAL_EVENT:
                 libcaer.caerEventPacketHeaderGetEventNumber,
-            libcaer.IMU6_EVENT: \
+            libcaer.IMU6_EVENT:
                 libcaer.caerEventPacketHeaderGetEventNumber,
-            libcaer.SPIKE_EVENT: \
+            libcaer.SPIKE_EVENT:
                 libcaer.caerEventPacketHeaderGetEventNumber
             }
         self.get_event_packet_funcs = {
-            libcaer.POLARITY_EVENT: \
+            libcaer.POLARITY_EVENT:
                 libcaer.caerPolarityEventPacketFromPacketHeader,
-            libcaer.SPECIAL_EVENT: \
+            libcaer.SPECIAL_EVENT:
                 libcaer.caerSpecialEventPacketFromPacketHeader,
-            libcaer.FRAME_EVENT: \
+            libcaer.FRAME_EVENT:
                 libcaer.caerFrameEventPacketFromPacketHeader,
-            libcaer.IMU6_EVENT: \
+            libcaer.IMU6_EVENT:
                 libcaer.caerIMU6EventPacketFromPacketHeader,
-            libcaer.SPIKE_EVENT: \
+            libcaer.SPIKE_EVENT:
                 libcaer.caerSpikeEventPacketFromPacketHeader
             }
 
@@ -191,22 +191,19 @@ class USBDevice(object):
                 packet_header)
             return packet_header, packet_type
 
-    @staticmethod
-    def get_event_packet(packet_header, packet_type):
+    def get_event_packet(self, packet_header, packet_type):
         """Get event packet from packet header."""
         num_events = self.get_event_number_funcs[packet_type](
             packet_header) if packet_type in self.get_event_number_funcs \
-                else None
+            else None
 
         event_packet = self.get_event_packet_funcs[packet_type](
             packet_header) if packet_type in self.get_event_packet_funcs \
-                else None
+            else None
 
         return num_events, event_packet
-            
 
-    @staticmethod
-    def get_polarity_event(packet_header):
+    def get_polarity_event(self, packet_header):
         """Get a packet of polarity event.
 
         Parameters
@@ -223,18 +220,18 @@ class USBDevice(object):
         pol : numpy.ndarray
             list of polarity
         """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
-            packet_header)
+        num_events, polarity = self.get_event_packet(
+            packet_header, libcaer.POLARITY_EVENT)
+
+        # TODO: to implement a noise filtering process
+        # or reimplement this function into specific classes
 
         events = libcaer.get_polarity_event(
             polarity, num_events*4).reshape(num_events, 4)
 
         return events, num_events
 
-    @staticmethod
-    def get_special_event(packet_header):
+    def get_special_event(self, packet_header):
         """Get a packet of special event.
 
         Parameters
@@ -249,10 +246,8 @@ class USBDevice(object):
         event_data : numpy.ndarray
             list of event data
         """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        special = libcaer.caerSpecialEventPacketFromPacketHeader(
-            packet_header)
+        num_events, special = self.get_event_packet(
+            packet_header, libcaer.SPECIAL_EVENT)
 
         events = libcaer.get_special_event(
             special, num_events*2).reshape(num_events, 2)
@@ -274,8 +269,7 @@ class USBDevice(object):
         frame_ts : int
             the frame timestamp
         """
-        frame = libcaer.caerFrameEventPacketFromPacketHeader(
-            packet_header)
+        _, frame = self.get_event_packet(packet_header, libcaer.FRAME_EVENT)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
         frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
         Y_range = libcaer.caerFrameEventGetLengthY(first_event)
@@ -286,8 +280,7 @@ class USBDevice(object):
 
         return frame_mat, frame_ts
 
-    @staticmethod
-    def get_imu6_event(packet_header):
+    def get_imu6_event(self, packet_header):
         """Get IMU5 event.
 
         Parameters
@@ -295,17 +288,15 @@ class USBDevice(object):
         packet_header : caerEventPacketHeader
             the header that represents a event packet
         """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        imu = libcaer.caerIMU6EventPacketFromPacketHeader(packet_header)
+        num_events, imu = self.get_event_packet(
+            packet_header, libcaer.IMU6_EVENT)
 
         events = libcaer.get_imu6_event(
             imu, num_events*8).reshape(num_events, 8)
 
         return events, num_events
 
-    @staticmethod
-    def get_spike_event(packet_header):
+    def get_spike_event(self, packet_header):
         """Get Spike Event.
 
         Parameters
@@ -313,10 +304,8 @@ class USBDevice(object):
         packet_header : caerEventPacketHeader
             the header that represents a event packet
         """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        spike = libcaer.caerSpikeEventPacketFromPacketHeader(
-            packet_header)
+        num_events, spike = self.get_event_packet(
+            packet_header, self.SPIKE_EVENT)
 
         events = libcaer.get_spike_event(
             spike, num_events*4).reshape(num_events, 4)
