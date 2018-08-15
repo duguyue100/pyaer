@@ -29,7 +29,7 @@ The project is in its Alpha development stage, please submit an [issue](https://
 1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
 
     ```bash
-    $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/libcaer-install/install-libcaer.sh)
+    $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
     ```
 
     __NOTE:__ To build `libcaer` on Windows, please follow [this description](https://github.com/inilabs/libcaer/blob/master/README.Windows).
