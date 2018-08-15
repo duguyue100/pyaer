@@ -113,17 +113,18 @@ before_install:
     - make
     - sudo make install
     - cd ..
-    - git clone https://github.com/inilabs/libcaer
-    - cd libcaer
-    - git checkout 88a8f54684ca0626ed4caa50a1f20414597bab18
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        cmake -DCMAKE_INSTALL_PREFIX=/usr .;
-      else
-        cmake -DCMAKE_INSTALL_PREFIX=/usr/local .;
-      fi
-    - make
-    - sudo make install
-    - cd ..
+    - $HOME/duguyue100/pyaer/install-libcaer.sh travis
+    # - git clone https://github.com/inilabs/libcaer
+    # - cd libcaer
+    # - git checkout 88a8f54684ca0626ed4caa50a1f20414597bab18
+    # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    #     cmake -DCMAKE_INSTALL_PREFIX=/usr .;
+    #   else
+    #     cmake -DCMAKE_INSTALL_PREFIX=/usr/local .;
+    #   fi
+    # - make
+    # - sudo make install
+    # - cd ..
     - git clone https://github.com/duguyue100/swig
     - cd swig
     - ./autogen.sh
