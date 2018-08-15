@@ -52,7 +52,7 @@ case "$(uname -s)" in
         sudo make install
     ;;
 
-    CYGWIN*|MINGW32*|MSYS*)
+    CYGWIN*|MINGW*|MSYS*)
         echo 'Installing libcaer to MS Windows'
         if [ $CI_BUILD = false ]; then
             pacman --noconfirm -S mingw-w64-x86_64-gcc
@@ -60,8 +60,8 @@ case "$(uname -s)" in
             pacman --noconfirm -S mingw-w64-x86_64-pkg-config
             pacman --noconfirm -S mingw-w64-x86_64-libusb
             pacman --noconfirm -S automake bison
+            git clone https://github.com/inivation/libcaer /home/libcaer
         fi
-        git clone https://github.com/inivation/libcaer /home/libcaer
         cd /home/libcaer
         git checkout ${LIBCAER_TAG}
         cmake -G 'MSYS Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 .
