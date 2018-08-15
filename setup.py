@@ -80,8 +80,7 @@ setup(
     url=about["__url__"],
 
     install_requires=["numpy",
-                      "future",
-                      "scipy"],
+                      "future"],
 
     packages=find_packages(),
 
