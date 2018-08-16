@@ -1,0 +1,12 @@
+{
+    "sw_background_activity_two_levels": true,
+    "sw_background_activity_check_polarity": true,
+    "sw_background_activity_support_min": 2,
+    "sw_background_activity_support_max": 8,
+    "sw_background_activity_time": 2000,
+    "sw_background_activity_enable": true,
+    "sw_refractory_period_time": 200,
+    "sw_refractory_period_enable": true,
+    "sw_hotpixel_enable": true,
+    "sw_hotpixel_learn": true
+}

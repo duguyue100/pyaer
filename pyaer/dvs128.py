@@ -9,6 +9,7 @@ import numpy as np
 
 from pyaer import libcaer
 from pyaer.device import USBDevice
+from pyaer.filters import DVSNoise
 from pyaer import utils
 
 
@@ -18,7 +19,8 @@ class DVS128(USBDevice):
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
-                 serial_number=""):
+                 serial_number="",
+                 noise_filter=False):
         """DVS128.
 
         Parameters
@@ -41,6 +43,9 @@ class DVS128(USBDevice):
             possess the given Serial Number in their USB
             SerialNumber descriptor.
             default is ""
+        noise_filter : bool
+            if enable noise filter,
+            default is false.
         """
         super(DVS128, self).__init__()
         # open device
@@ -48,6 +53,15 @@ class DVS128(USBDevice):
                   dev_address_restrict, serial_number)
         # get camera information
         self.obtain_device_info(self.handle)
+
+        # noise filter
+        if noise_filter is True:
+            self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
+
+    def set_noise_filter(self, noise_filter):
+        """Set noise filter."""
+        if noise_filter is not None:
+            self.noise_filter = noise_filter
 
     def obtain_device_info(self, handle):
         """Obtain DVS128 info."""
@@ -215,6 +229,37 @@ class DVS128(USBDevice):
             self.send_default_config()
         self.data_start()
         self.set_data_exchange_blocking()
+
+    def get_polarity_event(self, packet_header, noise_filter=False):
+        """Get a packet of polarity event.
+
+        Parameters
+        ----------
+        packet_header : caerEventPacketHeader
+            the header that represents a event packet
+
+        Returns
+        -------
+        ts : numpy.ndarray
+            list of time stamp
+        xy : numpy.ndarray
+            list of x, y coordinate
+        pol : numpy.ndarray
+            list of polarity
+        """
+        num_events, polarity = self.get_event_packet(
+            packet_header, libcaer.POLARITY_EVENT)
+
+        if noise_filter is True:
+            polarity = self.noise_filter.apply(polarity)
+
+            events = libcaer.get_filtered_polarity_event(
+                polarity, num_events*5).reshape(num_events, 5)
+        else:
+            events = libcaer.get_polarity_event(
+                polarity, num_events*4).reshape(num_events, 4)
+
+        return events, num_events
 
     def get_event(self):
         """Get event."""

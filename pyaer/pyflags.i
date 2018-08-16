@@ -390,7 +390,7 @@ void get_filtered_polarity_event(caerPolarityEventPacket event_packet, int64_t* 
         event_vec[i*5+1] = caerPolarityEventGetX(event);
         event_vec[i*5+2] = caerPolarityEventGetY(event);
         event_vec[i*5+3] = caerPolarityEventGetPolarity(event);
-        event_vec[i*5+4] = caerPolarityEventIsValid(event);
+        event_vec[i*5+4] = (int64_t)(caerPolarityEventIsValid(event));
     }
 }
 %}
@@ -407,5 +407,16 @@ void get_hot_pixels(caerFilterDVSNoise noiseFilter, uint16_t* hotpix_vec, int32_
     }
 
     free(hotPixels);
+}
+%}
+
+%inline %{
+ssize_t get_num_hot_pixels(caerFilterDVSNoise noiseFilter) {
+    caerFilterDVSPixel hotPixels;
+    ssize_t numHotPixels = caerFilterDVSNoiseGetHotPixels(noiseFilter, &hotPixels);
+
+    free(hotPixels);
+
+    return numHotPixels
 }
 %}
