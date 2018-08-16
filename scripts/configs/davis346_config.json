@@ -54,10 +54,20 @@
     "imu_acc_scale": 3,
     "imu_gyro_scale": 3,
     "imu_low_pass_filter": 0,
-    "background_activity_filter_enabled": true,
-    "background_activity_filter_support_min": 2,
-    "background_activity_filter_support_max": 8,
+    "background_activity_filter_enabled": false,
     "background_activity_filter_time": 80,
     "refractory_period_enabled": true,
-    "refractory_period_time": 2
+    "refractory_period_time": 2,
+    "noise_filter_configs": {
+		"sw_background_activity_two_levels": true,
+		"sw_background_activity_check_polarity": true,
+		"sw_background_activity_support_min": 2,
+		"sw_background_activity_support_max": 8,
+		"sw_background_activity_time": 2000,
+		"sw_background_activity_enable": true,
+		"sw_refractory_period_time": 200,
+		"sw_refractory_period_enable": true,
+		"sw_hotpixel_enable": true,
+		"sw_hotpixel_learn": true
+	}
 }

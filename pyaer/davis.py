@@ -8,6 +8,7 @@ from builtins import range
 import numpy as np
 from pyaer import libcaer
 from pyaer.device import USBDevice
+from pyaer.filters import DVSNoise
 from pyaer import utils
 
 
@@ -17,7 +18,8 @@ class DAVIS(USBDevice):
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
-                 serial_number=""):
+                 serial_number="",
+                 noise_filter=False):
         """DAVIS.
 
         Parameters
@@ -40,6 +42,9 @@ class DAVIS(USBDevice):
             possess the given Serial Number in their USB
             SerialNumber descriptor.
             default is ""
+        noise_filter : bool
+            if enable noise filter,
+            default is false.
         """
         super(DAVIS, self).__init__()
         # open device
@@ -55,6 +60,29 @@ class DAVIS(USBDevice):
                        "n_off_type": libcaer.cf_n_type_off_set,
                        "p_off_type": libcaer.cf_p_type_off_set,
                        "vdac": libcaer.vdac_set}
+
+        # noise filter
+        self.filter_noise = noise_filter
+        if noise_filter is True:
+            self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
+        else:
+            self.noise_filter = None
+
+    def set_noise_filter(self, noise_filter):
+        """Set noise filter."""
+        if noise_filter is not None:
+            self.noise_filter = noise_filter
+
+    def enable_noise_filter(self):
+        if self.filter_noise is False:
+            self.filter_noise = True
+
+        if self.noise_filter is None:
+            self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
+
+    def disable_noise_filter(self):
+        if self.filter_noise is True:
+            self.filter_noise = False
 
     def obtain_device_info(self, handle):
         """Obtain DAVIS info."""
@@ -189,6 +217,10 @@ class DAVIS(USBDevice):
         self.set_config(libcaer.DAVIS_CONFIG_APS,
                         libcaer.DAVIS_CONFIG_APS_FRAME_DELAY,
                         bias_obj["frame_delay"])
+
+        # setting for noise filter
+        if self.filter_noise is True:
+            self.noise_filter.set_bias(bias_obj["noise_filter_configs"])
 
         # global setting of DAVIS
         # IMU settings of DAVIS
@@ -434,14 +466,6 @@ class DAVIS(USBDevice):
             if self.dvs_has_background_activity_filter:
                 self.set_config(
                     libcaer.DAVIS_CONFIG_DVS,
-                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_SUPPORT_MIN,
-                    bias_obj["background_activity_filter_support_min"])
-                self.set_config(
-                    libcaer.DAVIS_CONFIG_DVS,
-                    libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_SUPPORT_MAX,
-                    bias_obj["background_activity_filter_support_max"])
-                self.set_config(
-                    libcaer.DAVIS_CONFIG_DVS,
                     libcaer.DAVIS_CONFIG_DVS_FILTER_BACKGROUND_ACTIVITY_TIME,
                     bias_obj["background_activity_filter_time"])
                 self.set_config(
@@ -679,6 +703,10 @@ class DAVIS(USBDevice):
         bias_obj["imu_low_pass_filter"] = self.get_config(
             libcaer.DAVIS_CONFIG_IMU,
             libcaer.DAVIS_CONFIG_IMU_DIGITAL_LOW_PASS_FILTER)
+
+        # get noise filter configs
+        if self.noise_filter is not None:
+            bias_obj["noise_filter_configs"] = self.noise_filter.get_bias()
 
         if self.chip_id == libcaer.DAVIS_CHIP_DAVIS346B:
             # VDAC
@@ -979,6 +1007,37 @@ class DAVIS(USBDevice):
         self.data_start()
         self.set_data_exchange_blocking()
 
+    def get_polarity_event(self, packet_header, noise_filter=False):
+        """Get a packet of polarity event.
+
+        Parameters
+        ----------
+        packet_header : caerEventPacketHeader
+            the header that represents a event packet
+
+        Returns
+        -------
+        ts : numpy.ndarray
+            list of time stamp
+        xy : numpy.ndarray
+            list of x, y coordinate
+        pol : numpy.ndarray
+            list of polarity
+        """
+        num_events, polarity = self.get_event_packet(
+            packet_header, libcaer.POLARITY_EVENT)
+
+        if noise_filter is True:
+            polarity = self.noise_filter.apply(polarity)
+
+            events = libcaer.get_filtered_polarity_event(
+                polarity, num_events*5).reshape(num_events, 5)
+        else:
+            events = libcaer.get_polarity_event(
+                polarity, num_events*4).reshape(num_events, 4)
+
+        return events, num_events
+
     def get_event(self):
         """Get Event."""
         packet_container, packet_number = self.get_packet_container()
@@ -996,7 +1055,7 @@ class DAVIS(USBDevice):
                     packet_container, packet_id)
                 if packet_type == libcaer.POLARITY_EVENT:
                     events, num_events = self.get_polarity_event(
-                        packet_header)
+                        packet_header, self.filter_noise)
                     pol_events = np.hstack((pol_events, events)) \
                         if pol_events is not None else events
                     num_pol_event += num_events

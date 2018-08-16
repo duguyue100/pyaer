@@ -11,7 +11,7 @@ import numpy as np
 from pyaer import libcaer
 from pyaer.davis import DAVIS
 
-device = DAVIS()
+device = DAVIS(noise_filter=True)
 
 print ("Device ID:", device.device_id)
 if device.device_is_master:
@@ -32,7 +32,7 @@ device.start_data_stream()
 # setting bias after data stream started
 device.set_bias_from_json("./scripts/configs/davis346_config.json")
 
-clip_value = 8
+clip_value = 3
 histrange = [(0, v) for v in (260, 346)]
 
 
@@ -41,6 +41,8 @@ def get_event(device):
 
     return data
 
+
+num_packet_before_disable = 1000
 
 while True:
     try:
@@ -63,6 +65,13 @@ while True:
                        libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE))
 
             if num_pol_event != 0:
+                if num_packet_before_disable > 0:
+                    print (pol_events[:, 4].sum())
+                    pol_events = pol_events[pol_events[:, 4] == 1]
+                    num_packet_before_disable -= 1
+                else:
+                    device.disable_noise_filter()
+                    print ("Noise filter disabled")
                 pol_on = (pol_events[:, 3] == 1)
                 pol_off = np.logical_not(pol_on)
                 img_on, _, _ = np.histogram2d(
