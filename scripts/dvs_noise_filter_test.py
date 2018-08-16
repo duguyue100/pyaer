@@ -9,16 +9,8 @@ import cv2
 import numpy as np
 
 from pyaer.dvs128 import DVS128
-from pyaer.filters import DVSNoise
 
-# for the case of DVS128
-dvs_noise = DVSNoise(128, 128)
-
-dvs_noise.set_bias_from_json("./scripts/configs/dvs_noise_filter_config.json")
-
-print (dvs_noise.get_bias())
-
-device = DVS128()
+device = DVS128(noise_filter=True)
 
 print ("Device ID:", device.device_id)
 if device.device_is_master:
@@ -33,11 +25,6 @@ print ("Device size X:", device.dvs_size_X)
 print ("Device size Y:", device.dvs_size_Y)
 print ("Logic Version:", device.logic_version)
 
-# debugging dvs noise
-device.set_noise_filter(dvs_noise)
-device.enable_noise_filter()
-#  device.disable_noise_filter()
-
 device.start_data_stream()
 # load new config
 device.set_bias_from_json("./scripts/configs/dvs128_config.json")
@@ -47,12 +34,22 @@ clip_value = 1
 histrange = [(0, v) for v in (128, 128)]
 
 
+num_packet_before_disable = 1000
+
+
 def get_event(device):
+    global num_packet_before_disable
     (pol_events, num_pol_event,
      special_events, num_special_event) = \
         device.get_event()
     if num_pol_event != 0:
-        pol_events = pol_events[pol_events[:, 4] == 1]
+        if num_packet_before_disable > 0:
+            pol_events = pol_events[pol_events[:, 4] == 1]
+            num_packet_before_disable -= 1
+        else:
+            device.disable_noise_filter()
+            print ("Noise filter disabled")
+
         pol_on = (pol_events[:, 3] == 1)
         pol_off = np.logical_not(pol_on)
         img_on, _, _ = np.histogram2d(
@@ -82,5 +79,8 @@ while True:
         get_event(device)
 
     except KeyboardInterrupt:
+        hot_pixels = device.noise_filter.get_hot_pixels()
+        print (hot_pixels)
+        print (device.noise_filter.get_bias())
         device.shutdown()
         break

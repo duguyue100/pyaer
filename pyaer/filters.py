@@ -190,8 +190,10 @@ class DVSNoise(object):
         return libcaer.apply_dvs_noise_filter(self.handle, event_packet)
 
     def get_hot_pixels(self):
+        # TODO: not working for getting hot pixels
         num_hot_pixs = libcaer.get_num_hot_pixels(self.handle)
-        hot_pixs = libcaer.get_hot_pixels(
-            self.handle, num_hot_pixs*2).reshape(num_hot_pixs, 2)
+        if num_hot_pixs != 0:
+            hot_pixs = libcaer.get_hot_pixels(
+                self.handle, num_hot_pixs*2).reshape(num_hot_pixs, 2)
 
         return hot_pixs

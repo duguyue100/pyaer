@@ -58,6 +58,8 @@ class DVS128(USBDevice):
         self.filter_noise = noise_filter
         if noise_filter is True:
             self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
+        else:
+            self.noise_filter = None
 
     def set_noise_filter(self, noise_filter):
         """Set noise filter."""
@@ -182,6 +184,9 @@ class DVS128(USBDevice):
         self.set_config(libcaer.DVS128_CONFIG_BIAS,
                         libcaer.DVS128_CONFIG_BIAS_PR,
                         bias_obj["Pr"])
+        # setting for noise filter
+        if self.filter_noise is True:
+            self.noise_filter.set_bias(bias_obj["noise_filter_configs"])
 
     def get_bias(self):
         """Get bias settings.
@@ -227,6 +232,10 @@ class DVS128(USBDevice):
         bias_obj["Pr"] = self.get_config(
             libcaer.DVS128_CONFIG_BIAS,
             libcaer.DVS128_CONFIG_BIAS_PR)
+
+        # get noise filter configs
+        if self.noise_filter is not None:
+            bias_obj["noise_filter_configs"] = self.noise_filter.get_bias()
 
         return bias_obj
 

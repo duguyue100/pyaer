@@ -411,12 +411,12 @@ void get_hot_pixels(caerFilterDVSNoise noiseFilter, uint16_t* hotpix_vec, int32_
 %}
 
 %inline %{
-ssize_t get_num_hot_pixels(caerFilterDVSNoise noiseFilter) {
+int64_t get_num_hot_pixels(caerFilterDVSNoise noiseFilter) {
     caerFilterDVSPixel hotPixels;
     ssize_t numHotPixels = caerFilterDVSNoiseGetHotPixels(noiseFilter, &hotPixels);
 
     free(hotPixels);
 
-    return numHotPixels;
+    return (int64_t)(numHotPixels);
 }
 %}
