@@ -55,6 +55,7 @@ class DVS128(USBDevice):
         self.obtain_device_info(self.handle)
 
         # noise filter
+        self.filter_noise = noise_filter
         if noise_filter is True:
             self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
 
@@ -62,6 +63,17 @@ class DVS128(USBDevice):
         """Set noise filter."""
         if noise_filter is not None:
             self.noise_filter = noise_filter
+
+    def enable_noise_filter(self):
+        if self.filter_noise is False:
+            self.filter_noise = True
+
+        if self.noise_filter is None:
+            self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
+
+    def disable_noise_filter(self):
+        if self.filter_noise is True:
+            self.filter_noise = False
 
     def obtain_device_info(self, handle):
         """Obtain DVS128 info."""
@@ -274,7 +286,7 @@ class DVS128(USBDevice):
                     packet_container, packet_id)
                 if packet_type == libcaer.POLARITY_EVENT:
                     events, num_events = self.get_polarity_event(
-                        packet_header)
+                        packet_header, self.filter_noise)
                     pol_events = np.hstack((pol_events, events)) \
                         if pol_events is not None else events
                     num_pol_event += num_events
