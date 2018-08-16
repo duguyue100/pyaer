@@ -417,6 +417,6 @@ ssize_t get_num_hot_pixels(caerFilterDVSNoise noiseFilter) {
 
     free(hotPixels);
 
-    return numHotPixels
+    return numHotPixels;
 }
 %}
