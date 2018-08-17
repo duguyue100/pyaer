@@ -16,7 +16,7 @@ from sys import platform
 import numpy
 
 classifiers = """
-Development Status :: 3 - Alpha
+Development Status :: 4 - Beta
 Intended Audience :: Science/Research
 Natural Language :: English
 Operating System :: OS Independent
