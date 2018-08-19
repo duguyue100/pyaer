@@ -41,7 +41,7 @@ The project is in its Alpha development stage, please submit an [issue](https://
 2. Directly install from pypi (RECOMMEND)
 
     ```bash
-    $ pip install pyaer -U
+    $ pip install pyaer
     ```
 
 3. Install from source

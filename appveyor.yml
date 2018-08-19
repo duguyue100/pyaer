@@ -58,8 +58,7 @@ install:
     - conda update --yes conda
     - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION%
     - activate python%PYTHON_VERSION%
-    - pip install numpy -U
-    - pip install scipy -U
+    - pip install numpy==1.14.5
     - pip install future -U
     - conda list
     - if [%PYTHON_VERSION%]==[3.5] (

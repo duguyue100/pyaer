@@ -127,9 +127,8 @@ before_install:
     - cd ..
 
 install:
-    - pip install numpy
-    - pip install future
-    - pip install scipy
+    - pip install numpy==1.14.5
+    - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then
         pip install twine;
