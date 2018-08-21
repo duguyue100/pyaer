@@ -101,8 +101,8 @@ ENV/
 .ropeproject
 
 # mkdocs documentation
-/site
-/sources
+docs/site
+docs/sources
 
 # mypy
 .mypy_cache/

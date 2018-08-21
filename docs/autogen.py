@@ -203,7 +203,7 @@ PAGES = [
     },
 ]
 
-ROOT = 'https://dgyblog.com/pyaer-doc'
+ROOT = 'https://dgyblog.com/pyaer-docs'
 
 
 def get_function_signature(function, method=True):
