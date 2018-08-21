@@ -56,28 +56,34 @@ class USBDevice(object):
              serial_number=""):
         """Open USB deivce.
 
-        Parameters
-        ----------
-        device_type : int
-            Device type
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
+        # Arguments
+            device_type: `int`,
+                Device type  
+                `libcaer.CAER_DEVICE_DVS128`,
+                `libcaer.CAER_DEVICE_EDVS`,
+                `libcaer.CAER_DEVICE_DAVIS`,
+                `libcaer.CAER_DEVICE_DAVIS_FX2`,
+                `libcaer.CAER_DEVICE_DAVIS_FX3`,
+                `libcaer.CAER_DEVICE_DAVIS_RPI`,
+                `libcaer.CAER_DEVICE_DYNAPSE`.
+            device_id: `int`,
+                a unique ID to identify the device from others.
+                Will be used as the source for EventPackets being
+                generate from its data.  
+                `default is 1`.
+            bus_number_restrict: `int`,
+                restrict the search for viable devices to only this USB
+                bus number.  
+                `default is 0`.
+            dev_address_restrict: `int`,
+                restrict the search for viable devices to only this USB
+                device address.  
+                `default is 0`.
+            serial_number: `str`,
+                restrict the search for viable devices to only devices which do
+                possess the given Serial Number in their USB
+                SerialNumber descriptor.  
+                `default is ""`
         """
         self.handle = libcaer.caerDeviceOpen(
             device_id, device_type, bus_number_restrict,

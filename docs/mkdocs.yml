@@ -1,0 +1,20 @@
+site_name: PyAER Documentation
+theme:
+    name: "material"
+# theme_dir: theme
+docs_dir: sources
+repo_url: https://github.com/duguyue100/pyaer
+site_url: https://dgyblog.com/pyaer-doc
+site_description: 'Documentation for PyAER.'
+
+dev_addr: '0.0.0.0:8000'
+
+pages:
+- Home: index.md
+- USB Device: usb-device.md
+- Serial Device: serial-device.md
+- DVS128: dvs128.md
+- DAVIS: davis.md
+- eDVS: edvs.md
+- DYNAPSE: dynapse.md
+- Filters: filters.md
