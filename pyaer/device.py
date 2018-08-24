@@ -57,8 +57,8 @@ class USBDevice(object):
         """Open USB deivce.
 
         # Arguments
-            device_type: `int`,
-                Device type  
+            device_type: `int`<br/>
+                Device type:<br/>
                 `libcaer.CAER_DEVICE_DVS128`,
                 `libcaer.CAER_DEVICE_EDVS`,
                 `libcaer.CAER_DEVICE_DAVIS`,
@@ -66,23 +66,23 @@ class USBDevice(object):
                 `libcaer.CAER_DEVICE_DAVIS_FX3`,
                 `libcaer.CAER_DEVICE_DAVIS_RPI`,
                 `libcaer.CAER_DEVICE_DYNAPSE`.
-            device_id: `int`,
+            device_id: `int`<br/>
                 a unique ID to identify the device from others.
                 Will be used as the source for EventPackets being
-                generate from its data.  
+                generate from its data.<br/>
                 `default is 1`.
-            bus_number_restrict: `int`,
+            bus_number_restrict: `int`<br/>
                 restrict the search for viable devices to only this USB
-                bus number.  
+                bus number.<br/>
                 `default is 0`.
-            dev_address_restrict: `int`,
+            dev_address_restrict: `int`<br/>
                 restrict the search for viable devices to only this USB
-                device address.  
+                device address.<br/>
                 `default is 0`.
-            serial_number: `str`,
+            serial_number: `str`<br/>
                 restrict the search for viable devices to only devices which do
                 possess the given Serial Number in their USB
-                SerialNumber descriptor.  
+                SerialNumber descriptor.<br/>
                 `default is ""`
         """
         self.handle = libcaer.caerDeviceOpen(
