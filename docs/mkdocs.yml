@@ -1,5 +1,12 @@
 site_name: PyAER Documentation
 theme: readthedocs
+
+markdown_extensions:
+    - codehilite:
+          guess_lang: false
+          use_pygments: true
+          noclasses: true
+
 # theme_dir: theme
 docs_dir: sources
 repo_url: https://github.com/duguyue100/pyaer
