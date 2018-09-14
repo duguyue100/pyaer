@@ -96,6 +96,17 @@ class DVS128(USBDevice):
 
     def obtain_device_info(self, handle):
         """Obtain DVS128 info.
+
+        This function collects the following information from the device:
+
+        - Deveice ID
+        - If the device is a master camera
+        - Device string
+        - Device USB bus number
+        - Device USB device address
+        - Camera width
+        - Camera height
+        - Logic version
         
         # Arguments
             handle: `caerDeviceHandle`<br/>
