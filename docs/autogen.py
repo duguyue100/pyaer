@@ -65,6 +65,7 @@ PAGES = [
             device.USBDevice.set_data_exchange_blocking,
             device.USBDevice.set_config,
             device.USBDevice.get_config,
+            device.USBDevice.get_event,
             device.USBDevice.get_packet_container,
             device.USBDevice.get_packet_header,
             device.USBDevice.get_event_packet,

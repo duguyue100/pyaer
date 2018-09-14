@@ -9,7 +9,10 @@ from pyaer import libcaer
 
 
 class USBDevice(object):
-    """Base class for all USB devices."""
+    """Base class for all USB devices.
+
+    This class is the base of DVS128, DAVIS240, DAVIS346 and DYNAP.
+    """
     def __init__(self):
         """Device."""
         self.handle = None
@@ -45,7 +48,12 @@ class USBDevice(object):
 
     @abc.abstractmethod
     def get_event(self):
-        """Get Event."""
+        """Get Event.
+
+        This abstract method should be implemented in all derived classes.
+        This method returns a packet of events according to the type of
+        the sensor.
+        """
         return
 
     def open(self,
@@ -92,17 +100,31 @@ class USBDevice(object):
             raise ValueError("The device is failed to open.")
 
     def close(self):
-        """Close USB device."""
+        """Close USB device.
+        
+        This method closes an opened USB device if the respective
+        handle is not None.
+        """
         if self.handle is not None:
             libcaer.caerDeviceClose(self.handle)
 
     def shutdown(self):
-        """Shutdown device."""
+        """Shutdown device.
+        
+        This method is a combination of `data_stop` and `close`.
+        This is a preferred way of shutting down a device.
+        """
         self.data_stop()
         self.close()
 
     def data_start(self):
-        """Start data transmission."""
+        """Start data transmission.
+        
+        # Returns
+            flag: `bool`<br/>
+                Return `True` if the data transmission is
+                initialized successfully. Otherwise `False`.
+        """
         # TODO figure out the parameter meaning
         if self.handle is not None:
             data_start_success = libcaer.caerDeviceDataStart(
@@ -112,26 +134,74 @@ class USBDevice(object):
             return False
 
     def data_stop(self):
-        """Stop data transmission."""
+        """Stop data transmission.
+        
+        This method stops the data transmission only.
+        Note that this method does not destroy the respective
+        device `handle`.
+        """
         libcaer.caerDeviceDataStop(self.handle)
 
     def send_default_config(self):
-        """Send default configuration."""
+        """Send default configuration.
+        
+        Each type of devices has a set of default configurations (e.g. bias)
+        that are pre-defined in the `libcaer` library.
+        Note that the default configuration might not be suitable for your
+        needs.
+
+        # Returns
+            flag: `bool`<br/>
+                return `True` if the default config is set successfully,
+                `False` otherwise.
+        """
         if self.handle is not None:
             send_success = libcaer.caerDeviceSendDefaultConfig(self.handle)
             return send_success
         else:
             return False
 
-    def set_data_exchange_blocking(self):
-        """Set data exchange blocking."""
+    def set_data_exchange_blocking(self, exchange_blocking=True):
+        """Set data exchange blocking.
+        
+        # Arguments
+            exchange_blocking: `bool`<br/>
+                whether to start all the data producer modules on the device
+                (DVS, APS, Mux, ...) automatically when starting the
+                data transfer thread with caerDeviceDataStart() or not.
+                If disabled, be aware you will have to start the right modules
+                manually, which can be useful if you need precise control
+                over which ones are running at any time.<br/>
+                The default is `True`.
+        """
         return self.set_config(
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE,
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING,
-            True)
+            exchange_blocking)
 
     def set_config(self, mod_addr, param_addr, param):
-        """Set configuration."""
+        """Set configuration.
+
+        The main function of setting configurations (e.g., bias).
+        
+        # Arguments
+            mod_addr: `int`<br/>
+                a module address, used to specify which configuration module
+                one wants to update. Negative addresses are used for host-side
+                configuration, while positive addresses (including zero) are
+                used for device-side configuration.
+            param_addr: `int`<br/>
+                a parameter address, to select a specific parameter to update
+                from this particular configuration module. Only positive numbers
+                (including zero) are allowed.
+            param: `int` or `bool`<br/>
+                a configuration parameter's new value.
+
+        # Returns
+            flag: `bool`<br/>
+                returns `True` if the config is set successfully,
+                `False` otherwise.
+        """
         if self.handle is not None:
             set_success = libcaer.caerDeviceConfigSet(
                 self.handle, mod_addr, param_addr, param)
@@ -153,12 +223,11 @@ class USBDevice(object):
     def get_packet_container(self):
         """Get event packet container.
 
-        Returns
-        -------
-        packet_container : caerEventPacketContainer
-            a container that consists of event packets
-        packet_number : int
-            number of event packet in the container
+        # Returns
+            packet_container: `caerEventPacketContainer`<br/>
+                a container that consists of event packets.
+            packet_number: `int`<br/>
+                number of event packet in the container.
         """
         packet_container = libcaer.caerDeviceDataGet(self.handle)
         if packet_container is not None:
@@ -173,19 +242,17 @@ class USBDevice(object):
     def get_packet_header(packet_container, idx):
         """Get a single packet header.
 
-        Parameters
-        ----------
-        packet_container : caerEventPacketContainer
-            the event packet container
-        idx : int
-            the index of the packet header
+        # Arguments
+            packet_container : `caerEventPacketContainer`<br/>
+                the event packet container
+            idx : `int`<br/>
+                the index of the packet header
 
-        Returns
-        -------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
-        packet_type : caerEventPacketType
-            the type of the event packet
+        # Returns
+            packet_header : `caerEventPacketHeader`<br/>
+                the header that represents a event packet
+            packet_type : `caerEventPacketType`<br/>
+                the type of the event packet
         """
         packet_header = \
             libcaer.caerEventPacketContainerGetEventPacket(
@@ -198,7 +265,25 @@ class USBDevice(object):
             return packet_header, packet_type
 
     def get_event_packet(self, packet_header, packet_type):
-        """Get event packet from packet header."""
+        """Get event packet from packet header.
+        
+        # Arguments
+            packet_header: `caerEventPacketHeader`
+                the header that represents a event packet.
+            packet_type: `caerEventPacketType`<br/>
+                the type of the event packet, can be one of the following:
+                `libcaer.POLARITY_EVENT`,
+                `libcaer.SPECIAL_EVENT`,
+                `libcaer.FRAME_EVENT`,
+                `libcaer.IMU6_EVENT`,
+                `libcaer.SPIKE_EVENT`
+
+        # Returns
+            num_events: `int`<br/>
+                number of events, return None if there is no events.
+            event_packet: `caerEventPacket`<br/>
+                a packet of events that are ready to be read.
+        """
         num_events = self.get_event_number_funcs[packet_type](
             packet_header) if packet_type in self.get_event_number_funcs \
             else None
@@ -212,19 +297,17 @@ class USBDevice(object):
     def get_polarity_event(self, packet_header):
         """Get a packet of polarity event.
 
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
+        # Arguments
+            packet_header: `caerEventPacketHeader`<br/>
+                the header that represents a event packet
 
-        Returns
-        -------
-        ts : numpy.ndarray
-            list of time stamp
-        xy : numpy.ndarray
-            list of x, y coordinate
-        pol : numpy.ndarray
-            list of polarity
+        # Returns
+            ts: `numpy.ndarray`<br/>
+                list of time stamp
+            xy: `numpy.ndarray`<br/>
+                list of x, y coordinate
+            pol: `numpy.ndarray`<br/>
+                list of polarity
         """
         num_events, polarity = self.get_event_packet(
             packet_header, libcaer.POLARITY_EVENT)
@@ -240,17 +323,15 @@ class USBDevice(object):
     def get_special_event(self, packet_header):
         """Get a packet of special event.
 
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
+        # Arguments
+            packet_header: `caerEventPacketHeader`<br/>
+                the header that represents a event packet
 
-        Returns
-        -------
-        ts : numpy.ndarray
-            list of time stamp
-        event_data : numpy.ndarray
-            list of event data
+        # Returns
+            ts: `numpy.ndarray`<br/>
+                list of time stamp
+            event_data: `numpy.ndarray`<br/>
+                list of event data
         """
         num_events, special = self.get_event_packet(
             packet_header, libcaer.SPECIAL_EVENT)
@@ -263,17 +344,15 @@ class USBDevice(object):
     def get_frame_event(self, packet_header):
         """Get a packet of frame event.
 
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
+        # Arguments
+            packet_header: `caerEventPacketHeader`<br/>
+                the header that represents a event packet
 
-        Returns
-        -------
-        frame_mat : numpy.ndarray
-            the frame
-        frame_ts : int
-            the frame timestamp
+        # Returns
+            frame_mat: `numpy.ndarray`<br/>
+                the frame
+            frame_ts: `int`<br/>
+                the frame timestamp
         """
         _, frame = self.get_event_packet(packet_header, libcaer.FRAME_EVENT)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
@@ -289,10 +368,9 @@ class USBDevice(object):
     def get_imu6_event(self, packet_header):
         """Get IMU5 event.
 
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
+        # Arguments
+            packet_header: `caerEventPacketHeader`
+                the header that represents a event packet
         """
         num_events, imu = self.get_event_packet(
             packet_header, libcaer.IMU6_EVENT)
@@ -305,10 +383,9 @@ class USBDevice(object):
     def get_spike_event(self, packet_header):
         """Get Spike Event.
 
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
+        # Arguments
+            packet_header: `caerEventPacketHeader`
+                the header that represents a event packet
         """
         num_events, spike = self.get_event_packet(
             packet_header, self.SPIKE_EVENT)
