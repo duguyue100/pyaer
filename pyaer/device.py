@@ -330,7 +330,7 @@ class USBDevice(object):
                 the header that represents a event packet
 
         # Returns
-            events: `numpy.ndarray`
+            events: `numpy.ndarray`<br/>
                 a 2-D array that has the shape of (N, 4) where N
                 is the number of events in the event packet.
                 Each row in the array represents a single polarity event.
@@ -339,7 +339,7 @@ class USBDevice(object):
                 The third number is the Y position of the event.
                 The fourth number represents the polarity of the event
                 (positive or negative).
-            num_events: `int`
+            num_events: `int`<br/>
                 number of the polarity events available in the packet.
         """
         num_events, polarity = self.get_event_packet(
