@@ -348,6 +348,26 @@ void get_imu6_event(caerIMU6EventPacket event_packet, float* event_vec_f, int32_
 %}
 
 %inline %{
+void get_imu9_event(caerIMU9EventPacket event_packet, float* event_vec_f, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len/11; i++) {
+        caerIMU9Event event = caerIMU9EventPacketGetEvent(event_packet, i);
+        event_vec_f[i*11] = caerIMU9EventGetTimestamp(event);
+        event_vec_f[i*11+1] = caerIMU9EventGetAccelX(event);
+        event_vec_f[i*11+2] = caerIMU9EventGetAccelY(event);
+        event_vec_f[i*11+3] = caerIMU9EventGetAccelZ(event);
+        event_vec_f[i*11+4] = caerIMU9EventGetGyroX(event);
+        event_vec_f[i*11+5] = caerIMU9EventGetGyroY(event);
+        event_vec_f[i*11+6] = caerIMU9EventGetGyroZ(event);
+        event_vec_f[i*11+7] = caerIMU9EventGetCompX(event);
+        event_vec_f[i*11+8] = caerIMU9EventGetCompY(event);
+        event_vec_f[i*11+9] = caerIMU9EventGetCompZ(event);
+        event_vec_f[i*11+10] = caerIMU9EventGetTemp(event);
+    }
+}
+%}
+
+%inline %{
 void get_spike_event(caerSpikeEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
     long i;
     for (i=0; i<(int)packet_len/4; i++) {
