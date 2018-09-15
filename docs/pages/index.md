@@ -26,30 +26,30 @@ The project is in its Alpha development stage, please submit an [issue](https://
 
 ## Installation
 
-1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
+#### 1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
 
-    ```
-    $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
-    ```
+```bash
+$ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
+```
 
-    __NOTE:__ To build `libcaer` on Windows, please follow [this description](https://github.com/inilabs/libcaer/blob/master/README.Windows).
+__NOTE:__ To build `libcaer` on Windows, please follow [this description](https://github.com/inilabs/libcaer/blob/master/README.Windows).
 
-    __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
+__NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
-    __NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport). Currently, this support is not built into the release since we are not clear how useful is this feature. If you are interested, you can build the project from scratch.
+__NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport). Currently, this support is not built into the release since we are not clear how useful is this feature. If you are interested, you can build the project from scratch.
 
-2. Directly install from pypi (RECOMMEND)
+#### 2. Directly install from pypi (RECOMMEND)
 
-    ```
-    $ pip install pyaer -U
-    ```
+```bash
+$ pip install pyaer -U
+```
 
-3. Install from source
+#### 3. Install from source
 
-    ```
-    $ git clone https://github.com/duguyue100/pyaer.git
-    $ make install
-    ```
+```bash
+$ git clone https://github.com/duguyue100/pyaer.git
+$ make install
+```
 
 ## Got a Linux?
 

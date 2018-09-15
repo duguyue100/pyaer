@@ -13,7 +13,13 @@ repo_url: https://github.com/duguyue100/pyaer
 site_url: https://dgyblog.com/pyaer-doc
 site_description: 'Documentation for PyAER.'
 
+markdown_extensions:
+  - codehilite
+
 dev_addr: '0.0.0.0:8000'
+
+extra_css:
+    - css/highlight-fix.css
 
 pages:
 - Home: index.md

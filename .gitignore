@@ -106,3 +106,6 @@ docs/sources
 
 # mypy
 .mypy_cache/
+
+# Mac
+.DS_Store
