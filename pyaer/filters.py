@@ -207,7 +207,7 @@ class DVSNoise(object):
                 the event packet to filter.
 
         # Returns
-            filtered_event_packet: `caerEventPacket<br/>
+            filtered_event_packet: `caerEventPacket`<br/>
                 the filtered event packet.
         """
         return libcaer.apply_dvs_noise_filter(self.handle, event_packet)
