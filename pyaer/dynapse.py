@@ -14,35 +14,34 @@ from pyaer.device import USBDevice
 
 
 class DYNAPSE(USBDevice):
-    """Class defines DYNAPSE."""
+    """DYNAPSE.
+    
+    # Arguments
+        device_id: `int`<br/>
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.<br/>
+            `default is 1`
+        bus_number_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            bus number.<br/>
+            `default is 0`
+        dev_address_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            device address.<br/>
+            `default is 0`
+        serial_number: `str`<br/>
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.<br/>
+            `default is ""`
+    """
     def __init__(self,
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
                  serial_number=""):
-        """DYNAPSE.
-
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
-        """
+        """DYNAPSE."""
         super(DYNAPSE, self).__init__()
         # open device
         self.open(device_id, bus_number_restrict,
@@ -77,7 +76,26 @@ class DYNAPSE(USBDevice):
                             libcaer.DYNAPSE_CONFIG_DYNAPSE_U3]
 
     def obtain_device_info(self, handle):
-        """Obtain DYNAPSE info."""
+        """Obtain DYNAPSE info.
+        
+        This function collects the following information from the device:
+
+        - Deveice ID
+        - Device serial number
+        - Device USB bus number
+        - Device USB device address
+        - Device string
+        - Logic version
+        - If the device is a master camera
+        - Chip ID
+        - If the device has AER statistics
+        - If the device has MUX statistics
+        
+        # Arguments
+            handle: `caerDeviceHandle`<br/>
+                a valid device handle that can be used with the other
+                `libcaer` functions, or `None` on error.
+        """
         if handle is not None:
             info = libcaer.caerDynapseInfoGet(handle)
 
@@ -101,26 +119,25 @@ class DYNAPSE(USBDevice):
              serial_number=""):
         """Open device.
 
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
+        # Arguments
+            device_id: `int`<br/>
+                a unique ID to identify the device from others.
+                Will be used as the source for EventPackets being
+                generate from its data.<br/>
+                `default is 1`
+            bus_number_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                bus number.<br/>
+                `default is 0`
+            dev_address_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                device address.<br/>
+                `default is 0`
+            serial_number: `str`<br/>
+                restrict the search for viable devices to only devices which do
+                possess the given Serial Number in their USB
+                SerialNumber descriptor.<br/>
+                `default is ""`
         """
         super(DYNAPSE, self).open(
             libcaer.CAER_DEVICE_DYNAPSE, device_id,
@@ -131,29 +148,31 @@ class DYNAPSE(USBDevice):
                            setup_sram=False, scope="all", verbose=False):
         """Set bias from loading JSON configuration file.
 
-        Parameters
-        ----------
-        file_path : string
-            absolute path of the JSON bias file.
-        fpga_bias : bool
-            Set FPGA biases if True, False otherwise,
-            Default is True
-        clear_sram : bool
-            Clear SRAM if True, False otherwise,
-            Default is False
-        setup_sram : bool
-            Setup SRAM if True, False otherwise,
-            Default is False
-        scope : string, dict
-            a dictionary that describe the bias setting profile,
-            set everything if the argument is "all"
-            Here is a basic template for scope description
-            scope = {
-                0: [0, 1, 2, 3],
-                1: [0, 1, 2, 3],
-                2: [0, 1, 2, 3],
-                3: [0, 1, 2, 3],
-                }
+        # Arguments
+            file_path: `str`<br/>
+                absolute path of the JSON bias file.
+            fpga_bias: `bool`<br/>
+                Set FPGA biases if True, False otherwise,<br/>
+                `default is True`
+            clear_sram: `bool`<br/>
+                Clear SRAM if True, False otherwise,
+                Default is False
+            setup_sram: `bool`
+                Setup SRAM if True, False otherwise,<br/>
+                `default is False`
+            scope: `str, dict`<br/>
+                a dictionary that describe the bias setting profile,
+                set everything if the argument is "all"
+                Here is a basic template for scope description<br/>
+
+                ``` 
+                scope = {
+                    0: [0, 1, 2, 3],
+                    1: [0, 1, 2, 3],
+                    2: [0, 1, 2, 3],
+                    3: [0, 1, 2, 3],
+                    }
+                ```
         """
         bias_obj = utils.load_dynapse_bias(file_path, verbose)
         self.set_bias(bias_obj,
@@ -162,7 +181,8 @@ class DYNAPSE(USBDevice):
                       scope=scope)
 
     def clear_sram(self):
-        """Clear SRAM for all chips."""
+        """Clear SRAM for all chips.
+        """
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
                         libcaer.DYNAPSE_CONFIG_CHIP_ID,
                         libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
@@ -181,7 +201,8 @@ class DYNAPSE(USBDevice):
         self.set_config(libcaer.DYNAPSE_CONFIG_DEFAULT_SRAM_EMPTY, 0, 0)
 
     def setup_sram(self):
-        """Setup SRAM for all chips."""
+        """Setup SRAM for all chips.
+        """
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
                         libcaer.DYNAPSE_CONFIG_CHIP_ID,
                         libcaer.DYNAPSE_CONFIG_DYNAPSE_U0)
@@ -212,25 +233,24 @@ class DYNAPSE(USBDevice):
                       clear_sram=False, setup_sram=False):
         """Set bias for a single chip.
 
-        Parameters
-        ----------
-        bias_obj : dictionary
-            a dictionary that consists of all 4 core's biases
-        chip_id : int
-            chip id is between 0-3
-        core_ids : list
-            list of core ids from 0 to 3, each element is a string,
-            the default is [0, 1, 2, 3]
-            e.g.,
-                [0, 3]: set core 0 and core 3
-                [2]: set core 2
-                []: do not set core level biases
-        clear_sram : bool
-            Clear SRAM if True, False otherwise,
-            Default is False
-        setup_sram : bool
-            Setup SRAM if True, False otherwise,
-            Default is False
+        # Arguments
+            bias_obj: `dict`<br/>
+                a dictionary that consists of all 4 core's biases
+            chip_id: `int`<br/>
+                chip id is between 0-3
+            core_ids: `list`<br/>
+                list of core ids from 0 to 3, each element is a string,
+                the default is `[0, 1, 2, 3]`<br/>
+                e.g.,<br/>
+                    - `[0, 3]`: set core 0 and core 3<br/>
+                    - `[2]`: set core 2<br/>
+                    - `[]`: do not set core level biases
+            clear_sram: `bool`<br/>
+                Clear SRAM if True, False otherwise,<br/>
+                `default is False`
+            setup_sram: bool<br/>
+                Setup SRAM if True, False otherwise,<br/>
+                `default is False`
         """
         # stop data stream
         self.data_stop()
@@ -287,33 +307,35 @@ class DYNAPSE(USBDevice):
         You don't have to turn on the clear_sram and setup_sram
         for reloading biases.
 
-        # Parameters
-        bias_obj : dict
-            dictionary that contains DYNAPSE biases.
-        fpga_bias : bool
-            Set FPGA biases if True, False otherwise,
-            Default is True
-        clear_sram : bool
-            Clear SRAM if True, False otherwise,
-            Default is False
-        setup_sram : bool
-            Setup SRAM if True, False otherwise,
-            Default is False
-        scope : string, dict
-            a dictionary that describe the bias setting profile,
-            set everything if the argument is "all"
-            Here is a basic template for scope description
-            scope = {
-                0: [0, 1, 2, 3],
-                1: [0, 1, 2, 3],
-                2: [0, 1, 2, 3],
-                3: [0, 1, 2, 3],
-                }
+        # Arguments
+            bias_obj: `dict`<br/>
+                dictionary that contains DYNAPSE biases.
+            fpga_bias: `bool`<br/>
+                Set FPGA biases if True, False otherwise,<br/>
+                `default is True`
+            clear_sram: `bool`<br/>
+                Clear SRAM if True, False otherwise,<br/>
+                `default is False`
+            setup_sram: `bool`<br/>
+                Setup SRAM if True, False otherwise,<br/>
+                `default is False`
+            scope: `str, dict`<br/>
+                a dictionary that describe the bias setting profile,
+                set everything if the argument is "all"
+                Here is a basic template for scope description<br/>
+
+                ```
+                scope = {
+                    0: [0, 1, 2, 3],
+                    1: [0, 1, 2, 3],
+                    2: [0, 1, 2, 3],
+                    3: [0, 1, 2, 3],
+                    }
+                ```
 
         # Returns
-        flag : bool
-            True if set successful, False otherwise.
-            TODO: make this flag check possible
+            flag: `bool`<br/>
+                True if set successful, False otherwise.
         """
         # stop data stream
         self.data_stop()
@@ -371,10 +393,9 @@ class DYNAPSE(USBDevice):
     def set_fpga_bias(self, bias_obj):
         """Set FPGA biases.
 
-        Parameters
-        ----------
-        bias_obj : dict
-            dictionary that contains FPGA biases for the device.
+        # Arguments
+            bias_obj: `dict`<br/>
+                dictionary that contains FPGA biases for the device.
         """
         # DYNAPSE_CONFIG_MUX
         self.set_config(libcaer.DYNAPSE_CONFIG_MUX,
@@ -417,23 +438,22 @@ class DYNAPSE(USBDevice):
                           core_ids=[0, 1, 2, 3]):
         """Set biases for each chip.
 
-        Parameters
-        ----------
-        bias_obj : dict
-            dictionary that contains activity biases for target chip.
-        chip_id : uint8_t
-            one of
-            DYNAPSE_CONFIG_DYNAPSE_U0,
-            DYNAPSE_CONFIG_DYNAPSE_U1,
-            DYNAPSE_CONFIG_DYNAPSE_U2,
-            DYNAPSE_CONFIG_DYNAPSE_U3
-        core_ids : list
-            list of core ids from 0 to 3, each element is a int,
-            the default is [0, 1, 2, 3]
-            e.g.,
-                [0, 3]: set core 0 and core 3
-                [2]: set core 2
-                []: do not set core level biases
+        # Arguments
+            bias_obj: `dict`<br/>
+                dictionary that contains activity biases for target chip.
+            chip_id: `uint8_t`<br/>
+                one of
+                `DYNAPSE_CONFIG_DYNAPSE_U0`,
+                `DYNAPSE_CONFIG_DYNAPSE_U1`,
+                `DYNAPSE_CONFIG_DYNAPSE_U2`,
+                `DYNAPSE_CONFIG_DYNAPSE_U3`
+            core_ids: `list`<br/>
+                list of core ids from 0 to 3, each element is a int,
+                the default is `[0, 1, 2, 3]`<br/>
+                e.g.,<br/>
+                    - `[0, 3]`: set core 0 and core 3<br/>
+                    - `[2]`: set core 2<br/>
+                    - `[]`: do not set core level biases
         """
         assert 0 <= chip_id <= 3
         self.set_config(libcaer.DYNAPSE_CONFIG_CHIP,
@@ -783,17 +803,19 @@ class DYNAPSE(USBDevice):
 
         Note: biases for neurons currently cannot be recalled.
 
-        # Parameters
-        param_addr : parameter address
-            such as libcaer.DAVIS_CONFIG_BIAS
-        param : parameter
-            such as libcaer.DAVIS240_CONFIG_BIAS_ONBN
+        # Arguments
+            param_addr: `int`<br/>
+                a parameter address, to select a specific parameter to update
+                from this particular configuration module. Only positive numbers
+                (including zero) are allowed.
+            param: `int` or `bool`<br/>
+                a configuration parameter's new value.
 
-        Returns
-        coarse_value : uint
-            coarse value
-        fine_value :uint
-            fine value
+        # Returns
+            coarse_value: `uint`<br/>
+                coarse value
+            fine_value: `uint`<br/>
+                fine value
         """
         cf_param = libcaer.caerBiasCoarseFineParse(
             self.get_config(param_addr, param))
@@ -804,8 +826,8 @@ class DYNAPSE(USBDevice):
         """Get bias settings from FPGA.
 
         # Returns
-        bias_obj : dict
-            dictionary that contains DYNAPSE current bias settings.
+            bias_obj: `dict`
+                dictionary that contains DYNAPSE current bias settings.
         """
         bias_obj = {}
         # DYNAPSE_CONFIG_MUX
@@ -851,32 +873,47 @@ class DYNAPSE(USBDevice):
         """Save FPGA bias to JSON.
 
         Only the bias from FPGA can be retrieved.
+
+        # Arguments
+            file_path: `str`<br/>
+                the absolute path to the destiation.
+
+        # Returns
+            flag: `bool`<br/>
+                returns True if success in writing, False otherwise.
         """
         bias_obj = self.get_fpga_bias()
         return utils.write_json(file_path, bias_obj)
 
     def start_data_stream(self, send_default_config=True):
-        """Start streaming data."""
+        """Start streaming data.
+        
+        # Arguments
+            send_default_config: `bool`<br/>
+                send default config to the device before starting
+                the data streaming.<br/>
+                `default is True`
+        """
         if send_default_config is True:
             self.send_default_config()
         self.data_start()
         self.set_data_exchange_blocking()
 
     def core_xy_to_neuron_id(self, core_id, column_x, row_y):
-        """Map core ID and column/row address.
+        """Map core ID and column/row address
         to the correct chip global neuron address.
 
-        # Parameters
-        core_id : uint8
-            the chip's core ID, range [0,3].
-        column_x : uint8
-            the neuron's column address, range [0,15].
-        row_y : uint8
-            the neuron's row address, range [0,15].
+        # Arguments
+            core_id: `uint8`<br/>
+                the chip's core ID, range [0, 3].
+            column_x: `uint8`<br/>
+                the neuron's column address, range [0, 15].
+            row_y: `uint8`<br/>
+                the neuron's row address, range [0, 15].
 
         # Returns
-        neuron_id : uint16
-            chip global neuron address
+            neuron_id: `uint16`<br/>
+                chip global neuron address
         """
         return libcaer.caerDynapseCoreXYToNeuronId(
             coreId=core_id,
@@ -884,18 +921,18 @@ class DYNAPSE(USBDevice):
             rowY=row_y)
 
     def core_id_to_neuron_id(self, core_id, neuron_id_core):
-        """Map core ID and per-core neuron address.
+        """Map core ID and per-core neuron address
         to the correct chip global neuron address.
 
-        # Parameters
-        core_id : uint8
-            the chip's core ID, range [0,3].
-        neuron_id_core : uint8
-            the neuron's address within this core, range [0,255].
+        # Arguments
+            core_id: `uint8`<br/>
+                the chip's core ID, range [0, 3].
+            neuron_id_core: `uint8`<br/>
+                the neuron's address within this core, range [0, 255].
 
         # Returns
-        neuron_id : uint16
-            chip global neuron address.
+            neuron_id: `uint16`<br/>
+                chip global neuron address.
         """
         return libcaer.caerDynapseCoreAddrToNeuronId(
             coreId=core_id,
@@ -904,16 +941,16 @@ class DYNAPSE(USBDevice):
     def write_poisson_spikerate(self, neuron_id, rate):
         """Specifies the poisson spike generator's spike rate.
 
-        # Parameters
-        neuron_id : uint16
-            The target neuron of the poisson spike train, range [0,1023].
-        rate : float
-            The rate in Hz of the spike train, this will be quantized to the
-            nearest supported level, range [0, 4300].
+        # Arguments
+            neuron_id: `uint16`<br/>
+                The target neuron of the poisson spike train, range [0,1023].
+            rate: `float`<br/>
+                The rate in Hz of the spike train, this will be quantized to the
+                nearest supported level, range [0, 4300].
 
         # Returns
-        flag : bool
-            True if success, False otherwise
+            flag: `bool`<br/>
+                True if success, False otherwise
         """
         return libcaer.caerDynapseWritePoissonSpikeRate(
             self.handle, neuronAddr=neuron_id, rateHz=rate)
@@ -926,36 +963,36 @@ class DYNAPSE(USBDevice):
         address of where the spikes will be routed to.
         This works on the on-chip SRAM!
 
-        # Parameters
-        neuron_id : uint16
-            the neuron to program, range [0,1023]
-        sram_id : uint8
-            SRAM address, range [0, 3]
-        virtual_core_id : utin8
-            fake source core ID, set it to this value
-            instead of the actual source core ID, range [0,3].
-        sx : bool
-            X direction, can be one of:
-            [DYNAPSE_CONFIG_SRAM_DIRECTION_X_EAST,
-             DYNAPSE_CONFIG_SRAM_DIRECTION_X_WEST].
-        dx : uint8
-            X delta, number of chips to jumps before
-            reaching destination, range is [0, 3]
-        sy : bool
-            Y direction, can be one of:
-            [DYNAPSE_CONFIG_SRAM_DIRECTION_Y_NORTH,
-             DYNAPSE_CONFIG_SRAM_DIRECTION_Y_SOUTH].
-        dy : uint8
-            number of chips to jumps before reaching destination,
-            range is [0, 3]
-        destination_core : uint8
-            spike destination core, uses one-hot coding for the 4 cores
-            [C3,C2,C1,C0] -> [0,0,0,0] (0 decimal) no core,
-            [1,1,1,1] (15 decimal) all cores
+        # Arguments
+            neuron_id: `uint16`<br/>
+                the neuron to program, range [0, 1023]
+            sram_id: `uint8`<br/>
+                SRAM address, range [0, 3]
+            virtual_core_id: `utin8`<br/>
+                fake source core ID, set it to this value
+                instead of the actual source core ID, range [0, 3].
+            sx: `bool`<br/>
+                X direction, can be one of:
+                `[DYNAPSE_CONFIG_SRAM_DIRECTION_X_EAST,
+                  DYNAPSE_CONFIG_SRAM_DIRECTION_X_WEST]`.
+            dx: `uint8`<br/>
+                X delta, number of chips to jumps before
+                reaching destination, range is [0, 3]
+            sy: `bool`<br/>
+                Y direction, can be one of:
+                `[DYNAPSE_CONFIG_SRAM_DIRECTION_Y_NORTH,
+                  DYNAPSE_CONFIG_SRAM_DIRECTION_Y_SOUTH]`.
+            dy: `uint8`<br/>
+                number of chips to jumps before reaching destination,
+                range is [0, 3]
+            destination_core: `uint8`<br/>
+                spike destination core, uses one-hot coding for the 4 cores
+                `[C3, C2, C1, C0] -> [0, 0, 0, 0]` (0 decimal) no core,
+                `[1, 1, 1, 1]` (15 decimal) all cores
 
         # Returns
-        flag : bool
-            True if success, False otherwise
+            flag: `bool`<br/>
+                True if success, False otherwise
         """
         return libcaer.caerDynapseWriteSramN(
             handle=self.handle,
@@ -970,24 +1007,27 @@ class DYNAPSE(USBDevice):
 
         To specify which spikes are allowed as input into a neuron.
 
-        # Parameters
-        input_neuron_id : uint16
-            the neuron address that should be let in as input to this neuron,
-            range [0,1023].
-        neuron_id : uint16
-            the neuron address whose CAM should be programmed, range [0,1023].
-        cam_id : uint8
-            CAM address (synapse), each neuron has 64, range [0,63].
-        synapse_type : uint8
-            one of the four possible synaptic weights:
-            [DYNAPSE_CONFIG_CAMTYPE_F_EXC,
-             DYNAPSE_CONFIG_CAMTYPE_S_EXC,
-             DYNAPSE_CONFIG_CAMTYPE_F_INH,
-             DYNAPSE_CONFIG_CAMTYPE_S_INH].
+        # Arguments
+            input_neuron_id: `uint16`<br/>
+                the neuron address that should be let in as input to this neuron,
+                range [0, 1023].
+            neuron_id: `uint16`<br/>
+                the neuron address whose CAM should be programmed, range [0,1023].
+            cam_id: `uint8`<br/>
+                CAM address (synapse), each neuron has 64, range [0,63].
+            synapse_type: `uint8`<br/>
+                one of the four possible synaptic weights:
+
+                ```
+                [DYNAPSE_CONFIG_CAMTYPE_F_EXC,
+                 DYNAPSE_CONFIG_CAMTYPE_S_EXC,
+                 DYNAPSE_CONFIG_CAMTYPE_F_INH,
+                 DYNAPSE_CONFIG_CAMTYPE_S_INH].
+                ```
 
         # Returns
-        flag : bool
-            True if success, False otherwise
+            flag: `bool`<br/>
+                True if success, False otherwise
         """
         return libcaer.caerDynapseWriteCam(
             handle=self.handle,
@@ -997,7 +1037,20 @@ class DYNAPSE(USBDevice):
             synapseType=synapse_type)
 
     def get_event(self):
-        """Get Event."""
+        """Get Event.
+        
+        # Returns
+            spike_events: `numpy.ndarray`<br/>
+                a 2-D array that has the shape of (N, 4) where N
+                is the number of spike events in the packet.
+                Each row of the array has a single spike event.
+                The first value is the timestamp of the event.
+                The second value is the neuron ID.
+                The third value is the chip ID.
+                The last value is the source core ID.
+            num_spike_events: `int`<br/>
+                the number of the spike events.
+        """
         packet_container, packet_number = self.get_packet_container()
         if packet_container is not None:
             num_spike_events = 0
@@ -1013,5 +1066,4 @@ class DYNAPSE(USBDevice):
             libcaer.caerEventPacketContainerFree(packet_container)
             return (spike_events, num_spike_events)
         else:
-            print ("I'm getting None")
-            return None
+            return (None, None)

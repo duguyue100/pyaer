@@ -243,7 +243,7 @@ class DAVIS(USBDevice):
 
         # Arguments
             bias_obj: `dict`<br/>
-                dictionary that contains DVS128 biases.
+                dictionary that contains DAVIS biases.
 
         # Returns
             flag: `bool`<br/>
@@ -723,7 +723,7 @@ class DAVIS(USBDevice):
 
         # Returns
             bias_obj: `dict`<br/>
-                dictionary that contains DVS128 current bias settings.
+                dictionary that contains DAVIS current bias settings.
         """
         bias_obj = {}
         # output sources
