@@ -13,39 +13,38 @@ from pyaer import utils
 
 
 class DAVIS(USBDevice):
-    """Class for managing single DAVIS device."""
+    """DAVIS.
+    
+    # Arguments
+        device_id: `int`<br/>
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.<br/>
+            `default is 1`
+        bus_number_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            bus number.<br/>
+            `default is 0`
+        dev_address_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            device address.<br/>
+            `default is 0`
+        serial_number: `str`<br/>
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.<br/>
+            `default is ""`
+        noise_filter: `bool`<br/>
+            if enable noise filter.<br/>
+            `default is False`
+    """
     def __init__(self,
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
                  serial_number="",
                  noise_filter=False):
-        """DAVIS.
-
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
-        noise_filter : bool
-            if enable noise filter,
-            default is false.
-        """
+        """DAVIS."""
         super(DAVIS, self).__init__()
         # open device
         self.open(device_id, bus_number_restrict,
@@ -69,11 +68,23 @@ class DAVIS(USBDevice):
             self.noise_filter = None
 
     def set_noise_filter(self, noise_filter):
-        """Set noise filter."""
+        """Set noise filter.
+
+        # Arguments
+            noise_filter: `filters.DVSNoise`<br/>
+                A valid `DVSNoise` object. This filter implements
+                software-level background activity filter.
+        """
         if noise_filter is not None:
             self.noise_filter = noise_filter
 
     def enable_noise_filter(self):
+        """Enalbe DVS noise filter.
+
+        This function enables the DVS noise filter.
+        Note that this function will initialize a `DVSNoise` filter
+        if there is None.
+        """
         if self.filter_noise is False:
             self.filter_noise = True
 
@@ -81,11 +92,53 @@ class DAVIS(USBDevice):
             self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
 
     def disable_noise_filter(self):
+        """Disable noise filter.
+
+        This method disable the noise filter. Note that this function
+        doesn't destroy the existed noise filter. It simply switches off
+        the function.
+        """
         if self.filter_noise is True:
             self.filter_noise = False
 
     def obtain_device_info(self, handle):
-        """Obtain DAVIS info."""
+        """Obtain DAVIS info.
+
+        This function collects the following information from the device:
+
+        - Deveice ID
+        - Device serial number
+        - Device USB bus number
+        - Device USB device address
+        - Device string
+        - Logic version
+        - If the device is the master device
+        - Logic clock
+        - ADC clock
+        - Chip ID
+        - Camera DVS width
+        - Camera DVS height
+        - If the device has pixel filter
+        - If the device has hardware background activity filter
+        - If the device has test event generator
+        - Camera APS width
+        - Camera APS height
+        - APS color filter
+        - If the device has APS global shutter
+        - If the device has APS quad ROI
+        - If the device has APS external ADC
+        - If the device has APS internal ADC
+        - If external input has generator
+        - If external input has extra detectors
+        - If the device has DVS ROI filter
+        - If the device has DVS statistics
+        - If the device has MUX statistics
+        
+        # Arguments
+            handle: `caerDeviceHandle`<br/>
+                a valid device handle that can be used with the other
+                `libcaer` functions, or `None` on error.
+        """
         info = libcaer.caerDavisInfoGet(handle)
 
         self.device_id = info.deviceID
@@ -117,10 +170,6 @@ class DAVIS(USBDevice):
         self.dvs_has_ROI_filter = info.dvsHasROIFilter
         self.dvs_has_statistics = info.dvsHasStatistics
         self.mux_has_statistics = info.muxHasStatistics
-        # auto-exposure
-        self.min_exposure = 10
-        self.max_exposure = 25000
-        self.proportion_to_cut = 0.25
 
     def open(self,
              device_id=1,
@@ -129,26 +178,26 @@ class DAVIS(USBDevice):
              serial_number=""):
         """Open DAVIS device.
 
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
+
+        # Arguments
+            device_id: `int`<br/>
+                a unique ID to identify the device from others.
+                Will be used as the source for EventPackets being
+                generate from its data.<br/>
+                `default is 1`
+            bus_number_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                bus number.<br/>
+                `default is 0`
+            dev_address_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                device address.<br/>
+                `default is 0`
+            serial_number: `str`<br/>
+                restrict the search for viable devices to only devices which do
+                possess the given Serial Number in their USB
+                SerialNumber descriptor.<br/>
+                `default is ""`
         """
         super(DAVIS, self).open(
             libcaer.CAER_DEVICE_DAVIS, device_id,
@@ -158,9 +207,11 @@ class DAVIS(USBDevice):
     def set_bias_from_json(self, file_path, verbose=False):
         """Set bias from loading JSON configuration file.
 
-        # Parameters
-        file_path : string
-            absolute path of the JSON bias file.
+        # Arguments
+            file_path: `str`<br/>
+                absolute path of the JSON bias file.
+            verbose: `bool`<br/>
+                optional debugging message.
         """
         bias_obj = utils.load_davis_bias(file_path, verbose)
         self.set_bias(bias_obj)
@@ -168,17 +219,20 @@ class DAVIS(USBDevice):
     def set_cf_bias(self, param_addr, param, coarse, fine, mode):
         """Setting coarse fine bias.
 
-        # Parameter
-        param_addr : parameter address
-            such as libcaer.DAVIS_CONFIG_BIAS
-        param : parameter
-            such as libcaer.DAVIS240_CONFIG_BIAS_ONBN
-        coarse : int
-            coarae value
-        fine : int
-            fine value
-        mode : setting mode
-            n_type, p_type, n_cas_type, n_off_type, p_off_type, vdac
+        # Arguments
+            param_addr: `int`<br/>
+                a parameter address, to select a specific parameter to update
+                from this particular configuration module. Only positive numbers
+                (including zero) are allowed.
+            param: `int` or `bool`<br/>
+                a configuration parameter's new value.
+            coarse: `int`<br/>
+                coarae value
+            fine: `int`<br/>
+                fine value
+            mode: `setting mode`<br/>
+                `n_type`, `p_type`, `n_cas_type`, `n_off_type`,
+                `p_off_type`, `vdac`
         """
         return self.set_config(
             param_addr, param,
@@ -187,14 +241,13 @@ class DAVIS(USBDevice):
     def set_bias(self, bias_obj):
         """Set bias from bias dictionary.
 
-        # Parameters
-        bias_obj : dict
-            dictionary that contains DVS128 biases.
+        # Arguments
+            bias_obj: `dict`<br/>
+                dictionary that contains DVS128 biases.
 
         # Returns
-        flag : bool
-            True if set successful, False otherwise.
-            TODO: make this flag check possible
+            flag: `bool`<br/>
+                True if set successful, False otherwise.
         """
         # output soruces settings
         self.set_config(libcaer.DAVIS_CONFIG_APS,
@@ -646,17 +699,19 @@ class DAVIS(USBDevice):
     def get_cf_bias(self, param_addr, param):
         """Get coarse-fine bias.
 
-        # Parameters
-        param_addr : parameter address
-            such as libcaer.DAVIS_CONFIG_BIAS
-        param : parameter
-            such as libcaer.DAVIS240_CONFIG_BIAS_ONBN
+        # Arguments
+            param_addr: `int`<br/>
+                a parameter address, to select a specific parameter to update
+                from this particular configuration module. Only positive numbers
+                (including zero) are allowed.
+            param: `int` or `bool`<br/>
+                a configuration parameter's new value.
 
-        Returns
-        coarse_value : uint
-            coarse value
-        fine_value :uint
-            fine value
+        # Returns
+            coarse_value: `uint`<br/>
+                coarse value
+            fine_value: `uint`<br/>
+                fine value
         """
         cf_param = libcaer.caerBiasCoarseFineParse(
             self.get_config(param_addr, param))
@@ -667,8 +722,8 @@ class DAVIS(USBDevice):
         """Get bias settings.
 
         # Returns
-        bias_obj : dict
-            dictionary that contains DVS128 current bias settings.
+            bias_obj: `dict`<br/>
+                dictionary that contains DVS128 current bias settings.
         """
         bias_obj = {}
         # output sources
@@ -996,12 +1051,28 @@ class DAVIS(USBDevice):
         return bias_obj
 
     def save_bias_to_json(self, file_path):
-        """Save bias to JSON."""
+        """Save bias to JSON.
+        
+        # Arguments
+            file_path: `str`<br/>
+                the absolute path to the destiation.
+
+        # Returns
+            flag: `bool`<br/>
+                returns True if success in writing, False otherwise.
+        """
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
     def start_data_stream(self, send_default_config=True):
-        """Start streaming data."""
+        """Start streaming data.
+        
+        # Arguments
+            send_default_config: `bool`<br/>
+                send default config to the device before starting
+                the data streaming.<br/>
+                `default is True`
+        """
         if send_default_config is True:
             self.send_default_config()
         self.data_start()
@@ -1010,19 +1081,29 @@ class DAVIS(USBDevice):
     def get_polarity_event(self, packet_header, noise_filter=False):
         """Get a packet of polarity event.
 
-        Parameters
-        ----------
-        packet_header : caerEventPacketHeader
-            the header that represents a event packet
+        # Arguments
+            packet_header: `caerEventPacketHeader`<br/>
+                the header that represents a event packet
+            noise_filter: `bool`<br/>
+                the background activity filter is applied if True.
 
-        Returns
-        -------
-        ts : numpy.ndarray
-            list of time stamp
-        xy : numpy.ndarray
-            list of x, y coordinate
-        pol : numpy.ndarray
-            list of polarity
+        # Returns
+            events: `numpy.ndarray`<br/>
+                a 2-D array that has the shape of (N, 4) where N
+                is the number of events in the event packet.
+                Each row in the array represents a single polarity event.
+                The first number is the timestamp.
+                The second number is the X position of the event.
+                The third number is the Y position of the event.
+                The fourth number represents the polarity of the event
+                (positive or negative).<br/>
+                If the `noise_filter` option is set to `True`,
+                this array has an additional column at the end.
+                The last column represents the validity of the corresponding
+                event. Filtered events will be marked as 0.
+            num_events: `int`<br/>
+                number of the polarity events available in the packet.
+
         """
         num_events, polarity = self.get_event_packet(
             packet_header, libcaer.POLARITY_EVENT)
@@ -1039,7 +1120,51 @@ class DAVIS(USBDevice):
         return events, num_events
 
     def get_event(self):
-        """Get Event."""
+        """Get Event.
+        
+        # Returns
+            pol_events: `numpy.ndarray`<br/>
+                a 2-D array that has the shape of (N, 4) where N
+                is the number of events in the event packet.
+                Each row in the array represents a single polarity event.
+                The first number is the timestamp.
+                The second number is the X position of the event.
+                The third number is the Y position of the event.
+                The fourth number represents the polarity of the event
+                (positive or negative).<br/>
+                If the `noise_filter` option is set to `True`,
+                this array has an additional column at the end.
+                The last column represents the validity of the corresponding
+                event. Filtered events will be marked as 0.
+            num_pol_events: `int`<br/>
+                number of the polarity events available in the packet.
+            special_events: `numpy.ndarray`<br/>
+                a 2-D array that has the shape of (N, 2) where N
+                is the number of events in the event packet.
+                Each row in the array represents a single special event.
+                The first value is the timestamp of the event.
+                The second value is the special event data.
+            num_special_events: `int`<br/>
+                number of the special events in the packet.
+            frames_ts: `numpy.ndarray`<br/>
+                the APS frame timestamps.
+            frames: `numpy.ndarray`<br/>
+                a 3-D array that has the shape of (N, height, width).
+                The height and width of the APS frame is determined by
+                the specific DAVIS device (e.g., DAVIS240 will have
+                a 180x240 APS frame.
+            imu_events: `numpy.ndarray`<br/>
+                a 2-D array that has the shape of (N, 8) where N
+                is the number of IMU6 events in the packet.
+                Each row of the array consists a single IMU6 event.
+                The first value is the timestamp of the event.
+                The next three values are accelerations on the X, Y, and Z
+                axes. The next three values are angular velocity 
+                on the X, Y and Z axes.
+                The last value is the temperature in Celsius scale.
+            num_imu_events: `int`<br/>
+                number of the IMU6 events.
+        """
         packet_container, packet_number = self.get_packet_container()
         if packet_container is not None:
             num_pol_event = 0
@@ -1092,37 +1217,38 @@ class DAVIS(USBDevice):
 
 
 class DAVISFX2(DAVIS):
-    """DAVIS FX2."""
+    """DAVIS FX2.
+    
+    # Arguments
+        device_id: `int`<br/>
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.<br/>
+            `default is 1`
+        bus_number_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            bus number.<br/>
+            `default is 0`
+        dev_address_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            device address.<br/>
+            `default is 0`
+        serial_number: `str`<br/>
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.<br/>
+            `default is ""`
+        noise_filter: `bool`<br/>
+            if enable noise filter.<br/>
+            `default is False`
+    """
     def __init__(self,
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
-                 serial_number=""):
-        """DAVIS FX2.
-
-        TODO: there may be more features to write
-
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
-        """
+                 serial_number="",
+                 noise_filter=False):
+        """DAVIS FX2."""
         super(DAVISFX2, self).__init__()
         # open device
         self.open(device_id, bus_number_restrict,
@@ -1137,26 +1263,25 @@ class DAVISFX2(DAVIS):
              serial_number=""):
         """Open DAVIS FX2 device.
 
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
+        # Arguments
+            device_id: `int`<br/>
+                a unique ID to identify the device from others.
+                Will be used as the source for EventPackets being
+                generate from its data.<br/>
+                `default is 1`
+            bus_number_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                bus number.<br/>
+                `default is 0`
+            dev_address_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                device address.<br/>
+                `default is 0`
+            serial_number: `str`<br/>
+                restrict the search for viable devices to only devices which do
+                possess the given Serial Number in their USB
+                SerialNumber descriptor.<br/>
+                `default is ""`
         """
         USBDevice.open(libcaer.CAER_DEVICE_DAVIS_FX2, device_id,
                        bus_number_restrict, dev_address_restrict,
@@ -1164,37 +1289,38 @@ class DAVISFX2(DAVIS):
 
 
 class DAVISFX3(DAVIS):
-    """DAVIS FX3."""
+    """DAVIS FX3.
+    
+    # Arguments
+        device_id: `int`<br/>
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.<br/>
+            `default is 1`
+        bus_number_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            bus number.<br/>
+            `default is 0`
+        dev_address_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            device address.<br/>
+            `default is 0`
+        serial_number: `str`<br/>
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.<br/>
+            `default is ""`
+        noise_filter: `bool`<br/>
+            if enable noise filter.<br/>
+            `default is False`
+    """
     def __init__(self,
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
-                 serial_number=""):
-        """DAVIS FX3.
-
-        TODO: there may be more features to write
-
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
-        """
+                 serial_number="",
+                 noise_filter=False):
+        """DAVIS FX3."""
         super(DAVISFX3, self).__init__()
         # open device
         self.open(device_id, bus_number_restrict,
@@ -1209,26 +1335,25 @@ class DAVISFX3(DAVIS):
              serial_number=""):
         """Open DAVIS FX3 device.
 
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
+        # Arguments
+            device_id: `int`<br/>
+                a unique ID to identify the device from others.
+                Will be used as the source for EventPackets being
+                generate from its data.<br/>
+                `default is 1`
+            bus_number_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                bus number.<br/>
+                `default is 0`
+            dev_address_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                device address.<br/>
+                `default is 0`
+            serial_number: `str`<br/>
+                restrict the search for viable devices to only devices which do
+                possess the given Serial Number in their USB
+                SerialNumber descriptor.<br/>
+                `default is ""`
         """
         USBDevice.open(libcaer.CAER_DEVICE_DAVIS_FX3, device_id,
                        bus_number_restrict, dev_address_restrict,
@@ -1236,37 +1361,38 @@ class DAVISFX3(DAVIS):
 
 
 class DAVISRPI(DAVIS):
-    """DAVIS RPI."""
+    """DAVIS RPI.
+    
+    # Arguments
+        device_id: `int`<br/>
+            a unique ID to identify the device from others.
+            Will be used as the source for EventPackets being
+            generate from its data.<br/>
+            `default is 1`
+        bus_number_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            bus number.<br/>
+            `default is 0`
+        dev_address_restrict: `int`<br/>
+            restrict the search for viable devices to only this USB
+            device address.<br/>
+            `default is 0`
+        serial_number: `str`<br/>
+            restrict the search for viable devices to only devices which do
+            possess the given Serial Number in their USB
+            SerialNumber descriptor.<br/>
+            `default is ""`
+        noise_filter: `bool`<br/>
+            if enable noise filter.<br/>
+            `default is False`
+    """
     def __init__(self,
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
-                 serial_number=""):
-        """DAVIS RPI.
-
-        TODO: there may be more features to write
-
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
-        """
+                 serial_number="",
+                 noise_filter=False):
+        """DAVIS RPI."""
         super(DAVISRPI, self).__init__()
         # open device
         self.open(device_id, bus_number_restrict,
@@ -1281,26 +1407,25 @@ class DAVISRPI(DAVIS):
              serial_number=""):
         """Open DAVIS RPI device.
 
-        Parameters
-        ----------
-        device_id : int
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.
-            default is 1
-        bus_number_restrict : int
-            restrict the search for viable devices to only this USB
-            bus number.
-            default is 0
-        dev_address_restrict : int
-            restrict the search for viable devices to only this USB
-            device address.
-            default is 0
-        serial_number : str
-            restrict the search for viable devices to only devices which do
-            possess the given Serial Number in their USB
-            SerialNumber descriptor.
-            default is ""
+        # Arguments
+            device_id: `int`<br/>
+                a unique ID to identify the device from others.
+                Will be used as the source for EventPackets being
+                generate from its data.<br/>
+                `default is 1`
+            bus_number_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                bus number.<br/>
+                `default is 0`
+            dev_address_restrict: `int`<br/>
+                restrict the search for viable devices to only this USB
+                device address.<br/>
+                `default is 0`
+            serial_number: `str`<br/>
+                restrict the search for viable devices to only devices which do
+                possess the given Serial Number in their USB
+                SerialNumber descriptor.<br/>
+                `default is ""`
         """
         USBDevice.open(libcaer.CAER_DEVICE_DAVIS_RPI, device_id,
                        bus_number_restrict, dev_address_restrict,

@@ -280,9 +280,9 @@ class DVS128(USBDevice):
         # Arguments
             file_path: `str`<br/>
                 the absolute path to the destiation.
-        
+
         # Returns
-            flag: `bool`
+            flag: `bool`<br/>
                 returns True if success in writing, False otherwise.
         """
         bias_obj = self.get_bias()
