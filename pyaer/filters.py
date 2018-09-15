@@ -10,19 +10,18 @@ from pyaer import utils
 
 
 class DVSNoise(object):
-    """Software DVS background activity filter."""
+    """Software DVS background activity filter.
+    
+    # Arguments
+        size_x: `uint16`<br/>
+            maximum X axis resolution.
+        size_y: `uint16`<br/>
+            maximum Y axis resolution.
+    """
     def __init__(self,
                  size_x,
                  size_y):
-        """DVS Noise.
-
-        Parameters
-        ----------
-        size_x : uint16
-            maximum X axis resolution.
-        size_y : uint16
-            maximum Y axis resolution.
-        """
+        """DVS Noise."""
         self.size_x = size_x
         self.size_y = size_y
         self.handle = None
@@ -34,21 +33,23 @@ class DVSNoise(object):
                              "initialization failed.")
 
     def initialize(self):
-        """Initialize."""
+        """Initialize.
+        """
         if self.handle is None:
             self.handle = libcaer.caerFilterDVSNoiseInitialize(
                     sizeX=self.size_x, sizeY=self.size_y)
 
     def destroy(self):
-        """Destroy DVS noise filter to free up memory."""
+        """Destroy DVS noise filter to free up memory.
+        """
         libcaer.caerFilterDVSNoiseDestroy(self.handle)
 
     def set_bias_from_json(self, file_path, verbose=False):
         """Set bias from loading JSON configuration file.
 
-        # Parameters
-        file_path : string
-            absolute path of the JSON bias file.
+        # Arguments
+            file_path: `str`<br/>
+                absolute path of the JSON bias file.
         """
         bias_obj = utils.load_dvs_bias(file_path, verbose)
         self.set_bias(bias_obj)
@@ -56,11 +57,10 @@ class DVSNoise(object):
     def set_bias(self, bias_obj):
         """Configure filter.
 
-        Parameters
-        ----------
-        bias_obj : dict
-            A dictionary that contains the configuration of
-            the filter
+        # Arguments
+            bias_obj: `dict`<br/>
+                A dictionary that contains the configuration of
+                the filter
         """
         self.set_config(
             libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TWO_LEVELS,
@@ -104,7 +104,13 @@ class DVSNoise(object):
             #      bias_obj["sw_hotpixel_count"])
 
     def get_bias(self):
-        """Export configuration."""
+        """Export configuration.
+        
+        # Returns
+            bias_obj: `dict`<br/>
+                A dictionary that contains the configuration of
+                the filter
+        """
         bias_obj = {}
 
         bias_obj["sw_background_activity_two_levels"] = bool(self.get_config(
@@ -140,24 +146,32 @@ class DVSNoise(object):
         return bias_obj
 
     def save_bias_to_json(self, file_path):
-        """Save bias to JSON."""
+        """Save filter configuration to JSON.
+        
+        # Arguments
+            file_path: `str`<br/>
+                the absolute path to the destiation.
+
+        # Returns
+            flag: `bool`<br/>
+                returns True if success in writing, False otherwise.
+        """
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
     def set_config(self, param_addr, param):
         """Set configuration.
 
-        Parameters
-        ----------
-        param_addr : uint8
-            a configuration parameter address, see defines CAER_FILTER_DVS_*.
-        param : uint64
-            a configuration parameter value integer.
+        # Arguments
+            param_addr: `uint8`<br/>
+                a configuration parameter address,
+                see defines `CAER_FILTER_DVS_*`.
+            param: `uint64`<br/>
+                a configuration parameter value integer.
 
-        Returns
-        -------
-        flag : bool
-            True if operation successful, false otherwise.
+        # Returns
+            flag: `bool`<br/>
+                True if operation successful, false otherwise.
         """
         if self.handle is not None:
             set_sucess = libcaer.caerFilterDVSNoiseConfigSet(
@@ -170,15 +184,14 @@ class DVSNoise(object):
     def get_config(self, param_addr):
         """Get configuration.
 
-        Parameters
-        ----------
-        param_addr : uint8
-            a configuration parameter address, see defines CAER_FILTER_DVS_*.
+        # Arguments
+            param_addr: `uint8`<br/>
+                a configuration parameter address,
+                see defines `CAER_FILTER_DVS_*`.
 
-        Returns
-        -------
-        param : uint64
-            the value of the configuration.
+        # Returns
+            param: `uint64`<br/>
+                the value of the configuration.
         """
         if self.handle is not None:
             return libcaer.caerFilterDVSNoiseConfigGet(
@@ -187,6 +200,16 @@ class DVSNoise(object):
             return None
 
     def apply(self, event_packet):
+        """Apply the filter to a event_packet.
+        
+        # Arguments
+            event_packet: `caerEventPacket`<br/>
+                the event packet to filter.
+
+        # Returns
+            filtered_event_packet: `caerEventPacket<br/>
+                the filtered event packet.
+        """
         return libcaer.apply_dvs_noise_filter(self.handle, event_packet)
 
     def get_hot_pixels(self):

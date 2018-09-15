@@ -24,3 +24,5 @@ pages:
 - eDVS: edvs.md
 - DYNAPSE: dynapse.md
 - Filters: filters.md
+- Utils: utils.md
+- Logging: log.md

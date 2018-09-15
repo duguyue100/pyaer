@@ -17,13 +17,13 @@ logger = log.get_logger("utils", pyaer.LOG_LEVEL)
 def load_json(file_path):
     """Load JSON string.
 
-    # Parameters
-    file_path : str
-        the absolute path to the JSON string.
+    # Arguments
+        file_path: `str`<br/>
+            the absolute path to the JSON string.
 
     # Returns
-    json_obj : dict
-        A JSON object
+        json_obj: `dict`<br/>
+            A JSON object
     """
     try:
         json_obj = json.load(open(file_path))
@@ -35,16 +35,16 @@ def load_json(file_path):
 def write_json(file_path, json_obj):
     """Write JSON string.
 
-    # Parameters
-    file_path : str
-        the absolute path to the JSON string.
-    json_obj : dict
-        a dictionary
+    # Arguments
+        file_path: `str`<br/>
+            the absolute path to the JSON string.
+        json_obj: `dict`<br/>
+            a dictionary
 
     # Returns
-    flag : bool
-        True if saved successfully
-        False otherwise
+        flag : bool
+            True if saved successfully
+            False otherwise
     """
     try:
         with open(file_path, "w") as f:
@@ -58,13 +58,13 @@ def write_json(file_path, json_obj):
 def load_dvs_bias(file_path, verbose=False):
     """Load bias for DVS128.
 
-    # Parameters
-    file_path : str
-        the absolute path to the JSON string.
+    # Arguments
+        file_path : `str`<br/>`
+            the absolute path to the JSON string.
 
     # Returns
-    bias_obj : dict
-        A dictionary that contains valid DVS128 bias.
+        bias_obj: `dict`<br/>
+            A dictionary that contains valid DVS128 bias.
     """
     bias_obj = load_json(file_path)
 
@@ -83,13 +83,13 @@ def load_davis_bias(file_path, verbose=False):
 
     TODO: to investigate bias differences between 240C and 346.
 
-    # Parameters
-    file_path : str
-        the absolute path to the JSON string.
+    # Arguments
+        file_path : `str`<br/>`
+            the absolute path to the JSON string.
 
     # Returns
-    bias_obj : dict
-        A dictionary that contains valid DAVIS bias.
+        bias_obj: `dict`<br/>
+            A dictionary that contains valid DAVIS bias.
     """
     bias_obj = load_json(file_path)
 
@@ -106,13 +106,13 @@ def load_davis_bias(file_path, verbose=False):
 def load_dynapse_bias(file_path, verbose=False):
     """Load DYNAPSE bias.
 
-    # Parameters
-    file_path : str
-        the absolute path to the JSON string.
+    # Arguments
+        file_path: `str`<br/>`
+            the absolute path to the JSON string.
 
     # Returns
-    bias_obj : dict
-        A dictionary that contains valid DYNAPSE bias.
+        bias_obj: `dict`<br/>
+            A dictionary that contains valid DYNAPSE bias.
     """
     bias_obj = load_json(file_path)
 
@@ -129,31 +129,31 @@ def load_dynapse_bias(file_path, verbose=False):
 def discover_devices(device_type, max_devices=100):
     """Automatic discover devices.
 
-    # Parameters
-    device_type : int
-        *-1 - CAER_DEVICE_DISCOVER_ALL
-        * 0 - CAER_DEVICE_DVS128
-        * 1 - CAER_DEVICE_DAVIS_FX2
-        * 2 - CAER_DEVICE_DAVIS_FX3
-        * 3 - CAER_DEVICE_DYNAPSE
-        * 4 - CAER_DEVICE_DAVIS
-        * 5 - CAER_DEVICE_EDVS
-        * 6 - CAER_DEVICE_DAVIS_RPI
+    # Arguments
+        device_type: `int`<br/>
+            * -1 - CAER_DEVICE_DISCOVER_ALL<br/>
+            *  0 - CAER_DEVICE_DVS128<br/>
+            *  1 - CAER_DEVICE_DAVIS_FX2<br/>
+            *  2 - CAER_DEVICE_DAVIS_FX3<br/>
+            *  3 - CAER_DEVICE_DYNAPSE<br/>
+            *  4 - CAER_DEVICE_DAVIS<br/>
+            *  5 - CAER_DEVICE_EDVS<br/>
+            *  6 - CAER_DEVICE_DAVIS_RPI<br/>
 
     # Returns
-    discovered_devices : numpy.ndarray
-        a (num_devices, 3) array
-        the first column is device type
-        the second column is device USB bus number or
-                             serial port name for EDVS
-                             (cannot detect string, set to 0)
-        the third column is device USB device address or
-                            serial Baud rate (if EDVS)
-        discovered devices type with the order
-        Note that the array has the data type uint64,
-        please reformat the number if necessary.
-    num_devices : int
-        number of available devices
+        discovered_devices: `numpy.ndarray`<br/>
+            a (num_devices, 3) array<br/>
+            the first column is device type<br/>
+            the second column is device USB bus number or
+                                 serial port name for EDVS
+                                 (cannot detect string, set to 0)<br/>
+            the third column is device USB device address or
+                                serial Baud rate (if EDVS)<br/>
+            discovered devices type with the order
+            Note that the array has the data type uint64,
+            please reformat the number if necessary.
+        num_devices: `int`<br/>
+            number of available devices
     """
     discovered_devices = libcaer.device_discover(
         device_type, (max_devices+1)*3)

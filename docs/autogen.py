@@ -208,6 +208,23 @@ PAGES = [
             filters.DVSNoise.get_hot_pixels,
         ],
     },
+    {
+        'page': 'utils.md',
+        'functions': [
+            utils.load_json,
+            utils.write_json,
+            utils.load_dvs_bias,
+            utils.load_davis_bias,
+            utils.load_dynapse_bias,
+            utils.discover_devices
+        ],
+    },
+    {
+        'page': 'log.md',
+        'functions': [
+            log.get_logger
+        ],
+    },
 ]
 
 ROOT = 'https://dgyblog.com/pyaer-docs'

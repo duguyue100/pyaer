@@ -22,15 +22,16 @@ def get_logger(logger_name, logger_level, stream=None):
 
     Using stream handler.
 
-    # Parameters
-        logger_name: str
+    # Arguments
+        logger_name: `str`<br/>
             the name of the logger
-        logger_level: int
+        logger_level: `int`<br/>
             the minimial level that trigger the logger.
-        stream: data stream
+        stream: `data stream`<br/>
             if None, sys.stderr will be used.
+
     # Returns
-        logger : logging.Logger
+        logger: `logging.Logger`<br/>
             return a logger to handel the logging in the script.
     """
     logger = logging.getLogger(name=logger_name)
