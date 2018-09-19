@@ -255,6 +255,7 @@ Numpy related
 %apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_240[180][240])};
 %apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_346[260][346])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_240[180][240][2])};
+%apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_346[260][346][2])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_128[128][128][2])};
 
 %inline %{
@@ -329,10 +330,6 @@ void get_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec
 void get_polarity_event_histogram_128(caerPolarityEventPacket event_packet, int32_t packet_len, int64_t pol_hist_128[128][128][2]) {
     memset(pol_hist_128, 0, sizeof(pol_hist_128[0][0][0])*128*128*2);
     long i;
-    /* for (i=0; i<(long)128; i++) */
-    /*     for (j=0; j<(long)128; j++) */
-    /*         for (k=0; k<(long)2; k++) */
-    /*             pol_hist_128[i][j][k] = 0; */
     for (i=0; i<(long)packet_len; i++) {
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
 
@@ -349,6 +346,18 @@ void get_polarity_event_histogram_240(caerPolarityEventPacket event_packet, int3
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
 
         pol_hist_240[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
+    }
+}
+%}
+
+%inline %{
+void get_polarity_event_histogram_346(caerPolarityEventPacket event_packet, int32_t packet_len, int64_t pol_hist_346[260][346][2]) {
+    memset(pol_hist_346, 0, sizeof(pol_hist_346[0][0][0])*260*346*2);
+    long i;
+    for (i=0; i<(long)packet_len; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+
+        pol_hist_346[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
     }
 }
 %}
