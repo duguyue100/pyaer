@@ -253,6 +253,7 @@ Numpy related
 
 /* frame event */
 %apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_240[180][240])};
+%apply (uint64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(uint64_t pol_hist_240[180][240][2])};
 %apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_346[260][346])};
 
 %inline %{
@@ -319,6 +320,19 @@ void get_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec
         event_vec[i*4+1] = caerPolarityEventGetX(event);
         event_vec[i*4+2] = caerPolarityEventGetY(event);
         event_vec[i*4+3] = caerPolarityEventGetPolarity(event);
+    }
+}
+%}
+
+
+%inline %{
+void get_polarity_event_histogram_240(caerPolarityEventPacket event_packet, int32_t packet_len, uint64_t pol_hist_240[180][240][2]) {
+    memset(pol_hist_240, 0, 180*240*2);
+    long i;
+    for (i=0; i<(int)packet_len; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+
+        pol_hist_240[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
     }
 }
 %}
