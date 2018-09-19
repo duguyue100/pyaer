@@ -1192,7 +1192,7 @@ class DAVIS(USBDevice):
                     num_special_event += num_events
                 elif packet_type == libcaer.FRAME_EVENT:
                     frame_mat, frame_ts = self.get_frame_event(
-                        packet_header)
+                        packet_header, device_type=self.chip_id)
                     frames.append(frame_mat)
                     frames_ts.append(frame_ts)
                 elif packet_type == libcaer.IMU6_EVENT:

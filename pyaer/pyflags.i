@@ -251,6 +251,10 @@ Numpy related
 %apply (float* ARGOUT_ARRAY1, int32_t DIM1) {(float* event_vec_f, int32_t packet_len)}
 %apply (uint8_t* ARGOUT_ARRAY1, int32_t DIM1) {(uint8_t* frame_event_vec, int32_t packet_len)}
 
+/* frame event */
+%apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_240[180][240])};
+%apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_346[260][346])};
+
 %inline %{
 void device_discover(int16_t deviceType, uint64_t* devices_vec, int32_t device_len) {
     caerDeviceDiscoveryResult discoveredDevices;
@@ -385,6 +389,28 @@ void get_frame_event(caerFrameEventConst event, uint8_t* frame_event_vec, int32_
     long i;
     for (i=0; i<(int)packet_len; i++) {
         frame_event_vec[i] = (uint8_t)(le16toh(event->pixels[i]) >> 8);
+    }
+}
+%}
+
+%inline %{
+void get_frame_event_240(caerFrameEventConst event, uint8_t frame_event_240[180][240]) {
+    long i, j;
+    for (i=0; i<180; i++) {
+        for (j=0; j<240; j++){
+            frame_event_240[i][j] = (uint8_t)(le16toh(event->pixels[i*240+j]) >> 8);
+        }
+    }
+}
+%}
+
+%inline %{
+void get_frame_event_346(caerFrameEventConst event, uint8_t frame_event_346[260][346]) {
+    long i, j;
+    for (i=0; i<260; i++) {
+        for (j=0; j<346; j++){
+            frame_event_346[i][j] = (uint8_t)(le16toh(event->pixels[i*346+j]) >> 8);
+        }
     }
 }
 %}

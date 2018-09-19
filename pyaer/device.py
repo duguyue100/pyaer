@@ -378,7 +378,7 @@ class USBDevice(object):
 
         return events, num_events
 
-    def get_frame_event(self, packet_header):
+    def get_frame_event(self, packet_header, device_type=None):
         """Get a packet of frame event.
 
         # Arguments
@@ -397,11 +397,16 @@ class USBDevice(object):
         _, frame = self.get_event_packet(packet_header, libcaer.FRAME_EVENT)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
         frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
-        Y_range = libcaer.caerFrameEventGetLengthY(first_event)
-        X_range = libcaer.caerFrameEventGetLengthX(first_event)
 
-        frame_mat = libcaer.get_frame_event(
-            first_event, Y_range*X_range).reshape(Y_range, X_range)
+        if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
+            frame_mat = libcaer.get_frame_event_240(first_event)
+        elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
+            frame_mat = libcaer.get_frame_event_346(first_event)        
+        else:
+            Y_range = libcaer.caerFrameEventGetLengthY(first_event)
+            X_range = libcaer.caerFrameEventGetLengthX(first_event)
+            frame_mat = libcaer.get_frame_event(
+                first_event, Y_range*X_range).reshape(Y_range, X_range)
 
         return frame_mat, frame_ts
 
