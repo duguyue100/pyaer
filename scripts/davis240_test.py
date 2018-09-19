@@ -65,26 +65,6 @@ while True:
             if num_pol_event != 0:
                 img = pol_events[..., 1]-pol_events[..., 0]
                 img = np.clip(img, -clip_value, clip_value)
-                #  if num_packet_before_disable > 0:
-                #      pol_events = pol_events[pol_events[:, 4] == 1]
-                #      num_packet_before_disable -= 1
-                #  else:
-                #      device.disable_noise_filter()
-                #      print ("Noise filter disabled")
-                #
-                #  pol_on = (pol_events[:, 3] == 1)
-                #  pol_off = np.logical_not(pol_on)
-                #  img_on, _, _ = np.histogram2d(
-                #          pol_events[pol_on, 2], pol_events[pol_on, 1],
-                #          bins=(180, 240), range=histrange)
-                #  img_off, _, _ = np.histogram2d(
-                #          pol_events[pol_off, 2], pol_events[pol_off, 1],
-                #          bins=(180, 240), range=histrange)
-                #  if clip_value is not None:
-                #      integrated_img = np.clip(
-                #          (img_on-img_off), -clip_value, clip_value)
-                #  else:
-                #      integrated_img = (img_on-img_off)
                 img = img+clip_value
 
                 cv2.imshow("image", img/float(clip_value*2))
@@ -92,7 +72,6 @@ while True:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-            del data
         else:
             pass
 

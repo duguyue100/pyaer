@@ -8,13 +8,9 @@ from __future__ import print_function
 import numpy as np
 import cv2
 
-from pyaer import utils
 from pyaer.dvs128 import DVS128
 
-available_devices = utils.discover_devices(-1)
-print (available_devices)
-
-device = DVS128(1, int(available_devices[0, 1]), int(available_devices[0, 2]))
+device = DVS128()
 
 print ("Device ID:", device.device_id)
 if device.device_is_master:
@@ -34,43 +30,25 @@ device.start_data_stream()
 device.set_bias_from_json("./scripts/configs/dvs128_config.json")
 print (device.get_bias())
 
-clip_value = 1
+clip_value = 3
 histrange = [(0, v) for v in (128, 128)]
-
-
-#  @profile
-def get_event(device):
-    (pol_events, num_pol_event,
-     special_events, num_special_event) = \
-        device.get_event()
-    if num_pol_event != 0:
-        pol_on = (pol_events[:, 3] == 1)
-        pol_off = np.logical_not(pol_on)
-        img_on, _, _ = np.histogram2d(
-                pol_events[pol_on, 2], pol_events[pol_on, 1],
-                bins=(128, 128), range=histrange)
-        img_off, _, _ = np.histogram2d(
-                pol_events[pol_off, 2], pol_events[pol_off, 1],
-                bins=(128, 128), range=histrange)
-        if clip_value is not None:
-            integrated_img = np.clip(
-                (img_on-img_off), -clip_value, clip_value)
-        else:
-            integrated_img = (img_on-img_off)
-        img = integrated_img+clip_value
-
-        cv2.imshow("image", img/float(clip_value*2))
-        print ("Number of events:", num_pol_event, "Number of special events:",
-               num_special_event)
-        del pol_events, num_pol_event, special_events, num_special_event
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            return
-
 
 while True:
     try:
-        get_event(device)
+        (pol_events, num_pol_event,
+         special_events, num_special_event) = \
+            device.get_event("events_hist")
+        if num_pol_event != 0:
+            img = pol_events[..., 1]-pol_events[..., 0]
+            img = np.clip(img, -clip_value, clip_value)
+            img = img+clip_value
+
+            cv2.imshow("image", img/float(clip_value*2))
+            print ("Number of events:", num_pol_event, "Number of special events:",
+                   num_special_event)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
     except KeyboardInterrupt:
         device.shutdown()

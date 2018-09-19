@@ -364,7 +364,8 @@ class USBDevice(object):
         elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
             return None, 0
         elif device_type == "DVS128":
-            return None, 0
+            hist = libcaer.get_polarity_event_histogram_128(
+                polarity, num_events)
         else:
             return None, 0
 

@@ -343,7 +343,7 @@ class DVS128(USBDevice):
 
         return events, num_events
 
-    def get_event(self):
+    def get_event(self, mode="events"):
         """Get event.
         
         # Returns
@@ -381,10 +381,17 @@ class DVS128(USBDevice):
                 packet_header, packet_type = self.get_packet_header(
                     packet_container, packet_id)
                 if packet_type == libcaer.POLARITY_EVENT:
-                    events, num_events = self.get_polarity_event(
-                        packet_header, self.filter_noise)
-                    pol_events = np.hstack((pol_events, events)) \
-                        if pol_events is not None else events
+                    if mode == "events":
+                        events, num_events = self.get_polarity_event(
+                            packet_header, self.filter_noise)
+                        pol_events = np.hstack((pol_events, events)) \
+                            if pol_events is not None else events
+                    elif mode == "events_hist":
+                        hist, num_events = self.get_polarity_hist(
+                            packet_header, device_type="DVS128")
+                        pol_events = hist if pol_events is None \
+                            else pol_events+hist
+
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
                     events, num_events = self.get_special_event(
