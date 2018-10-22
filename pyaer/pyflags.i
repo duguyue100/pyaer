@@ -351,6 +351,38 @@ void get_polarity_event_histogram_240(caerPolarityEventPacket event_packet, int3
 %}
 
 %inline %{
+void get_counter_neuron_frame_240(caerPolarityEventPacket event_packet, int32_t packet_len, int64_t pol_hist_240[180][240][2]) {
+    int64_t counter_neuron[180][240];
+    int64_t neuron_prev, pol;
+    int y, x;
+    memset(counter_neuron, 0, sizeof(counter_neuron[0][0])*180*240);
+    memset(pol_hist_240, 0, sizeof(pol_hist_240[0][0][0])*180*240*2);
+
+    long i;
+    for (i=0; i<(long)packet_len; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+
+        y = (int)caerPolarityEventGetY(event);
+        x = (int)caerPolarityEventGetX(event);
+        pol = ((int64_t)caerPolarityEventGetPolarity(event))*2-1;
+
+        neuron_prev = counter_neuron[y][x];
+        counter_neuron[y][x] += pol;
+        
+        if (neuron_prev<=1 && counter_neuron[y][x]>1)
+            pol_hist_240[y][x][1] += 1;
+        if (neuron_prev>1 && counter_neuron[y][x]<=1)
+            pol_hist_240[y][x][0] += 1;
+
+        /* if (counter_neuron[y][x] > 4) */
+        /*     counter_neuron[y][x] = 4; */
+        /* if (counter_neuron[y][x] < 0) */
+        /*     counter_neuron[y][x] = 0; */
+    }
+}
+%}
+
+%inline %{
 void get_polarity_event_histogram_346(caerPolarityEventPacket event_packet, int32_t packet_len, int64_t pol_hist_346[260][346][2]) {
     memset(pol_hist_346, 0, sizeof(pol_hist_346[0][0][0])*260*346*2);
     long i;

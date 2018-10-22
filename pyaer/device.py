@@ -371,7 +371,25 @@ class USBDevice(object):
             return None, 0
 
         return hist, num_events
-        
+
+    def get_counter_neuron_event(self, packet_header, device_type=None):
+        """Get the positive and negative histogram for a packet."""
+        num_events, polarity = self.get_event_packet(
+            packet_header, libcaer.POLARITY_EVENT)
+
+        if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
+            hist = libcaer.get_counter_neuron_frame_240(
+                polarity, num_events)
+        elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
+            hist = libcaer.get_polarity_event_histogram_346(
+                polarity, num_events)
+        elif device_type == "DVS128":
+            hist = libcaer.get_polarity_event_histogram_128(
+                polarity, num_events)
+        else:
+            return None, 0
+
+        return hist, num_events
 
     def get_special_event(self, packet_header):
         """Get a packet of special event.

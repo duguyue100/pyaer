@@ -14,7 +14,7 @@ from pyaer import utils
 
 class DAVIS(USBDevice):
     """DAVIS.
-    
+
     # Arguments
         device_id: `int`<br/>
             a unique ID to identify the device from others.
@@ -133,7 +133,7 @@ class DAVIS(USBDevice):
         - If the device has DVS ROI filter
         - If the device has DVS statistics
         - If the device has MUX statistics
-        
+
         # Arguments
             handle: `caerDeviceHandle`<br/>
                 a valid device handle that can be used with the other
@@ -222,8 +222,8 @@ class DAVIS(USBDevice):
         # Arguments
             param_addr: `int`<br/>
                 a parameter address, to select a specific parameter to update
-                from this particular configuration module. Only positive numbers
-                (including zero) are allowed.
+                from this particular configuration module.
+                Only positive numbers (including zero) are allowed.
             param: `int` or `bool`<br/>
                 a configuration parameter's new value.
             coarse: `int`<br/>
@@ -702,8 +702,8 @@ class DAVIS(USBDevice):
         # Arguments
             param_addr: `int`<br/>
                 a parameter address, to select a specific parameter to update
-                from this particular configuration module. Only positive numbers
-                (including zero) are allowed.
+                from this particular configuration module.
+                Only positive numbers (including zero) are allowed.
             param: `int` or `bool`<br/>
                 a configuration parameter's new value.
 
@@ -1052,7 +1052,7 @@ class DAVIS(USBDevice):
 
     def save_bias_to_json(self, file_path):
         """Save bias to JSON.
-        
+
         # Arguments
             file_path: `str`<br/>
                 the absolute path to the destiation.
@@ -1066,7 +1066,7 @@ class DAVIS(USBDevice):
 
     def start_data_stream(self, send_default_config=True):
         """Start streaming data.
-        
+
         # Arguments
             send_default_config: `bool`<br/>
                 send default config to the device before starting
@@ -1121,7 +1121,7 @@ class DAVIS(USBDevice):
 
     def get_event(self, mode="events"):
         """Get Event.
-        
+
         # Returns
             pol_events: `numpy.ndarray`<br/>
                 a 2-D array that has the shape of (N, 4) where N
@@ -1159,7 +1159,7 @@ class DAVIS(USBDevice):
                 Each row of the array consists a single IMU6 event.
                 The first value is the timestamp of the event.
                 The next three values are accelerations on the X, Y, and Z
-                axes. The next three values are angular velocity 
+                axes. The next three values are angular velocity
                 on the X, Y and Z axes.
                 The last value is the temperature in Celsius scale.
             num_imu_events: `int`<br/>
@@ -1189,7 +1189,13 @@ class DAVIS(USBDevice):
                             self.get_polarity_hist(
                                 packet_header, device_type=self.chip_id)
                         pol_events = hist if pol_events is None else \
-                                pol_events+hist
+                            pol_events+hist
+                    elif mode == "counter_neuron":
+                        hist, num_events = \
+                            self.get_counter_neuron_event(
+                                packet_header, device_type=self.chip_id)
+                        pol_events = hist if pol_events is None else \
+                            pol_events+hist
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
                     events, num_events = self.get_special_event(
@@ -1225,7 +1231,7 @@ class DAVIS(USBDevice):
 
 class DAVISFX2(DAVIS):
     """DAVIS FX2.
-    
+
     # Arguments
         device_id: `int`<br/>
             a unique ID to identify the device from others.
@@ -1297,7 +1303,7 @@ class DAVISFX2(DAVIS):
 
 class DAVISFX3(DAVIS):
     """DAVIS FX3.
-    
+
     # Arguments
         device_id: `int`<br/>
             a unique ID to identify the device from others.
@@ -1369,7 +1375,7 @@ class DAVISFX3(DAVIS):
 
 class DAVISRPI(DAVIS):
     """DAVIS RPI.
-    
+
     # Arguments
         device_id: `int`<br/>
             a unique ID to identify the device from others.
