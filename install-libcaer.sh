@@ -64,7 +64,7 @@ case "$(uname -s)" in
         fi
         cd /home/libcaer
         git checkout ${LIBCAER_TAG}
-        cmake -G 'MSYS Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 . -DCMAKE_C_FLAGS_RELEASE='lws2_32'
+        cmake -G 'MSYS Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 . -DCMAKE_C_FLAGS_RELEASE='-lws2_32'
         make -j2
         make install
     ;;
