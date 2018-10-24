@@ -117,11 +117,7 @@ before_install:
     - git clone https://github.com/duguyue100/swig
     - cd swig
     - ./autogen.sh
-    - if [[ "$TOXENV" == "py27" ]]; then
-        ./configure --with-python=$(command -v python) --without-python3;
-      else
-        ./configure --with-python=$(command -v python) --without-python2;
-      fi
+    - ./configure --without-alllang --with-python=$(command -v python)
     - make
     - sudo make install
     - cd ..

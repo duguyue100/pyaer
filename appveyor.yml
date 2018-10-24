@@ -81,7 +81,7 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-libusb
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "/c/projects/pyaer/install-libcaer.sh ci"
-    - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --with-python=$(command -v python) --without-%PYTHON% --without-pcre && make && make install"
+    - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --without-alllang --with-python=$(command -v python) && make && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /c/projects/pyaer && make build-win && make build-wheel && make build-wheel"
     - >
       IF "%APPVEYOR_REPO_TAG%" == "true"

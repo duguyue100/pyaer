@@ -54,7 +54,10 @@ Check out the [documentation](https://dgyblog.com/pyaer-doc/) for more help!
     $ make install
     ```
 
-## Got a Linux?
+## Got a Linux? [Optional]
+
+__NOTE__: The `libcaer` installation has taken care of this problem.
+However, if the problem persists, please try following.
 
 `libcaer` relies on `libusb` based driver, you won't be able
 to access the camera unless fixing the `udev` rules. Refer to details
