@@ -113,14 +113,14 @@ cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
     For compiling SWIG with Python
 
     ```
-    $ ./configure --with-python=$(command -v python) --without-python3
+    $ ./configure --without-alllang --with-python=$(command -v python)
     ```
 
-    The above is an example with Python 2, you can configure for Python 3 as well
+    __NOTE:__ Make sure the `python` is pointed to the correct `python3` binary
+    if you would like to use Python 3.
 
-    ```
-    $ ./configure --with-python=$(command -v python) --without-python2
-    ```
+    __NOTE:__ For Windows, consider append `--without-pcre` if the `./configure`
+    doesn't work properly.
 
     __Note:__ If you are not compile the SWIG with system Python distribution,
     it won't link to the custom Python automatically.
