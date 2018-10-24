@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIBCAER_TAG=084521da78c78f9bc6be79ebfce44f0a1ecfb298
+LIBCAER_TAG=30dcbf56f971ae43ae1d297bf1cea330f603564c
 CI_BUILD=false
 # TODO: To support
 LIBSERIAL_PORT_OPTION=false
@@ -64,7 +64,7 @@ case "$(uname -s)" in
         fi
         cd /home/libcaer
         git checkout ${LIBCAER_TAG}
-        cmake -G 'MSYS Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 . -DCMAKE_C_FLAGS_RELEASE='-lws2_32'
+        cmake -G 'MSYS Makefiles' -DCMAKE_INSTALL_PREFIX=/mingw64 .
         make -j2
         make install
     ;;
