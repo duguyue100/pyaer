@@ -32,6 +32,14 @@ environment:
           MSYS2_DIR: msys64
           MSYSTEM: MINGW64
           MINICONDA: Miniconda-x64
+        - compiler: msys2
+          ARCH: x64
+          PYTHON_VERSION: "3.7"
+          PYTHON: python3
+          MSYS2_ARCH: x86_64
+          MSYS2_DIR: msys64
+          MSYSTEM: MINGW64
+          MINICONDA: Miniconda-x64
 deploy:
   provider: GitHub
   description: ''

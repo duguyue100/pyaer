@@ -23,6 +23,9 @@ matrix:
         - os: linux
           sudo: required
           env: TOXENV=py36
+        - os: linux
+          sudo: required
+          env: TOXENV=py37
         - os: osx
           sudo: required
           env:
@@ -42,6 +45,11 @@ matrix:
           sudo: required
           env:
               - TOXENV=py36
+              - HOMEBREW_NO_AUTO_UPDATE=1
+        - os: osx
+          sudo: required
+          env:
+              - TOXENV=py37
               - HOMEBREW_NO_AUTO_UPDATE=1
 
 
@@ -80,6 +88,10 @@ before_install:
     - if [[ "$TOXENV" == "py36" ]]; then
         conda create -n py36 python=3.6 --yes;
         source activate py36;
+      fi
+    - if [[ "$TOXENV" == "py37" ]]; then
+        conda create -n py37 python=3.7 --yes;
+        source activate py37;
       fi
     - python --version
     - conda install --yes pip
