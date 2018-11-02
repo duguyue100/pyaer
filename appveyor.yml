@@ -83,6 +83,13 @@ install:
       &&
       C:\%MSYS2_DIR%\usr\bin\bash -lc "echo 'File copied'"
       )
+    - if [%PYTHON_VERSION%]==[3.7] (
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/projects/pyaer/res/cygwinccompiler-py37.py /c/%MINICONDA%/envs/python%PYTHON_VERSION%/Lib/distutils/cygwinccompiler.py"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "cp /c/%MINICONDA%/envs/python%PYTHON_VERSION%/vcruntime140.dll /c/%MINICONDA%/envs/python%PYTHON_VERSION%/libs"
+      &&
+      C:\%MSYS2_DIR%\usr\bin\bash -lc "echo 'File copied'"
+      )
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-gcc
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S make mingw-w64-x86_64-cmake
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-pkg-config
