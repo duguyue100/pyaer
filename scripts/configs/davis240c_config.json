@@ -43,7 +43,7 @@
     "dvs_enabled": true,
     "exposure": 4000,
     "autoexposure": true, 
-    "frame_delay": 0,
+    "frame_interval": 0,
     "imu_enabled": true,
     "imu_acc_scale": 3,
     "imu_gyro_scale": 3,

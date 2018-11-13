@@ -146,30 +146,26 @@ class DAVIS(USBDevice):
         self.device_usb_bus_number = info.deviceUSBBusNumber
         self.device_usb_device_address = info.deviceUSBDeviceAddress
         self.device_string = info.deviceString
+        self.firmware_version = info.firmwareVersion
         self.logic_version = info.logicVersion
-        self.device_is_master = info.deviceIsMaster
-        self.logic_clock = info.logicClock
-        self.adc_clock = info.adcClock
         self.chip_id = info.chipID
+        self.device_is_master = info.deviceIsMaster
+        self.mux_has_statistics = info.muxHasStatistics
         self.dvs_size_X = info.dvsSizeX
         self.dvs_size_Y = info.dvsSizeY
         self.dvs_has_pixel_filter = info.dvsHasPixelFilter
         self.dvs_has_background_activity_filter = \
             info.dvsHasBackgroundActivityFilter
-        self.dvs_has_test_event_generator = info.dvsHasTestEventGenerator
+        self.dvs_has_ROI_filter = info.dvsHasROIFilter
+        self.dvs_has_skip_filter = info.dvsHasSkipFilter
+        self.dvs_has_polarity_filter = info.dvsHasPolarityFilter
+        self.dvs_has_statistics = info.dvsHasStatistics
         self.aps_size_X = info.apsSizeX
         self.aps_size_Y = info.apsSizeY
         self.aps_color_filter = info.apsColorFilter
         self.aps_has_global_shutter = info.apsHasGlobalShutter
-        self.aps_has_quad_ROI = info.apsHasQuadROI
-        self.aps_has_external_ADC = info.apsHasExternalADC
-        self.aps_has_internal_ADC = info.apsHasInternalADC
+        self.imu_type = info.imuType
         self.ext_input_has_generator = info.extInputHasGenerator
-        self.ext_input_has_extra_detectors = \
-            info.extInputHasExtraDetectors
-        self.dvs_has_ROI_filter = info.dvsHasROIFilter
-        self.dvs_has_statistics = info.dvsHasStatistics
-        self.mux_has_statistics = info.muxHasStatistics
 
     def open(self,
              device_id=1,
@@ -257,7 +253,13 @@ class DAVIS(USBDevice):
                         libcaer.DAVIS_CONFIG_DVS_RUN,
                         bias_obj["dvs_enabled"])
         self.set_config(libcaer.DAVIS_CONFIG_IMU,
-                        libcaer.DAVIS_CONFIG_IMU_RUN,
+                        libcaer.DAVIS_CONFIG_IMU_RUN_ACCELEROMETER,
+                        bias_obj["imu_enabled"])
+        self.set_config(libcaer.DAVIS_CONFIG_IMU,
+                        libcaer.DAVIS_CONFIG_IMU_RUN_GYROSCOPE,
+                        bias_obj["imu_enabled"])
+        self.set_config(libcaer.DAVIS_CONFIG_IMU,
+                        libcaer.DAVIS_CONFIG_IMU_RUN_TEMPERATURE,
                         bias_obj["imu_enabled"])
 
         # global settings for APS
@@ -268,8 +270,8 @@ class DAVIS(USBDevice):
                         libcaer.DAVIS_CONFIG_APS_EXPOSURE,
                         bias_obj["exposure"])
         self.set_config(libcaer.DAVIS_CONFIG_APS,
-                        libcaer.DAVIS_CONFIG_APS_FRAME_DELAY,
-                        bias_obj["frame_delay"])
+                        libcaer.DAVIS_CONFIG_APS_FRAME_INTERVAL,
+                        bias_obj["frame_interval"])
 
         # setting for noise filter
         if self.filter_noise is True:
