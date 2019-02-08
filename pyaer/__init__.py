@@ -17,7 +17,6 @@ PKG_PATH = os.path.dirname(CURR_PATH)
 # System logging level
 LOG_LEVEL = log.DEBUG
 
-
 try:
     from pyaer import libcaer_wrap as libcaer
 except ImportError:
