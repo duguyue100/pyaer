@@ -495,7 +495,7 @@ void get_rgb_frame_event_346(caerFrameEventConst event, uint8_t frame_event_346_
     for (k=0; k<3; k++) {
         for (i=0; i<260; i++) {
             for (j=0; j<346; j++){
-                frame_event_346_rgb[i][j][k] = (uint8_t)(le16toh(event->pixels[(i*346+j)*3+(2-k)]) >> 8);
+                frame_event_346_rgb[i][j][k] = (uint8_t)(le16toh(event->pixels[(i*346+j)*3+k]) >> 8);
             }
         }
     }

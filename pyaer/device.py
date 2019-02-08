@@ -457,7 +457,7 @@ class USBDevice(object):
                 if aps_filter_type == libcaer.MONO else \
                 libcaer.get_frame_event(
                     first_event, Y_range*X_range*3).reshape(
-                        Y_range, X_range, 3)[:, :, ::-1]
+                        Y_range, X_range, 3)
 
         return frame_mat, frame_ts
 
