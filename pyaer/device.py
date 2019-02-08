@@ -5,6 +5,8 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
 import abc
+import cv2
+import numpy as np
 from pyaer import libcaer
 
 
@@ -53,7 +55,7 @@ class USBDevice(object):
         This method collects the general information about the USB device
         such as the width and height of the camera or the serial number
         of the device.
-        
+
         # Arguments
             handle: `caerDeviceHandle`<br/>
                 a valid device handle that can be used with the other
@@ -116,7 +118,7 @@ class USBDevice(object):
 
     def close(self):
         """Close USB device.
-        
+
         This method closes an opened USB device if the respective
         handle is not None.
         """
@@ -125,7 +127,7 @@ class USBDevice(object):
 
     def shutdown(self):
         """Shutdown device.
-        
+
         This method is a combination of `data_stop` and `close`.
         This is a preferred way of shutting down a device.
         """
@@ -134,7 +136,7 @@ class USBDevice(object):
 
     def data_start(self):
         """Start data transmission.
-        
+
         # Returns
             flag: `bool`<br/>
                 Return `True` if the data transmission is
@@ -150,7 +152,7 @@ class USBDevice(object):
 
     def data_stop(self):
         """Stop data transmission.
-        
+
         This method stops the data transmission only.
         Note that this method does not destroy the respective
         device `handle`.
@@ -159,7 +161,7 @@ class USBDevice(object):
 
     def send_default_config(self):
         """Send default configuration.
-        
+
         Each type of devices has a set of default configurations (e.g. bias)
         that are pre-defined in the `libcaer` library.
         Note that the default configuration might not be suitable for your
@@ -178,7 +180,7 @@ class USBDevice(object):
 
     def set_data_exchange_blocking(self, exchange_blocking=True):
         """Set data exchange blocking.
-        
+
         # Arguments
             exchange_blocking: `bool`<br/>
                 whether to start all the data producer modules on the device
@@ -198,7 +200,7 @@ class USBDevice(object):
         """Set configuration.
 
         The main function of setting configurations (e.g., bias).
-        
+
         # Arguments
             mod_addr: `int`<br/>
                 a module address, used to specify which configuration module
@@ -207,7 +209,8 @@ class USBDevice(object):
                 used for device-side configuration.
             param_addr: `int`<br/>
                 a parameter address, to select a specific parameter to update
-                from this particular configuration module. Only positive numbers
+                from this particular configuration module.
+                Only positive numbers
                 (including zero) are allowed.
             param: `int` or `bool`<br/>
                 a configuration parameter's new value.
@@ -235,7 +238,8 @@ class USBDevice(object):
                 used for device-side configuration.
             param_addr: `int`<br/>
                 a parameter address, to select a specific parameter to update
-                from this particular configuration module. Only positive numbers
+                from this particular configuration module.
+                Only positive numbers
                 (including zero) are allowed.
 
         # Returns
@@ -294,7 +298,7 @@ class USBDevice(object):
 
     def get_event_packet(self, packet_header, packet_type):
         """Get event packet from packet header.
-        
+
         # Arguments
             packet_header: `caerEventPacketHeader`<br/>
                 the header that represents a event packet.
@@ -416,7 +420,8 @@ class USBDevice(object):
 
         return events, num_events
 
-    def get_frame_event(self, packet_header, device_type=None):
+    def get_frame_event(self, packet_header, device_type=None,
+                        aps_filter_type=libcaer.MONO):
         """Get a packet of frame event.
 
         # Arguments
@@ -429,6 +434,8 @@ class USBDevice(object):
                 The height and width of the APS frame is determined by
                 the specific DAVIS device (e.g., DAVIS240 will have
                 a 180x240 APS frame.
+                For DAVIS346Red that has RGB outputs, the output array
+                has the shape of (height, width, 3)
             frame_ts: `int`<br/>
                 the APS frame timestamp.
         """
@@ -439,12 +446,18 @@ class USBDevice(object):
         if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
             frame_mat = libcaer.get_frame_event_240(first_event)
         elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
-            frame_mat = libcaer.get_frame_event_346(first_event)        
+            frame_mat = libcaer.get_frame_event_346(first_event) \
+                if aps_filter_type == libcaer.MONO else \
+                libcaer.get_rgb_frame_event_346(first_event)
         else:
             Y_range = libcaer.caerFrameEventGetLengthY(first_event)
             X_range = libcaer.caerFrameEventGetLengthX(first_event)
             frame_mat = libcaer.get_frame_event(
-                first_event, Y_range*X_range).reshape(Y_range, X_range)
+                first_event, Y_range*X_range).reshape(Y_range, X_range) \
+                if aps_filter_type == libcaer.MONO else \
+                libcaer.get_frame_event(
+                    first_event, Y_range*X_range*3).reshape(
+                        Y_range, X_range, 3)[:, :, ::-1]
 
         return frame_mat, frame_ts
 
@@ -462,7 +475,7 @@ class USBDevice(object):
                 Each row of the array consists a single IMU6 event.
                 The first value is the timestamp of the event.
                 The next three values are accelerations on the X, Y, and Z
-                axes. The next three values are angular velocity 
+                axes. The next three values are angular velocity
                 on the X, Y and Z axes.
                 The last value is the temperature in Celsius scale.
             num_events: `int`<br/>
@@ -490,7 +503,7 @@ class USBDevice(object):
                 Each row of the array consists a single IMU9 event.
                 The first value is the timestamp of the event.
                 The next three values are accelerations on the X, Y, and Z
-                axes. The next three values are angular velocity 
+                axes. The next three values are angular velocity
                 on the X, Y and Z axes. The next three values are
                 X, Y, Z axis compass heading.
                 The last value is the temperature in Celsius scale.
@@ -535,7 +548,7 @@ class USBDevice(object):
 
 class SerialDevice(object):
     """Base class for serial devices.
-    
+
     The base class for devices that use the serial port.
     eDVS is the only current supported device in this family.
     """
@@ -551,7 +564,7 @@ class SerialDevice(object):
         This method collects the general information about the USB device
         such as the width and height of the camera or the serial number
         of the device.
-        
+
         # Arguments
             handle: `caerDeviceHandle`<br/>
                 a valid device handle that can be used with the other
@@ -606,7 +619,7 @@ class SerialDevice(object):
 
     def close(self):
         """Close USB device.
-        
+
         This method closes an opened USB device if the respective
         handle is not None.
         """
@@ -615,7 +628,7 @@ class SerialDevice(object):
 
     def shutdown(self):
         """Shutdown device.
-        
+
         This method is a combination of `data_stop` and `close`.
         This is a preferred way of shutting down a device.
         """
@@ -624,7 +637,7 @@ class SerialDevice(object):
 
     def data_start(self):
         """Start data transmission.
-        
+
         # Returns
             flag: `bool`<br/>
                 Return `True` if the data transmission is
@@ -640,7 +653,7 @@ class SerialDevice(object):
 
     def data_stop(self):
         """Stop data transmission.
-        
+
         This method stops the data transmission only.
         Note that this method does not destroy the respective
         device `handle`.
@@ -649,7 +662,7 @@ class SerialDevice(object):
 
     def send_default_config(self):
         """Send default configuration.
-        
+
         Each type of devices has a set of default configurations (e.g. bias)
         that are pre-defined in the `libcaer` library.
         Note that the default configuration might not be suitable for your
@@ -668,7 +681,7 @@ class SerialDevice(object):
 
     def set_data_exchange_blocking(self, exchange_blocking=True):
         """Set data exchange blocking.
-        
+
         # Arguments
             exchange_blocking: `bool`<br/>
                 whether to start all the data producer modules on the device
@@ -688,7 +701,7 @@ class SerialDevice(object):
         """Set configuration.
 
         The main function of setting configurations (e.g., bias).
-        
+
         # Arguments
             mod_addr: `int`<br/>
                 a module address, used to specify which configuration module
@@ -697,7 +710,8 @@ class SerialDevice(object):
                 used for device-side configuration.
             param_addr: `int`<br/>
                 a parameter address, to select a specific parameter to update
-                from this particular configuration module. Only positive numbers
+                from this particular configuration module.
+                Only positive numbers
                 (including zero) are allowed.
             param: `int` or `bool`<br/>
                 a configuration parameter's new value.
@@ -725,7 +739,8 @@ class SerialDevice(object):
                 used for device-side configuration.
             param_addr: `int`<br/>
                 a parameter address, to select a specific parameter to update
-                from this particular configuration module. Only positive numbers
+                from this particular configuration module.
+                Only positive numbers
                 (including zero) are allowed.
 
         # Returns

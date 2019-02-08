@@ -254,6 +254,8 @@ Numpy related
 /* frame event */
 %apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_240[180][240])};
 %apply (uint8_t ARGOUT_ARRAY2[ANY][ANY]) {(uint8_t frame_event_346[260][346])};
+
+%apply (uint8_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(uint8_t frame_event_346_rgb[260][346][3])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_240[180][240][2])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_346[260][346][2])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_128[128][128][2])};
@@ -481,6 +483,20 @@ void get_frame_event_346(caerFrameEventConst event, uint8_t frame_event_346[260]
     for (i=0; i<260; i++) {
         for (j=0; j<346; j++){
             frame_event_346[i][j] = (uint8_t)(le16toh(event->pixels[i*346+j]) >> 8);
+        }
+    }
+}
+%}
+
+%inline %{
+void get_rgb_frame_event_346(caerFrameEventConst event, uint8_t frame_event_346_rgb[260][346][3]) {
+    long i, j, k;
+
+    for (k=0; k<3; k++) {
+        for (i=0; i<260; i++) {
+            for (j=0; j<346; j++){
+                frame_event_346_rgb[i][j][k] = (uint8_t)(le16toh(event->pixels[(i*346+j)*3+(2-k)]) >> 8);
+            }
         }
     }
 }

@@ -39,6 +39,9 @@ davis240-test:
 davis346-test:
 	python ./scripts/davis346_test.py
 
+davis346-color-test:
+	python ./scripts/davis346_color_test.py
+
 dynapse-test:
 	python ./scripts/dynapse_test.py
 
