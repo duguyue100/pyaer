@@ -66,7 +66,7 @@ install:
     - conda update --yes conda
     - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION%
     - activate python%PYTHON_VERSION%
-    - pip install pip==18.1
+    - pip install --user pip==18.1
     - pip install numpy==1.14.5
     - pip install future -U
     - conda list
