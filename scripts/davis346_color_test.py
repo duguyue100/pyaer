@@ -55,7 +55,8 @@ while True:
              frames_ts, frames, imu_events,
              num_imu_event) = data
             if frames.shape[0] != 0:
-                cv2.imshow("frame", frames[0])
+                frame = cv2.cvtColor(frames[0], cv2.COLOR_BGR2RGB)
+                cv2.imshow("frame", frame)
 
             print("Number of events:", num_pol_event, "Number of Frames:",
                   frames.shape, "Exposure:",
