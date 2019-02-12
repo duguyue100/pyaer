@@ -7,6 +7,7 @@
 HOST = 127.0.0.1
 PYTHONPATH="$(shell printenv PYTHONPATH):$(PWD)"
 PYTHONLIBPATH="$(shell python -c 'from sysconfig import get_paths; print(get_paths()["stdlib"]+"/..")')"
+PYTHONLIBPATHWIN="$(shell python -c 'from sysconfig import get_paths; print(get_paths()["stdlib"]+"\..")')"
 
 clean:
 	find . -name '*.pyc' -exec rm --force {} +
@@ -61,7 +62,7 @@ build-pyaer:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py build
 
 build-win:
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py build -cmingw32
+	LD_LIBRARY_PATH=$(PYTHONLIBPATHWIN) python setup.py build -cmingw32
 
 build-wheel:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py bdist_wheel

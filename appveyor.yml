@@ -64,7 +64,7 @@ install:
     - git clone https://github.com/duguyue100/swig
     - conda config --set always_yes yes --set changeps1 no
     - conda update --yes conda
-    - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION%
+    - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION% -c conda-forge
     - activate python%PYTHON_VERSION%
     - pip install --user pip==18.1
     - pip install numpy==1.14.5
