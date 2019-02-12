@@ -94,7 +94,7 @@ before_install:
         source activate py37;
       fi
     - python --version
-    - conda install --yes pip
+    - conda install --yes pip==18.1
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test";
         sudo apt-get -qq update;
@@ -130,7 +130,7 @@ before_install:
     - cd ..
 
 install:
-    - pip install numpy==1.16.1
+    - pip install numpy==1.14.5
     - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then
