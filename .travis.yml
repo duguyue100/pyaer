@@ -94,7 +94,6 @@ before_install:
         source activate py37;
       fi
     - python --version
-    - pip install pip -U
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test";
         sudo apt-get -qq update;

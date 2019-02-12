@@ -66,7 +66,6 @@ install:
     - conda update --yes conda
     - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION% -c conda-forge
     - activate python%PYTHON_VERSION%
-    - pip install --user pip -U
     - pip install numpy==1.16.1
     - pip install future -U
     - conda list
