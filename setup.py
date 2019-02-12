@@ -60,7 +60,7 @@ elif "win" in platform:
     libcaer_lib = "C:/msys64/mingw64/lib"
 
 libcaer_wrap = Extension(
-    name="_libcaer_wrap",
+    name="pyaer._libcaer_wrap",
     sources=["./pyaer/pyflags.i"],
     include_dirs=[libcaer_include,
                   python_paths["include"], numpy_include],
