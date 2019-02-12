@@ -142,6 +142,7 @@ script:
     - make build-wheel
     - make build-wheel
     - make install
+    - cd $HOME
     - python -c 'import pyaer; print(dir(pyaer))'
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         cd dist;
