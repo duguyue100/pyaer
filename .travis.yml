@@ -130,7 +130,7 @@ before_install:
     - cd ..
 
 install:
-    - pip install numpy==1.14.5
+    - pip install numpy==1.16.1
     - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then
