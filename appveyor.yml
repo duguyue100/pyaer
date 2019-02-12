@@ -66,8 +66,8 @@ install:
     - conda update --yes conda
     - conda create -q --name python%PYTHON_VERSION% python=%PYTHON_VERSION% -c conda-forge
     - activate python%PYTHON_VERSION%
-    - pip install --user pip==18.1
-    - pip install numpy==1.14.5
+    - pip install --user pip -U
+    - pip install numpy==1.16.1
     - pip install future -U
     - conda list
     - if [%PYTHON_VERSION%]==[3.5] (
@@ -97,7 +97,7 @@ install:
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-libusb
     - C:\%MSYS2_DIR%\usr\bin\pacman --noconfirm -S automake bison
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "/c/projects/pyaer/install-libcaer.sh ci"
-    - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --without-alllang --with-python=$(command -v python) --without-pcre && make && make install"
+    - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /home/swig && ./autogen.sh && ./configure --without-alllang --with-python=$(command -v python) --without-pcre && make -j4 && make install"
     - C:\%MSYS2_DIR%\usr\bin\bash -lc "cd /c/projects/pyaer && make build-win && make build-wheel && make build-wheel"
     - >
       IF "%APPVEYOR_REPO_TAG%" == "true"
