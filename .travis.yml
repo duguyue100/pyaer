@@ -141,9 +141,6 @@ script:
     - make build-wheel
     - make build-wheel
     - make install
-    - cd $HOME
-    - python -c 'import pyaer; print(dir(pyaer))'
-    - cd duguyue100/pyaer 
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         cd dist;
         for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
