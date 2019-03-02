@@ -737,7 +737,7 @@ class DAVIS(USBDevice):
             libcaer.DAVIS_CONFIG_DVS_RUN)
         bias_obj["imu_enabled"] = self.get_config(
             libcaer.DAVIS_CONFIG_IMU,
-            libcaer.DAVIS_CONFIG_IMU_RUN)
+            libcaer.DAVIS_CONFIG_IMU_RUN_ACCELEROMETER)
 
         # global settings for APS
         bias_obj["exposure"] = self.get_config(
@@ -746,9 +746,9 @@ class DAVIS(USBDevice):
         bias_obj["autoexposure"] = self.get_config(
             libcaer.DAVIS_CONFIG_APS,
             libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE)
-        bias_obj["frame_delay"] = self.get_config(
+        bias_obj["frame_interval"] = self.get_config(
             libcaer.DAVIS_CONFIG_APS,
-            libcaer.DAVIS_CONFIG_APS_FRAME_DELAY)
+            libcaer.DAVIS_CONFIG_APS_FRAME_INTERVAL)
 
         # IMU settings of DAVIS
         bias_obj["imu_gyro_scale"] = self.get_config(
