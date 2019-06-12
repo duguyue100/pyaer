@@ -40,14 +40,14 @@ case "$(uname -s)" in
         if [ $CI_BUILD = false ]; then
             sudo apt-get update
             sudo apt-get install build-essential pkg-config libusb-1.0-0-dev
-            wget https://github.com/Kitware/CMake/releases/download/v3.14.5/cmake-3.14.5-Linux-x86_64.sh -O $HOME/cmake.sh
-            sudo bash $HOME/cmake.sh --prefix=/usr/local --skip-license
             git clone https://github.com/inivation/libcaer /tmp/libcaer
             cd /tmp/libcaer
         else
             git clone https://github.com/inivation/libcaer
             cd libcaer
         fi
+        wget https://github.com/Kitware/CMake/releases/download/v3.14.5/cmake-3.14.5-Linux-x86_64.sh -O $HOME/cmake.sh
+        sudo bash $HOME/cmake.sh --prefix=/usr/local --skip-license
         git checkout ${LIBCAER_TAG}
         cmake -DCMAKE_INSTALL_PREFIX=/usr .
         make -j2
