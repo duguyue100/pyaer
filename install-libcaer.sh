@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIBCAER_TAG=dd01f00f8db5f5ce3a599b5fe1de8a09fca209cb
+LIBCAER_TAG=98ed4d05b4e05a0a2684e8e68f676d66c1ee2ecf
 CI_BUILD=false
 # TODO: To support
 LIBSERIAL_PORT_OPTION=false
@@ -39,7 +39,9 @@ case "$(uname -s)" in
         echo 'Installing libcaer to a Debian platform'
         if [ $CI_BUILD = false ]; then
             sudo apt-get update
-            sudo apt-get install build-essential cmake pkg-config libusb-1.0-0-dev
+            sudo apt-get install build-essential pkg-config libusb-1.0-0-dev
+            wget https://github.com/Kitware/CMake/releases/download/v3.14.5/cmake-3.14.5-Linux-x86_64.sh -O $HOME/cmake.sh
+            sudo bash $HOME/cmake.sh --prefix=/usr/local --skip-license
             git clone https://github.com/inivation/libcaer /tmp/libcaer
             cd /tmp/libcaer
         else
