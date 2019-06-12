@@ -107,6 +107,8 @@ before_install:
         sudo apt-get install libusb-1.0-0-dev -y;
         sudo apt-get install automake -y;
         sudo apt-get install bison -y;
+        # make sure not using system cmake
+        sudo apt-get purge cmake
       else
         brew install libusb;
         brew install automake;
