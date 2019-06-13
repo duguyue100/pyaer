@@ -15,7 +15,7 @@ from pyaer.device import USBDevice
 
 class DYNAPSE(USBDevice):
     """DYNAPSE.
-    
+
     # Arguments
         device_id: `int`<br/>
             a unique ID to identify the device from others.
@@ -77,7 +77,7 @@ class DYNAPSE(USBDevice):
 
     def obtain_device_info(self, handle):
         """Obtain DYNAPSE info.
-        
+
         This function collects the following information from the device:
 
         - Deveice ID
@@ -90,7 +90,7 @@ class DYNAPSE(USBDevice):
         - Chip ID
         - If the device has AER statistics
         - If the device has MUX statistics
-        
+
         # Arguments
             handle: `caerDeviceHandle`<br/>
                 a valid device handle that can be used with the other
@@ -165,7 +165,7 @@ class DYNAPSE(USBDevice):
                 set everything if the argument is "all"
                 Here is a basic template for scope description<br/>
 
-                ``` 
+                ```
                 scope = {
                     0: [0, 1, 2, 3],
                     1: [0, 1, 2, 3],
@@ -806,8 +806,8 @@ class DYNAPSE(USBDevice):
         # Arguments
             param_addr: `int`<br/>
                 a parameter address, to select a specific parameter to update
-                from this particular configuration module. Only positive numbers
-                (including zero) are allowed.
+                from this particular configuration module. Only positive
+                numbers (including zero) are allowed.
             param: `int` or `bool`<br/>
                 a configuration parameter's new value.
 
@@ -887,7 +887,7 @@ class DYNAPSE(USBDevice):
 
     def start_data_stream(self, send_default_config=True):
         """Start streaming data.
-        
+
         # Arguments
             send_default_config: `bool`<br/>
                 send default config to the device before starting
@@ -945,8 +945,8 @@ class DYNAPSE(USBDevice):
             neuron_id: `uint16`<br/>
                 The target neuron of the poisson spike train, range [0,1023].
             rate: `float`<br/>
-                The rate in Hz of the spike train, this will be quantized to the
-                nearest supported level, range [0, 4300].
+                The rate in Hz of the spike train, this will be quantized
+                to the nearest supported level, range [0, 4300].
 
         # Returns
             flag: `bool`<br/>
@@ -1009,10 +1009,11 @@ class DYNAPSE(USBDevice):
 
         # Arguments
             input_neuron_id: `uint16`<br/>
-                the neuron address that should be let in as input to this neuron,
-                range [0, 1023].
+                the neuron address that should be let in as input to
+                this neuron, range [0, 1023].
             neuron_id: `uint16`<br/>
-                the neuron address whose CAM should be programmed, range [0,1023].
+                the neuron address whose CAM should be programmed,
+                range [0,1023].
             cam_id: `uint8`<br/>
                 CAM address (synapse), each neuron has 64, range [0,63].
             synapse_type: `uint8`<br/>
@@ -1038,7 +1039,7 @@ class DYNAPSE(USBDevice):
 
     def get_event(self):
         """Get Event.
-        
+
         # Returns
             spike_events: `numpy.ndarray`<br/>
                 a 2-D array that has the shape of (N, 4) where N

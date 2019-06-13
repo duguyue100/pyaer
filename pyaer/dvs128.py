@@ -15,7 +15,7 @@ from pyaer import utils
 
 class DVS128(USBDevice):
     """DVS128.
-    
+
     # Arguments
         device_id: `int`<br/>
             a unique ID to identify the device from others.
@@ -107,7 +107,7 @@ class DVS128(USBDevice):
         - Camera width
         - Camera height
         - Logic version
-        
+
         # Arguments
             handle: `caerDeviceHandle`<br/>
                 a valid device handle that can be used with the other
@@ -118,14 +118,14 @@ class DVS128(USBDevice):
 
             # port all info data field out
             self.device_id = info.deviceID
-            self.device_is_master = info.deviceIsMaster
             self.device_serial_number = info.deviceSerialNumber
-            self.device_string = info.deviceString
             self.device_usb_bus_number = info.deviceUSBBusNumber
             self.device_usb_device_address = info.deviceUSBDeviceAddress
+            self.device_string = info.deviceString
+            self.firmware_version = info.firmwareVersion
+            self.device_is_master = info.deviceIsMaster
             self.dvs_size_X = info.dvsSizeX
             self.dvs_size_Y = info.dvsSizeY
-            self.logic_version = info.logicVersion
 
     def open(self,
              device_id=1,
@@ -276,7 +276,7 @@ class DVS128(USBDevice):
 
     def save_bias_to_json(self, file_path):
         """Save bias to JSON.
-        
+
         # Arguments
             file_path: `str`<br/>
                 the absolute path to the destiation.
@@ -290,7 +290,7 @@ class DVS128(USBDevice):
 
     def start_data_stream(self, send_default_config=True):
         """Start streaming data.
-        
+
         # Arguments
             send_default_config: `bool`<br/>
                 send default config to the device before starting
@@ -345,7 +345,7 @@ class DVS128(USBDevice):
 
     def get_event(self, mode="events"):
         """Get event.
-        
+
         # Returns
             pol_events: `numpy.ndarray`<br/>
                 a 2-D array that has the shape of (N, 4) where N

@@ -11,7 +11,7 @@ from pyaer import utils
 
 class DVSNoise(object):
     """Software DVS background activity filter.
-    
+
     # Arguments
         size_x: `uint16`<br/>
             maximum X axis resolution.
@@ -105,7 +105,7 @@ class DVSNoise(object):
 
     def get_bias(self):
         """Export configuration.
-        
+
         # Returns
             bias_obj: `dict`<br/>
                 A dictionary that contains the configuration of
@@ -147,7 +147,7 @@ class DVSNoise(object):
 
     def save_bias_to_json(self, file_path):
         """Save filter configuration to JSON.
-        
+
         # Arguments
             file_path: `str`<br/>
                 the absolute path to the destiation.
@@ -201,7 +201,7 @@ class DVSNoise(object):
 
     def apply(self, event_packet):
         """Apply the filter to a event_packet.
-        
+
         # Arguments
             event_packet: `caerEventPacket`<br/>
                 the event packet to filter.

@@ -15,7 +15,7 @@ from pyaer import utils
 
 class eDVS(SerialDevice):
     """eDVS.
-    
+
     # Arguments
         device_id: `int`<br/>
             a unique ID to identify the device from others.
@@ -85,7 +85,7 @@ class eDVS(SerialDevice):
 
     def obtain_device_info(self, handle):
         """Obtain eDVS info.
-        
+
         This function collects the following information from the device:
 
         - Deveice ID
@@ -93,7 +93,7 @@ class eDVS(SerialDevice):
         - If the device is a master camera
         - Camera width
         - Camera height
-        
+
         # Arguments
             handle: `caerDeviceHandle`<br/>
                 a valid device handle that can be used with the other
@@ -108,6 +108,8 @@ class eDVS(SerialDevice):
             self.device_is_master = info.deviceIsMaster
             self.dvs_size_X = info.dvsSizeX
             self.dvs_size_Y = info.dvsSizeY
+            self.serial_port_name = info.serialPortName
+            self.serial_baud_rate = info.serialBaudRate
 
     def open(self,
              device_id=1,
@@ -241,7 +243,7 @@ class eDVS(SerialDevice):
 
     def save_bias_to_json(self, file_path):
         """Save bias to JSON.
-        
+
         # Arguments
             file_path: `str`<br/>
                 the absolute path to the destiation.
@@ -255,7 +257,7 @@ class eDVS(SerialDevice):
 
     def start_data_stream(self):
         """Start streaming data.
-        
+
         # Arguments
             send_default_config: `bool`<br/>
                 send default config to the device before starting
@@ -308,7 +310,7 @@ class eDVS(SerialDevice):
 
     def get_event(self):
         """Get event.
-        
+
         # Returns
             pol_events: `numpy.ndarray`<br/>
                 a 2-D array that has the shape of (N, 4) where N
