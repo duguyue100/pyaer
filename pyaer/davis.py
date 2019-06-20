@@ -308,7 +308,7 @@ class DAVIS(USBDevice):
                     libcaer.DAVIS_CONFIG_IMU_SAMPLE_RATE_DIVIDER,
                     0)
 
-        # global settings for external input
+        # external input settings of DAVIS
         self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
                         libcaer.DetectFallingEdges,
                         bias_obj["detect_falling_edges"])
@@ -751,6 +751,7 @@ class DAVIS(USBDevice):
             bias_obj: `dict`<br/>
                 dictionary that contains DAVIS current bias settings.
         """
+
         bias_obj = {}
         # output sources
         bias_obj["aps_enabled"] = self.get_config(
@@ -762,6 +763,9 @@ class DAVIS(USBDevice):
         bias_obj["imu_enabled"] = self.get_config(
             libcaer.DAVIS_CONFIG_IMU,
             libcaer.DAVIS_CONFIG_IMU_RUN_ACCELEROMETER)
+        bias_obj["ext_input_enabled"] = self.get_config(
+            libcaer.DAVIS_CONFIG_EXTINPUT,
+            libcaer.DAVIS_CONFIG_EXTINPUT_RUN_DETECTOR)
 
         # global settings for APS
         bias_obj["exposure"] = self.get_config(
@@ -784,6 +788,27 @@ class DAVIS(USBDevice):
         bias_obj["imu_low_pass_filter"] = self.get_config(
             libcaer.DAVIS_CONFIG_IMU,
             libcaer.DAVIS_CONFIG_IMU_DIGITAL_LOW_PASS_FILTER)
+
+        # external input settings of DAVIS
+        bias_obj["detect_falling_edges"] = self.get_config(
+            libcaer.DAVIS_CONFIG_EXTINPUT,
+            libcaer.DetectFallingEdges)
+
+        bias_obj["detect_rising_edges"] = self.get_config(
+            libcaer.DAVIS_CONFIG_EXTINPUT,
+            libcaer.DetectRisingEdges)
+
+        bias_obj["detect_pulses"] = self.get_config(
+            libcaer.DAVIS_CONFIG_EXTINPUT,
+            libcaer.DetectPulses)
+
+        bias_obj["detect_pulse_length"] = self.get_config(
+            libcaer.DAVIS_CONFIG_EXTINPUT,
+            libcaer.DetectPulseLength)
+
+        bias_obj["detect_pulse_polarity"] = self.get_config(
+            libcaer.DAVIS_CONFIG_EXTINPUT,
+            libcaer.DetectPulsePolarity)
 
         # get noise filter configs
         if self.noise_filter is not None:
