@@ -310,23 +310,23 @@ class DAVIS(USBDevice):
 
         # external input settings of DAVIS
         self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
-                        libcaer.DetectFallingEdges,
+                        libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_FALLING_EDGES,
                         bias_obj["detect_falling_edges"])
 
         self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
-                        libcaer.DetectRisingEdges,
+                        libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_RISING_EDGES,
                         bias_obj["detect_rising_edges"])
 
         self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
-                        libcaer.DetectPulses,
+                        libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_PULSES,
                         bias_obj["detect_pulses"])
 
         self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
-                        libcaer.DetectPulseLength,
+                        libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_PULSE_LENGTH,
                         bias_obj["detect_pulse_length"])
 
         self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
-                        libcaer.DetectPulsePolarity,
+                        libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_PULSE_POLARITY,
                         bias_obj["detect_pulse_polarity"])
 
         if self.chip_id == libcaer.DAVIS_CHIP_DAVIS346B:
@@ -792,23 +792,23 @@ class DAVIS(USBDevice):
         # external input settings of DAVIS
         bias_obj["detect_falling_edges"] = self.get_config(
             libcaer.DAVIS_CONFIG_EXTINPUT,
-            libcaer.DetectFallingEdges)
+            libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_FALLING_EDGES)
 
         bias_obj["detect_rising_edges"] = self.get_config(
             libcaer.DAVIS_CONFIG_EXTINPUT,
-            libcaer.DetectRisingEdges)
+            libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_RISING_EDGES)
 
         bias_obj["detect_pulses"] = self.get_config(
             libcaer.DAVIS_CONFIG_EXTINPUT,
-            libcaer.DetectPulses)
+            libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_PULSES)
 
         bias_obj["detect_pulse_length"] = self.get_config(
             libcaer.DAVIS_CONFIG_EXTINPUT,
-            libcaer.DetectPulseLength)
+            libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_PULSE_LENGTH)
 
         bias_obj["detect_pulse_polarity"] = self.get_config(
             libcaer.DAVIS_CONFIG_EXTINPUT,
-            libcaer.DetectPulsePolarity)
+            libcaer.DAVIS_CONFIG_EXTINPUT_DETECT_PULSE_POLARITY)
 
         # get noise filter configs
         if self.noise_filter is not None:
