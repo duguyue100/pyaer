@@ -245,7 +245,7 @@ class DAVIS(USBDevice):
             flag: `bool`<br/>
                 True if set successful, False otherwise.
         """
-        # output soruces settings
+        # output sources settings
         self.set_config(libcaer.DAVIS_CONFIG_APS,
                         libcaer.DAVIS_CONFIG_APS_RUN,
                         bias_obj["aps_enabled"])
@@ -261,6 +261,9 @@ class DAVIS(USBDevice):
         self.set_config(libcaer.DAVIS_CONFIG_IMU,
                         libcaer.DAVIS_CONFIG_IMU_RUN_TEMPERATURE,
                         bias_obj["imu_enabled"])
+        self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
+                        libcaer.DAVIS_CONFIG_EXTINPUT_RUN_DETECTOR,
+                        bias_obj["ext_input_enabled"])
 
         # global settings for APS
         self.set_config(libcaer.DAVIS_CONFIG_APS,
@@ -304,6 +307,27 @@ class DAVIS(USBDevice):
                     libcaer.DAVIS_CONFIG_IMU,
                     libcaer.DAVIS_CONFIG_IMU_SAMPLE_RATE_DIVIDER,
                     0)
+
+        # global settings for external input
+        self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
+                        libcaer.DetectFallingEdges,
+                        bias_obj["detect_falling_edges"])
+
+        self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
+                        libcaer.DetectRisingEdges,
+                        bias_obj["detect_rising_edges"])
+
+        self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
+                        libcaer.DetectPulses,
+                        bias_obj["detect_pulses"])
+
+        self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
+                        libcaer.DetectPulseLength,
+                        bias_obj["detect_pulse_length"])
+
+        self.set_config(libcaer.DAVIS_CONFIG_EXTINPUT,
+                        libcaer.DetectPulsePolarity,
+                        bias_obj["detect_pulse_polarity"])
 
         if self.chip_id == libcaer.DAVIS_CHIP_DAVIS346B:
             # VDAC
