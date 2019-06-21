@@ -59,5 +59,11 @@
 		"sw_refractory_period_enable": true,
 		"sw_hotpixel_enable": true,
 		"sw_hotpixel_learn": true
-	}
+	},
+    "ext_input_enabled": false,
+    "detect_falling_edges": false,
+    "detect_rising_edges": false,
+    "detect_pulses": false,
+    "detect_pulse_length": 60,
+    "detect_pulse_polarity": false
 }

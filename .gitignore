@@ -109,3 +109,6 @@ docs/sources
 
 # Mac
 .DS_Store
+
+# idea (jetbrains's ide)
+.idea
