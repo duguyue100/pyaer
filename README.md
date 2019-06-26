@@ -29,7 +29,7 @@ Check out the [documentation](https://dgyblog.com/pyaer-doc/) for more help!
 
 ## Installation
 
-1. Install bleeding-edge `libcaer` dependency (RECOMMEND)
+1. Install `libcaer` dependency (RECOMMEND)
 
     ```bash
     $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
@@ -41,7 +41,7 @@ Check out the [documentation](https://dgyblog.com/pyaer-doc/) for more help!
 
     __NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport). Currently, this support is not built into the release since we are not clear how useful is this feature. If you are interested, you can build the project from scratch.
 
-2. Directly install from pypi (RECOMMEND)
+2. Install `pyaer` from pypi (RECOMMEND)
 
     ```bash
     $ pip install pyaer
@@ -122,7 +122,7 @@ cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
     __NOTE:__ For Windows, consider append `--without-pcre` if the `./configure`
     doesn't work properly.
 
-    __Note:__ If you are not compile the SWIG with system Python distribution,
+    __NOTE:__ If you are not compile the SWIG with system Python distribution,
     it won't link to the custom Python automatically.
 
     You will need to configure `LD_LIBRARY_PATH` for swig running properly.
