@@ -385,12 +385,12 @@ void get_polarity_event_histogram_346(caerPolarityEventPacket event_packet, int3
 %}
 
 %inline %{
-void get_special_event(caerSpecialEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
+void get_special_event(caerSpecialEventPacket event_packet, int32_t* event_vec, int32_t packet_len) {
     long i;
     for (i=0; i<(int)packet_len/2; i++) {
         caerSpecialEvent event = caerSpecialEventPacketGetEvent(event_packet, i);
         event_vec[i*2] = caerSpecialEventGetTimestamp(event);
-        event_vec[i*2+1] = caerSpecialEventGetData(event);
+        event_vec[i*2+1] = caerSpecialEventGetType(event);
     }
 }
 %}
