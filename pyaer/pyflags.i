@@ -308,7 +308,7 @@ void get_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec
     long i;
     for (i=0; i<(int)packet_len/4; i++) {
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
-        event_vec[i*4] = caerPolarityEventGetTimestamp(event);
+        event_vec[i*4] = caerPolarityEventGetTimestamp64(event, event_packet);
         event_vec[i*4+1] = caerPolarityEventGetX(event);
         event_vec[i*4+2] = caerPolarityEventGetY(event);
         event_vec[i*4+3] = caerPolarityEventGetPolarity(event);
@@ -385,11 +385,11 @@ void get_polarity_event_histogram_346(caerPolarityEventPacket event_packet, int3
 %}
 
 %inline %{
-void get_special_event(caerSpecialEventPacket event_packet, int32_t* event_vec, int32_t packet_len) {
+void get_special_event(caerSpecialEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
     long i;
     for (i=0; i<(int)packet_len/2; i++) {
         caerSpecialEvent event = caerSpecialEventPacketGetEvent(event_packet, i);
-        event_vec[i*2] = caerSpecialEventGetTimestamp(event);
+        event_vec[i*2] = caerSpecialEventGetTimestamp64(event, event_packet);
         event_vec[i*2+1] = caerSpecialEventGetType(event);
     }
 }
@@ -400,7 +400,7 @@ void get_imu6_event(caerIMU6EventPacket event_packet, float* event_vec_f, int32_
     long i;
     for (i=0; i<(int)packet_len/8; i++) {
         caerIMU6Event event = caerIMU6EventPacketGetEvent(event_packet, i);
-        event_vec_f[i*8] = caerIMU6EventGetTimestamp(event);
+        event_vec_f[i*8] = caerIMU6EventGetTimestamp64(event, event_packet);
         event_vec_f[i*8+1] = caerIMU6EventGetAccelX(event);
         event_vec_f[i*8+2] = caerIMU6EventGetAccelY(event);
         event_vec_f[i*8+3] = caerIMU6EventGetAccelZ(event);
@@ -417,7 +417,7 @@ void get_imu9_event(caerIMU9EventPacket event_packet, float* event_vec_f, int32_
     long i;
     for (i=0; i<(int)packet_len/11; i++) {
         caerIMU9Event event = caerIMU9EventPacketGetEvent(event_packet, i);
-        event_vec_f[i*11] = caerIMU9EventGetTimestamp(event);
+        event_vec_f[i*11] = caerIMU9EventGetTimestamp64(event, event_packet);
         event_vec_f[i*11+1] = caerIMU9EventGetAccelX(event);
         event_vec_f[i*11+2] = caerIMU9EventGetAccelY(event);
         event_vec_f[i*11+3] = caerIMU9EventGetAccelZ(event);
@@ -437,7 +437,7 @@ void get_spike_event(caerSpikeEventPacket event_packet, int64_t* event_vec, int3
     long i;
     for (i=0; i<(int)packet_len/4; i++) {
         caerSpikeEvent event = caerSpikeEventPacketGetEvent(event_packet, i);
-        event_vec[i*4] = caerSpikeEventGetTimestamp(event);
+        event_vec[i*4] = caerSpikeEventGetTimestamp64(event, event_packet);
         event_vec[i*4+1] = caerSpikeEventGetNeuronID(event);
         event_vec[i*4+2] = caerSpikeEventGetSourceCoreID(event);
         event_vec[i*4+3] = caerSpikeEventGetChipID(event);
@@ -507,7 +507,7 @@ void get_filtered_polarity_event(caerPolarityEventPacket event_packet, int64_t* 
     long i;
     for (i=0; i<(int)packet_len/5; i++) {
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
-        event_vec[i*5] = caerPolarityEventGetTimestamp(event);
+        event_vec[i*5] = caerPolarityEventGetTimestamp64(event, event_packet);
         event_vec[i*5+1] = caerPolarityEventGetX(event);
         event_vec[i*5+2] = caerPolarityEventGetY(event);
         event_vec[i*5+3] = caerPolarityEventGetPolarity(event);

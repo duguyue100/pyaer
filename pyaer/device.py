@@ -441,7 +441,7 @@ class USBDevice(object):
         """
         _, frame = self.get_event_packet(packet_header, libcaer.FRAME_EVENT)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
-        frame_ts = libcaer.caerFrameEventGetTimestamp(first_event)
+        frame_ts = libcaer.caerFrameEventGetTimestamp64(first_event, frame)
 
         if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
             frame_mat = libcaer.get_frame_event_240(first_event)
