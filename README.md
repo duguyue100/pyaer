@@ -3,14 +3,12 @@
 [![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
 [![Build Status](https://api.travis-ci.org/duguyue100/pyaer.svg?branch=master)](https://travis-ci.org/duguyue100/pyaer)
-[![Build status](https://ci.appveyor.com/api/projects/status/uf13jm7690abu11i/branch/master?svg=true)](https://ci.appveyor.com/project/duguyue100/pyaer/branch/master)
 [![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1419354.svg)](https://doi.org/10.5281/zenodo.1419354)
 
 ![Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange.svg)
 ![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
 ![Raspbian](https://img.shields.io/badge/OS-Raspbian%20Stretch-orange.svg)
-![Windows](https://img.shields.io/badge/OS-Windows-orange.svg)
 
 PyAER with Swig Bindings
 
