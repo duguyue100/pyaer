@@ -12,17 +12,27 @@
 
 PyAER with Swig Bindings
 
-Special thanks to [iniLabs](http://inilabs.com/) for making this possible.
+Special thanks to [iniVation](https://inivation.com/) for making this possible.
 
 The project is in its Beta development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you need our help.
 
 Check out the [documentation](https://dgyblog.com/pyaer-doc/) for more help!
 
-## Design Principle
+## Why PyAER?
 
-+ Minimum installation effort
-+ Clean, simple, easy to manage
-+ Well documented, human-readable code
+iniVation has released [DV](https://gitlab.com/inivation/dv), a new platform and an SDK for accessing and developing with event cameras.
+
+For robotics projects, you may find [rpg_dvs_ros](https://github.com/uzh-rpg/rpg_dvs_ros) when you use ROS.
+
+So the natural question is: why PyAER?
+
+Although there are large function overlaps between these frameworks, PyAER serves as an agile package that focus on fast development and extensibility. In fact, in some scenario, e.g. edge devices, PyAER is more user friendly than other alternatives.
+
+### Design Principle
+
++ Minimum installation effort.
++ Clean, simple, easy to manage.
++ Well documented, human-readable code.
 
 ## Installation
 
@@ -31,8 +41,6 @@ Check out the [documentation](https://dgyblog.com/pyaer-doc/) for more help!
     ```bash
     $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
     ```
-
-    __NOTE:__ To build `libcaer` on Windows, please follow [this description](https://github.com/inilabs/libcaer/blob/master/README.Windows).
 
     __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
@@ -113,18 +121,12 @@ cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
     $ ./configure --without-alllang --with-python=$(command -v python)
     ```
 
-    __NOTE:__ Make sure the `python` is pointed to the correct `python3` binary
-    if you would like to use Python 3.
-
-    __NOTE:__ For Windows, consider append `--without-pcre` if the `./configure`
-    doesn't work properly.
-
     __NOTE:__ If you are not compile the SWIG with system Python distribution,
     it won't link to the custom Python automatically.
 
     You will need to configure `LD_LIBRARY_PATH` for swig running properly.
 
-    e.g.
+    i.e.
 
     ```
     LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
