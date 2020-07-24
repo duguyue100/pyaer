@@ -20,10 +20,10 @@ Development Status :: 4 - Beta
 Intended Audience :: Science/Research
 Natural Language :: English
 Operating System :: OS Independent
-Programming Language :: Python :: 2.7
 Programming Language :: Python :: 3.5
 Programming Language :: Python :: 3.6
 Programming Language :: Python :: 3.7
+Programming Language :: Python :: 3.8
 Topic :: Utilities
 Topic :: Scientific/Engineering
 Topic :: Scientific/Engineering :: Artificial Intelligence

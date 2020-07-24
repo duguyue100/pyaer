@@ -23,7 +23,6 @@ Check out the [documentation](https://dgyblog.com/pyaer-doc/) for more help!
 ## Design Principle
 
 + Minimum installation effort
-+ Keep Python 2 and 3 in mind
 + Clean, simple, easy to manage
 + Well documented, human-readable code
 
