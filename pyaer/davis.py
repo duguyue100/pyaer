@@ -1115,7 +1115,9 @@ class DAVIS(USBDevice):
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
-    def start_data_stream(self, send_default_config=True):
+    def start_data_stream(self, send_default_config=True,
+                          max_packet_size=None,
+                          max_packet_interval=None):
         """Start streaming data.
 
         # Arguments
@@ -1123,9 +1125,26 @@ class DAVIS(USBDevice):
                 send default config to the device before starting
                 the data streaming.<br/>
                 `default is True`
+            max_packet_size: `int`<br/>
+                set the maximum number of events any of a packet container's
+                packets may hold before it's made available to the user.
+                Set to zero to disable.<br/>
+                The default is `None` (use default setting: 0).
+            max_packet_interval: `int`<br/>
+                set the time interval between subsequent packet containers.
+                Must be at least 1 microsecond.
+                The value is in microseconds, and is checked across all
+                types of events contained in the EventPacketContainer.<br/>
+                The default is `None` (use default setting: 10ms)
         """
         if send_default_config is True:
             self.send_default_config()
+
+        if max_packet_size is not None:
+            self.set_max_container_packet_size(max_packet_size)
+        if max_packet_interval is not None:
+            self.set_max_container_interval(max_packet_interval)
+
         self.data_start()
         self.set_data_exchange_blocking()
 

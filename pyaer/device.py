@@ -178,6 +178,37 @@ class USBDevice(object):
         else:
             return False
 
+    def set_max_container_packet_size(self, max_packet_size=0):
+        """Set max container packet size.
+
+        # Arguments
+            max_packet_size: `int`<br/>
+                set the maximum number of events any of a packet container's
+                packets may hold before it's made available to the user.
+                Set to zero to disable.<br/>
+                The default is `0`.
+        """
+        return self.set_config(
+            libcaer.CAER_HOST_CONFIG_PACKETS,
+            libcaer.CAER_HOST_CONFIG_PACKETS_MAX_CONTAINER_PACKET_SIZE,
+            max_packet_size)
+
+    def set_max_container_interval(self, max_packet_interval=10000):
+        """Set max packet interval.
+
+        # Arguments
+            max_packet_interval: `int`<br/>
+                set the time interval between subsequent packet containers.
+                Must be at least 1 microsecond.
+                The value is in microseconds, and is checked across all
+                types of events contained in the EventPacketContainer.<br/>
+                The default is `10000` (10ms or 100 packets/s)
+        """
+        return self.set_config(
+            libcaer.CAER_HOST_CONFIG_PACKETS,
+            libcaer.CAER_HOST_CONFIG_PACKETS_MAX_CONTAINER_INTERVAL,
+            max_packet_interval)
+
     def set_data_exchange_blocking(self, exchange_blocking=True):
         """Set data exchange blocking.
 
