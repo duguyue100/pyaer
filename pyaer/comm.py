@@ -206,7 +206,7 @@ class EventSubscriber(object):
         if you only need to send part of the data,
         simply override this function
 
-        # Arguments 
+        # Arguments
             packed_data: list
                 the data to send.
                 DAVIS LIST ORDER:
