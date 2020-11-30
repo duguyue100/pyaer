@@ -4,7 +4,9 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
+import os
 import json
+import importlib.util as imutil
 import numpy as np
 
 import pyaer
@@ -12,6 +14,27 @@ from pyaer import log
 from pyaer import libcaer
 
 logger = log.get_logger("utils", pyaer.LOG_LEVEL)
+
+
+def import_custom_module(custom_file, custom_class):
+    """Load custom module by file path.
+
+    # Arguments
+        custom_file: str
+            absolute file path to the custom module file.
+        custom_class: str
+            the class name to import that is in the custom_file
+    """
+    module_name = os.path.basename(custom_file).split(".")[0]
+    spec = imutil.spec_from_file_location(module_name, custom_file)
+    custom_pub = imutil.module_from_spec(spec)
+    spec.loader.exec_module(custom_pub)
+
+    return getattr(custom_pub, custom_class)
+
+
+def expandpath(path):
+    return os.path.abspath(os.path.expandvars(os.path.expanduser(path)))
 
 
 def load_json(file_path):
