@@ -6,6 +6,10 @@ fetching data from the event cameras and other processes for
 processing the data.
 The communication protocol is implemented through zeromq package.
 
+The design principle is similar to ROS where there is a hub for
+central scheduling, a group of publishers for sending data, and
+a group of subscribers to get/process data.
+
 Author: Yuhuang Hu
 Email : yuhuang.hu@ini.uzh.ch
 """
@@ -13,6 +17,7 @@ Email : yuhuang.hu@ini.uzh.ch
 from __future__ import print_function, absolute_import
 
 import os
+import sys
 import time
 import json
 import subprocess
@@ -20,10 +25,75 @@ from threading import Thread, Event
 import numpy as np
 import zmq
 
+from pyaer import log
 
-class EventPublisher(object):
-    def __init__(self, device, port, topic=b''):
-        """EventPublisher.
+
+class AERHub(object):
+    def __init__(self, url="tcp://127.0.0.1",
+                 hub_pub_port=5099,
+                 hub_sub_port=5100,
+                 aer_hub_name="PyAER Message Hub"):
+        """AER Hub.
+
+        A central relay that allows multiple publisher and
+        subscriber to use a common port.
+        """
+        self.url = url
+        self.aer_hub_name = aer_hub_name
+        self.hub_pub_port = hub_pub_port
+        self.hub_sub_port = hub_pub_port
+        self.hub_pub_url = url+":{}".format(hub_pub_port)
+        print(self.hub_pub_url)
+        self.hub_sub_url = url+":{}".format(hub_sub_port)
+
+        # logger
+        self.logger = log.get_logger(
+            aer_hub_name, log.INFO, stream=sys.stdout)
+
+        # Initialize sockets
+        self.init_socket()
+
+    def init_socket(self):
+        """Initialize zmq socket, override for your own use."""
+        self.context = zmq.Context.instance()
+
+        self.hub_pub = self.context.socket(zmq.XPUB)
+        self.hub_sub = self.context.socket(zmq.XSUB)
+
+        self.hub_pub.bind(self.hub_pub_url)
+        self.hub_sub.bind(self.hub_sub_url)
+
+        self.poller = zmq.Poller()
+        self.poller.register(self.hub_pub, zmq.POLLIN)
+        self.poller.register(self.hub_sub, zmq.POLLIN)
+
+        self.logger.info("="*50)
+        self.logger.info("{} Initialized.".format(self.aer_hub_name))
+        self.logger.info("="*50)
+        self.logger.info("Subscribe message at {}".format(self.hub_pub_url))
+        self.logger.info("Publish message at {}".format(self.hub_sub_url))
+
+    def run(self):
+        while True:
+            try:
+                events = dict(self.poller.poll())
+
+                if self.hub_pub in events:
+                    data = self.hub_pub.recv_multipart()
+                    self.hub_pub.send_multipart(data)
+                elif self.hub_sub in events:
+                    data = self.hub_sub.recv_multipart()
+                    self.hubsub.send_multipart(data)
+            except KeyboardInterrupt:
+                self.logger.info("{} Existing...".format(self.aer_hub_name))
+                break
+
+
+class AERPublisher(object):
+    def __init__(self, device,
+                 url="tcp://127.0.0.1",
+                 port=5100, topic=b''):
+        """AERPublisher.
 
         # Arguments
             device: A DVS/DAVIS/DYNAP-SE device.
@@ -31,10 +101,13 @@ class EventPublisher(object):
             port : int
                 port number
         """
-
-        self.port = str(port)
+        # AER device
         self.device = device
+
         self.topic = topic
+        self.url = url
+        self.port = port
+        self.pub_url = url+":{}".format(port)
 
         # initialize socket for publisher
         self.init_socket()
@@ -44,7 +117,7 @@ class EventPublisher(object):
         self.context = zmq.Context.instance()
         self.socket = self.context.socket(zmq.PUB)
 
-        self.socket.bind("tcp://*:{}".format(self.port))
+        self.socket.bind(self.pub_url)
         time.sleep(1)
 
     def process_data(self, data):
@@ -121,7 +194,7 @@ class EventPublisher(object):
 
         return packed_data
 
-    def send_data(self):
+    def run(self):
         """Publish data main loop.
 
         Reimplement to your need.
@@ -144,15 +217,18 @@ class EventPublisher(object):
         self.device.shutdown()
 
 
-class EventSubscriber(object):
-    def __init__(self, port, topic=b''):
-        """EventSubscriber.
+class AERSubscriber(object):
+    def __init__(self, url="tcp://127.0.0.1",
+                 port=5099, topic=b''):
+        """AERSubscriber.
 
         # Arguments
             port : int
                 port number
         """
-        self.port = str(port)
+        self.url = url
+        self.port = port
+        self.sub_url = url+":{}".format(port)
         self.topic = topic
 
         # initialize socket for subscriber
@@ -164,7 +240,7 @@ class EventSubscriber(object):
         self.socket = self.context.socket(zmq.SUB)
 
         self.socket.setsockopt(zmq.SUBSCRIBE, self.topic)
-        self.socket.connect("tcp://localhost:{}".format(self.port))
+        self.socket.connect(self.sub_url)
 
     def process_data(self, data):
         """Process data object.
@@ -248,7 +324,7 @@ class EventSubscriber(object):
 
         return unpacked_data
 
-    def recv_data(self):
+    def run(self):
         """Subscribe data main loop.
 
         Reimplement to your need.
@@ -259,6 +335,26 @@ class EventSubscriber(object):
             data = self.unpacked_data(data)
 
             data = self.process_data(data)
+
+
+class AERHDF5Saver(object):
+    def __init__(self):
+        """AERHDF5Saver.
+
+        A high performance AER HDF5 saver for events.
+
+        """
+        pass
+
+
+class AERZarrSaver(object):
+    def __init__(self):
+        """AERZarrSaver.
+
+        A high performance AER Zarr saver for events.
+
+        """
+        pass
 
 
 class DaemonProcess(Thread):

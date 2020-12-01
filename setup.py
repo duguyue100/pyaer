@@ -87,6 +87,8 @@ setup(
 
     ext_modules=[libcaer_wrap],
 
+    scripts=["scripts/aer_comm/aer_hub"],
+
     classifiers=list(filter(None, classifiers.split("\n"))),
     description="PyAER: Low-level Python APIs for "
                 "Accessing Neuromorphic Devices."

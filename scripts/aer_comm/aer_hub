@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+
+"""AER Hub.
+
+Author: Yuhuang Hu
+Email : yuhuang.hu@ini.uzh.ch
+"""
+
+from __future__ import print_function, absolute_import
+
+import argparse
+from pyaer.comm import AERHub
+
+parser = argparse.ArgumentParser("AER Hub")
+
+parser.add_argument("--url", type=str,
+                    default="tcp://127.0.0.1",
+                    help="AERHub URL")
+
+# Note that the publisher port and subscriber port are
+# hub_sub_port and hub_pub_port respectively.
+# This reversed order is intentional.
+# User doesn't need to know.
+parser.add_argument("--publisher_port", type=int,
+                    default=5100,
+                    help="the port that connects all publishers")
+parser.add_argument("--subscriber_port", type=int,
+                    default=5099,
+                    help="the port that connects all subscribers")
+
+parser.add_argument("--aer_hub_name", type=str,
+                    default="PyAER Message Hub")
+
+args = parser.parse_args()
+
+
+aer_hub = AERHub(url=args.url,
+                 hub_pub_port=args.subscriber_port,
+                 hub_sub_port=args.publisher_port,
+                 aer_hub_name=args.aer_hub_name)
+
+aer_hub.logger.info("="*50)
+aer_hub.logger.info("Tools")
+aer_hub.logger.info("aer_hub: launch a central message relay hub")
+aer_hub.logger.info("aer_list_topic: display all published topics")
+aer_hub.logger.info("aer_publisher: add a custom publisher")
+aer_hub.logger.info("aer_subscriber: add a custom subscriber")
+aer_hub.logger.info("="*50)
+
+# run the hub
+aer_hub.run()
