@@ -87,7 +87,10 @@ setup(
 
     ext_modules=[libcaer_wrap],
 
-    scripts=["scripts/aer_comm/aer_hub"],
+    scripts=["scripts/aer_comm/aer_hub",
+             "scripts/aer_comm/aer_lstopic",
+             "scripts/aer_comm/aer_publisher",
+             "scripts/aer_comm/aer_subscriber"],
 
     classifiers=list(filter(None, classifiers.split("\n"))),
     description="PyAER: Low-level Python APIs for "

@@ -6,6 +6,7 @@ Email : duguyue100@gmail.com
 from __future__ import print_function, absolute_import
 import os
 import json
+import time
 import importlib.util as imutil
 import numpy as np
 
@@ -14,6 +15,10 @@ from pyaer import log
 from pyaer import libcaer
 
 logger = log.get_logger("utils", pyaer.LOG_LEVEL)
+
+
+def get_nanotime():
+    return str(int(time.time()*1e9)).encode("utf-8")
 
 
 def import_custom_module(custom_file, custom_class):

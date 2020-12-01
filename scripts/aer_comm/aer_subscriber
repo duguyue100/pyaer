@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+
+"""AER Subscriber
+
+Author: Yuhuang Hu
+Email : duguyue100@gmail.com
+"""
+
+from __future__ import print_function, absolute_import
+
+import argparse
+
+from pyaer.utils import expandpath, import_custom_module
+from pyaer.comm import AERSubscriber
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--url", type=str,
+                    default="tcp://127.0.0.1",
+                    help="AER Subscriber URL")
+parser.add_argument("--port", type=int,
+                    default=5099,
+                    help="the port that connects this subscriber")
+parser.add_argument("--topic", type=str,
+                    default="",
+                    help="Topic to subscribe")
+
+parser.add_argument("--use_default_sub", action="store_true")
+
+parser.add_argument("--custom_sub", type=expandpath,
+                    default="",
+                    help="path to the custom publisher class")
+parser.add_argument("--custom_class", type=str,
+                    default="",
+                    help="custom publisher class name")
+
+
+args = parser.parse_args()
+
+# define publisher
+if args.use_default_sub:
+    # fall back to the default publisher
+    subscriber = AERSubscriber(url=args.url, port=args.port, topic=args.topic)
+    print("Use default subscriber")
+else:
+    # use custom publisher
+    print("Use custom subscriber {}".format(args.custom_class))
+    CustomSubscriber = import_custom_module(args.custom_sub, args.custom_class)
+    subscriber = CustomSubscriber(
+        url=args.url, port=args.port, topic=args.topic)
+
+# Start sending data
+subscriber.recv_data()

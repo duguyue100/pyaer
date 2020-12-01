@@ -26,6 +26,72 @@ import numpy as np
 import zmq
 
 from pyaer import log
+from pyaer.utils import get_nanotime
+
+
+def encode_topic_name(topic_names, to_byte=True):
+    """Create topic name.
+
+    Mainly used for creating a topic name for publisher.
+
+    # Arguments
+        topic_names: list
+            a list of strings
+    # Returns
+        topic_name: byte string
+            the topic name separated by "/"
+    """
+    topic_name = "/".join(topic_names)
+    if to_byte is True:
+        return topic_name.encode("utf-8")
+    else:
+        return topic_name
+
+
+def decode_topic_names(topic_name):
+    """Separate topic names.
+
+    # Arguments
+        topic_name: byte string
+            subscribed topic name
+
+    # Returns
+        topic_names: list
+            a list of strings
+    """
+    tmp_topic_name = topic_name.decode("utf-8")
+
+    return tmp_topic_name.split("/")
+
+
+def create_timestamp_group_name(topic_name, timestamp):
+    """Create timestamp group name.
+
+    This is a preferred way to create timestamped group name
+    when needed. E.g.,
+
+    topic_name = b'davis-1/imu_event'
+    timestamp = b'1606830270019276544'
+
+    This function returns:
+
+    group_name = 'davis-1/1606830270019276544/imu_event'
+
+    # Arguments
+        topic_name: byte string
+            topic name byte string to be decoded
+        timestamp: byte string
+            time stamp coded in byte string
+
+    # Returns
+        group_name: string
+            the timestamp group name
+    """
+    topic_names = decode_topic_names(topic_name)
+
+    return encode_topic_name(
+        [topic_names[0], timestamp.decode("utf-8"),
+         topic_names[1]], to_byte=False)
 
 
 class AERHub(object):
@@ -80,31 +146,51 @@ class AERHub(object):
 
                 if self.hub_pub in events:
                     data = self.hub_pub.recv_multipart()
-                    self.hub_pub.send_multipart(data)
+                    self.hub_sub.send_multipart(data)
                 elif self.hub_sub in events:
                     data = self.hub_sub.recv_multipart()
-                    self.hubsub.send_multipart(data)
+                    self.hub_pub.send_multipart(data)
             except KeyboardInterrupt:
                 self.logger.info("{} Existing...".format(self.aer_hub_name))
                 break
 
 
 class AERPublisher(object):
-    def __init__(self, device,
+    def __init__(self, device=None,
                  url="tcp://127.0.0.1",
-                 port=5100, topic=b''):
+                 port=5100, master_topic=''):
         """AERPublisher.
+
+        Topics are organized in the following way:
+        1. There is a master topic name, e.g., davis-1
+        2. Each type of data has its own topic, displayed as
+            "master topic name/data type", e.g.,
+            "davis-1/polarity_events", "davis-1/frame_events", etc.
+        3. Each data packet is tagged with timestamps in nanosecs (wall clock).
+           To limit number of topics, this is a part of data instead of
+           a topic name.
+        4. On the receiving end. For hierarchical data structure such
+           as HDF5 and Zarr, the grouping strategy is:
+            "master topic name/timestamp/data type"
+        5. When saving, ensure ordering.
+        6. "/" is a defined separator, do not use in topic name.
 
         # Arguments
             device: A DVS/DAVIS/DYNAP-SE device.
                 This is a valid device that has been opened.
+            url: str
+                tcp address
             port : int
-                port number
+                port number connected by publisher
+            master_topic : str
+                the master topic name, such as davis-1
+                This is usually a device level identifier.
+                There can be sub-topics under this identifier
         """
         # AER device
         self.device = device
 
-        self.topic = topic
+        self.master_topic = master_topic
         self.url = url
         self.port = port
         self.pub_url = url+":{}".format(port)
@@ -117,19 +203,8 @@ class AERPublisher(object):
         self.context = zmq.Context.instance()
         self.socket = self.context.socket(zmq.PUB)
 
-        self.socket.bind(self.pub_url)
+        self.socket.connect(self.pub_url)
         time.sleep(1)
-
-    def process_data(self, data):
-        """Pre-process data object.
-
-        # Arguments
-            data: to be processed data.
-                This is publisher side pre-process,
-                could be some very low latency processing.
-                Simply return the data for now.
-        """
-        return data
 
     def pack_np_array(self, data_array):
         """Pack numpy array for sending.
@@ -149,52 +224,55 @@ class AERPublisher(object):
             dtype=str(data_array.dtype),
             shape=data_array.shape)
 
-        return [data_array, bytes(json.dumps(md), "utf-8")]
+        return [data_array, json.dumps(md).encode("utf-8")]
 
-    def pack_data(self, data):
-        """Packing DVS or DAVIS data.
-
-        This function sends all outputs (assume everything is open),
-        if you only need to send part of the data,
-        simply override this function
+    def pack_data_by_topic(self, data_topic_name, timestamp, packed_data_list):
+        """Packing data by its topic name.
 
         # Arguments
-            data: tuple
-                The data to pack for sending.
-                The resulting data list is ordered.
+            data_topic_name: str
+                the topic name for this data.
+                E.g., polarity_events, frame_events, imu_events
+            timestamp: byte string
+                a byte string
+            packed_data_list: byte list
+                a list of packed data without topic name
 
-        # Returns
-            packed_data: list
-                the data to send.
-                DAVIS LIST ORDER:
-                    - polarity events
-                    - special events
-                    - frame timestamps
-                    - frames
-                    - imu events
-                The number of events are all omitted.
-
-                DVS LIST ORDER:
-                    - polarity events
-                    - special events
+        # Returns:
+            packed_data: byte list
+                a list of packed data ready to be sent.
         """
+        return [encode_topic_name([self.master_topic, data_topic_name]),
+                timestamp]+packed_data_list
 
-        packed_data = [self.topic]
-        if len(data) == 8:
-            # DAVIS
-            packed_data += self.pack_np_array(data[0])  # polarity events
-            packed_data += self.pack_np_array(data[2])  # special events
-            packed_data += self.pack_np_array(data[4])  # frame time stamps
-            packed_data += self.pack_np_array(data[5])  # frames
-            packed_data += self.pack_np_array(data[6])  # imu events
-        else:
-            # DVS128
-            packed_data += self.pack_np_array(data[0])  # polarity events
-            packed_data += self.pack_np_array(data[2])  # special events
+    def pack_polarity_events(self, timestamp, packed_event,
+                             data_topic_name="polarity_events"):
+        """Pack polarity events."""
+        return self.pack_data_by_topic(
+            data_topic_name, timestamp, packed_event)
 
-        return packed_data
+    def pack_frame_events(self, timestamp, packed_event, frame_timestamp,
+                          data_topic_name="frame_events"):
+        """Pack frame events.
 
-    def run(self):
+        timestamp is the packet level nano second resolution tag.
+        frame_timestamp is the list of timestamps for frames supplied
+            by the device.
+        """
+        return self.pack_data_by_topic(
+            data_topic_name, timestamp, packed_event+frame_timestamp)
+
+    def pack_imu_events(self, timestamp, packed_event,
+                        data_topic_name="imu_events"):
+        return self.pack_data_by_topic(
+            data_topic_name, timestamp, packed_event)
+
+    def pack_special_events(self, timestamp, packed_event,
+                            data_topic_name="special_events"):
+        return self.pack_data_by_topic(
+            data_topic_name, timestamp, packed_event)
+
+    def run(self, verbose=False):
         """Publish data main loop.
 
         Reimplement to your need.
@@ -202,12 +280,52 @@ class AERPublisher(object):
         while True:
             try:
                 data = self.device.get_event()
+                timestamp = get_nanotime()
                 if data is not None:
-                    data = self.pack_data(data)
+                    # You can manipulate data here before sending,
+                    # note that this is a publisher side
+                    # pre-processing, it may slowdown the publishing rate.
 
-                    data = self.process_data(data)
+                    # send polarity events
+                    polarity_data = self.pack_polarity_events(
+                        timestamp,
+                        self.pack_np_array(data[0]))
+                    self.socket.send_multipart(polarity_data)
 
-                    self.socket.send_multipart(data)
+                    if verbose:
+                        print(polarity_data[0].decode("utf-8"),
+                              timestamp.decode("utf-8"))
+
+                    # send special events
+                    special_data = self.pack_special_events(
+                        timestamp,
+                        self.pack_np_array(data[2]))
+                    self.socket.send_multipart(special_data)
+
+                    if verbose:
+                        print(special_data[0].decode("utf-8"))
+
+                    if len(data) > 4:
+                        # DAVIS related device
+
+                        # send frame events
+                        frame_data = self.pack_frame_events(
+                            timestamp,
+                            self.pack_np_array(data[5]),
+                            self.pack_np_array(data[4]))
+                        self.socket.send_multipart(frame_data)
+
+                        if verbose:
+                            print(frame_data[0].decode("utf-8"))
+
+                        # send IMU events
+                        imu_data = self.pack_imu_events(
+                            timestamp,
+                            self.pack_np_array(data[6]))
+                        self.socket.send_multipart(imu_data)
+
+                        if verbose:
+                            print(imu_data[0].decode("utf-8"))
             except KeyboardInterrupt:
                 self.close()
                 break
@@ -219,12 +337,24 @@ class AERPublisher(object):
 
 class AERSubscriber(object):
     def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic=b''):
+                 port=5099, topic=''):
         """AERSubscriber.
 
+        A subscriber can subscribe to a specific topic or all
+        topics. When received a message, it needs to unpack
+        the first two elements: topic name and timestamp
+
+        When saving, make sure the naming strategy is:
+        "master topic name/timestamp/data type"
+
         # Arguments
-            port : int
-                port number
+            url: str
+                address to subscribe
+            port: int
+                port number to listen
+            topic: string
+                set to "" (default) to listen everything.
+                subscribe to specific topics otherwise
         """
         self.url = url
         self.port = port
@@ -239,7 +369,7 @@ class AERSubscriber(object):
         self.context = zmq.Context.instance()
         self.socket = self.context.socket(zmq.SUB)
 
-        self.socket.setsockopt(zmq.SUBSCRIBE, self.topic)
+        self.socket.setsockopt(zmq.SUBSCRIBE, self.topic.encode("utf-8"))
         self.socket.connect(self.sub_url)
 
     def process_data(self, data):
@@ -275,56 +405,52 @@ class AERSubscriber(object):
         except Exception:
             return None
 
-    def unpack_data(self, packed_data):
-        """Packing DVS or DAVIS data.
+    def unpack_data_name(self, data_id_infos, topic_name_only=False):
+        """Get either data packet topic name or identifier."""
+        if topic_name_only is True:
+            return data_id_infos[0].decode("utf-8")
 
-        This function sends all outputs (assume everything is open),
-        if you only need to send part of the data,
-        simply override this function
+        return create_timestamp_group_name(
+            data_id_infos[0], data_id_infos[1])
 
-        # Arguments
-            packed_data: list
-                the data to send.
-                DAVIS LIST ORDER:
-                    - polarity events
-                    - special events
-                    - frame timestamps
-                    - frames
-                    - imu events
+    def unpack_array_data_by_name(self, packed_data):
+        """Unpack a data packet.
 
-                DVS LIST ORDER:
-                    - polarity events
-                    - special events
+        A standard packed data has the following format:
+        [topic_name, timestamp, rest of data]
 
         # Arguments
-            unpacked_data: tuple
-                unpacked data
-                The resulting data list is ordered.
+            packed_data: byte list
+                data to be unpacked.
+
+        # Returns
+            unpacked_data: list
+                [data_identifier (str), data]
         """
+        data_identifier = self.unpack_data_name(packed_data[:2])
 
-        unpacked_data = [packed_data[0]]
-        if len(packed_data) == 11:
-            # DAVIS
-            unpacked_data.append(
-                self.unpack_np_array(packed_data[1:3]))  # polarity events
-            unpacked_data.append(
-                self.unpack_np_array(packed_data[3:5]))  # special events
-            unpacked_data.append(
-                self.unpack_np_array(packed_data[5:7]))  # frame time stamps
-            unpacked_data.append(
-                self.unpack_np_array(packed_data[7:9]))  # frames
-            unpacked_data.append(
-                self.unpack_np_array(packed_data[9:11]))  # imu events
-        else:
-            # DVS128
-            unpacked_data.append(
-                self.unpack_np_array(packed_data[1:3]))  # polarity events
-            unpacked_data.append(
-                self.unpack_np_array(packed_data[3:5]))  # special events
+        array_data = self.unpack_np_array(packed_data[2:])
 
-        return unpacked_data
+        return data_identifier, array_data
 
-    def run(self):
+    def unpack_polarity_events(self, packed_polarity_events):
+        return self.unpack_array_data_by_name(packed_polarity_events)
+
+    def unpack_special_events(self, packed_special_events):
+        return self.unpack_array_data_by_name(packed_special_events)
+
+    def unpack_frame_events(self, packed_frame_events):
+        data_identifier = self.unpack_data_name(packed_frame_events[:2])
+
+        frame_data = self.unpack_np_array(packed_frame_events[2:4])
+        frame_ts_data = self.unpack_np_array(packed_frame_events[4:])
+
+        return data_identifier, frame_data, frame_ts_data
+
+    def unpack_imu_events(self, packed_imu_events):
+        return self.unpack_array_data_by_name(packed_imu_events)
+
+    def run(self, verbose=True):
         """Subscribe data main loop.
 
         Reimplement to your need.
@@ -332,8 +458,21 @@ class AERSubscriber(object):
         while True:
             data = self.socket.recv_multipart()
 
-            data = self.unpacked_data(data)
+            topic_name = self.unpack_array_data_by_name(
+                data[:2], topic_name_only=True)
 
+            # you can select some of these functions to use
+            if "polarity" in topic_name:
+                data_id, polarity_events = self.unpack_polarity_events(data)
+            elif "special" in topic_name:
+                data_id, special_events = self.unpack_special_events(data)
+            elif "frame" in topic_name:
+                data_id, frame_events, frame_ts = \
+                    self.unpack_frame_events(data)
+            elif "imu" in topic_name:
+                data_id, imu_events = self.unpack_imu_events(data)
+
+            # your processing pipe line here
             data = self.process_data(data)
 
 
@@ -342,6 +481,10 @@ class AERHDF5Saver(object):
         """AERHDF5Saver.
 
         A high performance AER HDF5 saver for events.
+
+        WARNING: The use of latest lib version is intended for
+        better performance in IO. This may made the saved volume
+        not compatible with older libraries.
 
         """
         pass
