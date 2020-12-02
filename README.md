@@ -59,6 +59,12 @@ Although there are large function overlaps between these frameworks, PyAER serve
     $ make install
     ```
 
+4. ARM wheels
+
+We are planning to support ARMv8 64bit wheels for all Python versions
+from `0.2.1`. Since `pypi` is not very friendly with ARM wheels,
+please go to our Releases page to download respective wheel files.
+
 ## Got a Linux? [Optional]
 
 __NOTE__: The `libcaer` installation has taken care of this problem.
@@ -133,6 +139,12 @@ cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
     ```
 
 ## Limitations and Notes
+
++ __2020-12-02__: From 0.2.0, we support a `zeromq`-based communication
+module that allow users to leverage multiple processes during development.
+It should be able to support multiple devices and concurrent logging and
+visualization (haven't tested). If you are familiar with ROS, you should
+find this feature very comfortable.
 
 + Current status of the project is meant for single device use. Potentially,
 this library supports multiple devices at the same time by giving concrete
