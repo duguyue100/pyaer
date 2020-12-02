@@ -61,9 +61,9 @@ Although there are large function overlaps between these frameworks, PyAER serve
 
 4. ARM wheels
 
-We are planning to support ARMv8 64bit wheels for all Python versions
-from `0.2.1`. Since `pypi` is not very friendly with ARM wheels,
-please go to our Releases page to download respective wheel files.
+    We are planning to support ARMv8 64bit wheels for all Python versions
+    from `0.2.1`. Since `pypi` is not very friendly with ARM wheels,
+    please go to our Releases page to download respective wheel files.
 
 ## Got a Linux? [Optional]
 
