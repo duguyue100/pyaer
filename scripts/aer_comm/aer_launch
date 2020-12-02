@@ -1,0 +1,197 @@
+#!/usr/bin/env python
+
+"""Parse and Launch AER Communication Programs.
+
+Author: Yuhuang Hu
+Email : yuhuang.hu@ini.uzh.ch
+"""
+
+from __future__ import print_function, absolute_import
+
+import os
+import argparse
+import time
+import json
+from collections import OrderedDict
+from tempfile import mkstemp
+
+from pyaer.utils import expandpath
+from pyaer.comm import AERProcess
+
+HUB = "Hub"
+PUB = "Publisher"
+SUB = "Subscriber"
+
+USE_DEFAULT = "use_default"
+USE_DEFAULT_PUB = "use_default_pub"
+USE_DEFAULT_SUB = "use_default_sub"
+DEFAULT_URL = "tcp://127.0.0.1"
+DEFAULT_PUBLISHER_PORT = "5100"
+DEFAULT_SUBSCRIBER_PORT = "5099"
+DEFAULT_AER_HUB_NAME = "PyAER Message Hub"
+DEFAULT_AER_PUBLISHER_PROGRAM = "aer_publisher"
+DEFAULT_AER_SUBSCRIBER_PROGRAM = "aer_subscriber"
+
+PROGRAM_KEY = "program"
+
+
+def make_temp_json(dict_to_dump):
+    fd, path = mkstemp()
+
+    with open(path, "w") as f:
+        json.dump(dict_to_dump, f)
+
+    os.close(fd)
+
+    return path
+
+
+def parse_hub(hub_desc):
+    parsed_cmd = ["aer_hub"]
+
+    if hub_desc[USE_DEFAULT] is True:
+        parsed_cmd += ["--url", DEFAULT_URL]
+        parsed_cmd += ["--publisher_port", DEFAULT_PUBLISHER_PORT]
+        parsed_cmd += ["--subscriber_port", DEFAULT_SUBSCRIBER_PORT]
+        parsed_cmd += ["--aer_hub_name", DEFAULT_AER_HUB_NAME]
+
+        return parsed_cmd
+
+    parsed_cmd += ["--url", hub_desc["url"]]
+    parsed_cmd += ["--publisher_port", str(hub_desc["publisher_port"])]
+    parsed_cmd += ["--subscriber_port", str(hub_desc["subscriber_port"])]
+    parsed_cmd += ["--aer_hub_name", hub_desc["aer_hub_name"]]
+
+    return parsed_cmd
+
+
+def parse_publisher(pub_desc):
+    parsed_cmd = []
+
+    # select program
+    if pub_desc[USE_DEFAULT] is True:
+        parsed_cmd += [DEFAULT_AER_PUBLISHER_PROGRAM]
+    else:
+        parsed_cmd += [expandpath(pub_desc[PROGRAM_KEY])]
+
+    parsed_cmd += ["--url", pub_desc["url"]]
+    parsed_cmd += ["--port", str(pub_desc["port"])]
+    parsed_cmd += ["--master_topic", pub_desc["master_topic"]]
+
+    if pub_desc[USE_DEFAULT_PUB] is True:
+        parsed_cmd += ["--use_default_pub"]
+    else:
+        # parse custom command
+        parsed_cmd += ["--custom_pub", expandpath(pub_desc["custom_pub"])]
+        parsed_cmd += ["--custom_class", pub_desc["custom_class"]]
+
+        try:
+            custom_args_file_path = make_temp_json(
+                pub_desc["custom_args"])
+            parsed_cmd += ["--custom_args", custom_args_file_path]
+        except Exception:
+            pass
+
+    try:
+        parsed_cmd += ["--device", pub_desc["device"]]
+        if pub_desc["noise_filter"]:
+            parsed_cmd += ["--noise_filter"]
+        parsed_cmd += ["--bias_file", expandpath(pub_desc["bias_file"])]
+    except Exception:
+        pass
+
+    try:
+        extra_configs_file_path = make_temp_json(
+            pub_desc["extra_configs"])
+        parsed_cmd += ["--extra_configs", extra_configs_file_path]
+    except Exception:
+        pass
+
+    return parsed_cmd
+
+
+def parse_subscriber(sub_desc):
+    parsed_cmd = []
+
+    # select program
+    if sub_desc[USE_DEFAULT] is True:
+        parsed_cmd += [DEFAULT_AER_SUBSCRIBER_PROGRAM]
+    else:
+        parsed_cmd += [expandpath(sub_desc[PROGRAM_KEY])]
+
+    parsed_cmd += ["--url", sub_desc["url"]]
+    parsed_cmd += ["--port", str(sub_desc["port"])]
+    parsed_cmd += ["--topic", sub_desc["topic"]]
+
+    if sub_desc[USE_DEFAULT_SUB] is True:
+        parsed_cmd += ["--use_default_sub"]
+    else:
+        # parse custom command
+        parsed_cmd += ["--custom_sub", expandpath(sub_desc["custom_sub"])]
+        parsed_cmd += ["--custom_class", sub_desc["custom_class"]]
+        try:
+            custom_args_file_path = make_temp_json(
+                sub_desc["custom_args"])
+            parsed_cmd += ["--custom_args", custom_args_file_path]
+        except Exception:
+            pass
+
+    try:
+        extra_configs_file_path = make_temp_json(
+            sub_desc["extra_configs"])
+        parsed_cmd += ["--extra_configs", extra_configs_file_path]
+    except Exception:
+        pass
+
+    return parsed_cmd
+
+
+parser = argparse.ArgumentParser("AER Launch")
+parser.add_argument("--launch_file", type=expandpath,
+                    help="AER Launch File")
+
+args = parser.parse_args()
+
+# load launch file
+with open(args.launch_file, "r") as launch_file:
+    launch_desc = json.load(launch_file, object_pairs_hook=OrderedDict)
+
+# main parsing loop
+process_collector = []  # collect all active processes
+
+for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
+    # if the first one is not a hub type, then start the default hub
+    if pg_i == 0 and pg_type != HUB:
+        parsed_hub_cmd = parse_hub({"use_default": True})
+        process_collector.append(
+            AERProcess(parsed_hub_cmd, daemon=True))
+
+    if pg_type == HUB:
+        parsed_hub_cmd = parse_hub(pg_desc)
+        print(parsed_hub_cmd)
+        process_collector.append(
+            AERProcess(parsed_hub_cmd, daemon=True))
+    elif PUB in pg_type:
+        parsed_pub_cmd = parse_publisher(pg_desc)
+        process_collector.append(
+            AERProcess(parsed_pub_cmd, daemon=True))
+    elif SUB in pg_type:
+        parsed_sub_cmd = parse_subscriber(pg_desc)
+        process_collector.append(
+            AERProcess(parsed_sub_cmd, daemon=True))
+    else:
+        print("Unsupported Type {}".format(pg_type))
+
+
+# launching
+for process in process_collector:
+    process.start()
+
+while True:
+    try:
+        time.sleep(1)
+    except KeyboardInterrupt:
+        print("Exiting")
+        for process in process_collector:
+            process.stop()
+        break

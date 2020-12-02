@@ -500,10 +500,41 @@ class AERZarrSaver(object):
         pass
 
 
-class DaemonProcess(Thread):
-    def __init__(self, port):
+class AERProcess(Thread):
+    def __init__(self, cmd, daemon=True):
+        """AER Process.
+
+        # Arguments
+            cmd: list
+                command list that can be processed by subprocess module.
+        """
         super().__init__()
 
-        self.port = port
         self.event = Event()
-        self.daemon = True
+        self.daemon = daemon
+
+        self.cmd = cmd
+        self.program_name = cmd[0]
+
+    def create_process(self):
+        pid = subprocess.Popen(self.cmd)
+        time.sleep(3)
+        assert pid.poll() is None, 'Process {} launch failed'.format(
+            self.program_name)
+
+        return pid
+
+    def run(self):
+        pid = self.create_process()
+
+        while not self.event.is_set():
+            time.sleep(1)
+            assert pid.poll() is None, "Process {} was killed".format(
+                self.program_name)
+
+        pid.terminate()
+        pid.communicate()
+
+    def stop(self):
+        self.event.set()
+        self.join()

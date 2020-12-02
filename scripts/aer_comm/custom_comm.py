@@ -14,8 +14,10 @@ from pyaer.comm import AERPublisher, AERSubscriber
 
 class CustomPublisher(AERPublisher):
 
-    def __init__(self, device, port):
-        super().__init__(device, port)
+    def __init__(self, device, url, port, master_topic,
+                 cfg=None, extra_cfg=None):
+        super().__init__(
+            device=device, url=url, port=port, master_topic=master_topic)
 
     def run(self):
         while True:
@@ -39,7 +41,7 @@ class CustomPublisher(AERPublisher):
 
 class CustomSubscriber(AERSubscriber):
 
-    def __init__(self, url, port, topic):
+    def __init__(self, url, port, topic, cfg=None, extra_cfg=None):
         super().__init__(url, port, topic)
 
     def recv_data(self):
@@ -58,7 +60,6 @@ class CustomSubscriber(AERSubscriber):
                     self.unpack_frame_events(data)
 
                 if frame_events is not None:
-                    print(frame_events.shape)
                     try:
                         cv2.imshow(
                             "frame",

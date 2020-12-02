@@ -35,6 +35,13 @@ parser.add_argument("--custom_pub", type=expandpath,
 parser.add_argument("--custom_class", type=str,
                     default="",
                     help="custom publisher class name")
+parser.add_argument("--custom_args", type=str,
+                    default=None,
+                    help="custom arguments, a JSON file")
+parser.add_argument("--extra_configs", type=str,
+                    default=None,
+                    help="custom arguments, a JSON file")
+
 parser.add_argument("--device", type=str,
                     default="DAVIS",
                     help="Currently supported options: DAVIS, DVS")
@@ -50,14 +57,17 @@ args = parser.parse_args()
 print(json.dumps(args.__dict__, indent=4, sort_keys=True))
 
 # open the device
-if args.device == "DAVIS":
-    device = DAVIS(noise_filter=args.noise_filter)
-elif args.device == "DVS":
-    device = DVS128(noise_filter=args.noise_filter)
+if args.device == "None":
+    device = None
+else:
+    if args.device == "DAVIS":
+        device = DAVIS(noise_filter=args.noise_filter)
+    elif args.device == "DVS":
+        device = DVS128(noise_filter=args.noise_filter)
 
-device.start_data_stream()
-if args.bias_file is not None:
-    device.set_bias_from_json(args.bias_file)
+    device.start_data_stream()
+    if args.bias_file is not None:
+        device.set_bias_from_json(args.bias_file)
 
 # define publisher
 if args.use_default_pub:
@@ -68,10 +78,20 @@ if args.use_default_pub:
                              master_topic=args.master_topic)
     print("Use default publisher")
 else:
+    if args.custom_args is not None:
+        with open(args.custom_args, "r") as f:
+            cfg = json(f)
+    if args.extra_configs is not None:
+        with open(args.extra_configs, "r") as f:
+            extra_cfg = json(f)
+
     # use custom publisher
     print("Use custom publisher {}".format(args.custom_class))
     CustomPublisher = import_custom_module(args.custom_pub, args.custom_class)
-    publisher = CustomPublisher(device=device, port=5556)
+    publisher = CustomPublisher(
+        device=device,
+        url=args.url, port=args.port, master_topic=args.master_topic,
+        cfg=args.custom_args, extra_cfg=args.extra_configs)
 
 # Start sending data
 publisher.run()

@@ -8,6 +8,7 @@ Email : duguyue100@gmail.com
 
 from __future__ import print_function, absolute_import
 
+import json
 import argparse
 
 from pyaer.utils import expandpath, import_custom_module
@@ -33,6 +34,13 @@ parser.add_argument("--custom_class", type=str,
                     default="",
                     help="custom publisher class name")
 
+parser.add_argument("--custom_args", type=str,
+                    default=None,
+                    help="custom arguments, a JSON file")
+parser.add_argument("--extra_configs", type=str,
+                    default=None,
+                    help="custom arguments, a JSON file")
+
 
 args = parser.parse_args()
 
@@ -42,11 +50,19 @@ if args.use_default_sub:
     subscriber = AERSubscriber(url=args.url, port=args.port, topic=args.topic)
     print("Use default subscriber")
 else:
+    if args.custom_args is not None:
+        with open(args.custom_args, "r") as f:
+            cfg = json(f)
+    if args.extra_configs is not None:
+        with open(args.extra_configs, "r") as f:
+            extra_cfg = json(f)
+
     # use custom publisher
     print("Use custom subscriber {}".format(args.custom_class))
     CustomSubscriber = import_custom_module(args.custom_sub, args.custom_class)
     subscriber = CustomSubscriber(
-        url=args.url, port=args.port, topic=args.topic)
+        url=args.url, port=args.port, topic=args.topic,
+        cfg=args.custom_args, extra_cfg=args.extra_configs)
 
 # Start sending data
 subscriber.recv_data()

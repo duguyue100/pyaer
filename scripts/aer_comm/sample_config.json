@@ -1,0 +1,28 @@
+{
+    "Hub": {
+        "use_default": true
+    },
+
+    "Subscriber-frame": {
+        "use_default": true,
+        "url": "tcp://127.0.0.1",
+        "port": 5099,
+        "topic": "",
+        "use_default_sub": false,
+        "custom_sub": "./custom_comm.py",
+        "custom_class": "CustomSubscriber"
+    },
+
+    "Publisher-davis": {
+        "use_default": true,
+        "url": "tcp://127.0.0.1",
+        "port": 5100,
+        "master_topic": "davis-1",
+        "use_default_pub": true,
+        "custom_pub": "./custom_comm.py",
+        "custom_class": "CustomPublisher",
+        "device": "DAVIS",
+        "noise_filter": true,
+        "bias_file": "../configs/davis346_config.json"
+    }
+}
