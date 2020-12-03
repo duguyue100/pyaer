@@ -24,6 +24,8 @@ import subprocess
 from threading import Thread, Event
 import numpy as np
 import zmq
+import h5py
+import zarr
 
 from pyaer import log
 from pyaer.utils import get_nanotime
@@ -477,7 +479,7 @@ class AERSubscriber(object):
 
 
 class AERHDF5Saver(object):
-    def __init__(self):
+    def __init__(self, filename, mode="w-", libver="latest"):
         """AERHDF5Saver.
 
         A high performance AER HDF5 saver for events.
@@ -486,18 +488,77 @@ class AERHDF5Saver(object):
         better performance in IO. This may made the saved volume
         not compatible with older libraries.
 
+        # Arguments
+        filename: str
+            the absolute path of the file to be written.
+
+        mode: str
+            opening mode. We use "w-" as default, it means
+            "create file, fail if exists".
+            You can change to "w" or "a" for your own need.
+
+        libver: str
+            We use "latest" as default to get high performance,
+            However, you can see this page to choose the HDF5 library version,
+            See this page for detailed explanation:
+            https://docs.h5py.org/en/stable/high/
+                file.html?highlight=libver#file-version
         """
-        pass
+        self.filename = filename
+        self.libver = libver
+
+        self.aer_file = h5py.File(
+            name=filename, mode=mode, libver=libver,
+            rdcc_nbytes=50*1024**2,  # 50MB Cache
+            track_order=True  # Follow the order of the message
+            )
+
+    def save(self, data_name, data):
+        """Save data to a dataset.
+
+        # Arguments
+        data_name: str
+            the dataset's name, usually has format
+            master_topic/timestamp/topic
+        data : numpy.ndarray
+            the dataset's content.
+        """
+        # save data
+        self.aer_file.create_dataset(
+            data_name, data=data)
+
+    def close(self):
+        self.aer_file.close()
 
 
 class AERZarrSaver(object):
-    def __init__(self):
+    def __init__(self, filename, mode="w-"):
         """AERZarrSaver.
 
         A high performance AER Zarr saver for events.
 
         """
-        pass
+        self.filename = filename
+
+        self.aer_file = zarr.open_group(
+            store=filename, mode=mode)
+
+    def save(self, data_name, data):
+        """Save data to a dataset.
+
+        # Arguments
+        data_name: str
+            the dataset's name, usually has format
+            master_topic/timestamp/topic
+        data : numpy.ndarray
+            the dataset's content.
+        """
+        # save data
+        self.aer_file.create_dataset(
+            data_name, data=data)
+
+    def close(self):
+        self.aer_file.close()
 
 
 class AERProcess(Thread):

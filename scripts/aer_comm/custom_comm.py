@@ -44,7 +44,7 @@ class CustomSubscriber(AERSubscriber):
     def __init__(self, url, port, topic, cfg=None, extra_cfg=None):
         super().__init__(url, port, topic)
 
-    def recv_data(self):
+    def run(self):
         """Subscribe data main loop.
 
         Reimplement to your need.

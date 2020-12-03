@@ -1,0 +1,112 @@
+#!/usr/bin/env python
+
+"""AER Saver.
+
+Author: Yuhuang Hu
+Email : duguyue100@gmail.com
+"""
+
+from __future__ import print_function, absolute_import
+
+import argparse
+
+from pyaer.utils import expandpath
+from pyaer.comm import AERSubscriber
+from pyaer.comm import AERHDF5Saver, AERZarrSaver
+
+
+class AERSaverSubscriber(AERSubscriber):
+    def __init__(self, url, port, topic):
+        super().__init__(url=url, port=port, topic=topic)
+
+    def set_saver(self, saver):
+        self.saver = saver
+
+    def run(self):
+        while True:
+            try:
+                data = self.socket.recv_multipart()
+
+                topic_name = self.unpack_data_name(
+                    data[:2], topic_name_only=True)
+
+                # you can select some of these functions to use
+                if "polarity" in topic_name:
+                    data_id, polarity_events = \
+                        self.unpack_polarity_events(data)
+                    if polarity_events is not None:
+                        self.saver.save(data_id, polarity_events)
+                elif "special" in topic_name:
+                    data_id, special_events = self.unpack_special_events(data)
+                    if special_events is not None:
+                        self.saver.save(data_id, special_events)
+                elif "frame" in topic_name:
+                    data_id, frame_events, frame_ts = \
+                        self.unpack_frame_events(data)
+                    if frame_events is not None:
+                        self.saver.save(data_id, frame_events)
+                elif "imu" in topic_name:
+                    data_id, imu_events = self.unpack_imu_events(data)
+                    if imu_events is not None:
+                        self.saver.save(data_id, imu_events)
+
+            except Exception as e:
+                print(e)
+                print("Closing saver before shutting down")
+                self.saver.close()
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--url", type=str,
+                    default="tcp://127.0.0.1",
+                    help="AER Subscriber URL")
+parser.add_argument("--port", type=int,
+                    default=5099,
+                    help="the port that connects this subscriber")
+parser.add_argument("--topic", type=str,
+                    default="",
+                    help="Topic to subscribe")
+
+parser.add_argument("--filename", type=expandpath,
+                    default="record.hdf5",
+                    help="Path to save record")
+parser.add_argument("--mode", type=str,
+                    default="w-",
+                    help="opening mode")
+
+parser.add_argument("--hdf5", action="store_true",
+                    help="use HDF5 as saver")
+parser.add_argument("--zarr", action="store_true",
+                    help="use Zarr as saver")
+
+# HDF5 specific arguments
+parser.add_argument("--libver", type=str,
+                    default="latest",
+                    help="HDF5 library version.")
+
+# Zarr specific arguments
+
+
+args = parser.parse_args()
+
+
+if args.hdf5:
+    # use HDF5 as saver
+    saver = AERHDF5Saver(filename=args.filename,
+                         mode=args.mode,
+                         libver=args.libver)
+elif args.zarr:
+    # use Zarr as saver
+    saver = AERZarrSaver(filename=args.filename, mode=args.mode)
+    raise ValueError("It's not so useful right now")
+else:
+    raise ValueError("No saver selected, use --hdf5 or --zarr")
+
+saver_sub = AERSaverSubscriber(
+    url=args.url, port=args.port, topic=args.topic)
+
+# set saver
+saver_sub.set_saver(saver)
+
+# Start sending data
+saver_sub.run()

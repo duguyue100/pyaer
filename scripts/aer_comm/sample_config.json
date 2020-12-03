@@ -3,6 +3,16 @@
         "use_default": true
     },
 
+    "Saver-hdf5": {
+        "url": "tcp://127.0.0.1",
+        "port": 5099,
+        "topic": "",
+        "filename": "~/data/pyaer_test.zarr",
+        "mode": "w",
+        "hdf5": true,
+        "libver": "latest"
+    },
+
     "Subscriber-frame": {
         "use_default": true,
         "url": "tcp://127.0.0.1",
@@ -17,7 +27,7 @@
         "use_default": true,
         "url": "tcp://127.0.0.1",
         "port": 5100,
-        "master_topic": "davis-1",
+        "master_topic": "davis_1",
         "use_default_pub": true,
         "custom_pub": "./custom_comm.py",
         "custom_class": "CustomPublisher",

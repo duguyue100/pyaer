@@ -21,6 +21,7 @@ from pyaer.comm import AERProcess
 HUB = "Hub"
 PUB = "Publisher"
 SUB = "Subscriber"
+SAVER = "Saver"
 
 USE_DEFAULT = "use_default"
 USE_DEFAULT_PUB = "use_default_pub"
@@ -146,6 +147,32 @@ def parse_subscriber(sub_desc):
     return parsed_cmd
 
 
+def parse_saver(saver_desc):
+    parsed_cmd = ["aer_saver"]
+
+    parsed_cmd += ["--url", saver_desc["url"]]
+    parsed_cmd += ["--port", str(saver_desc["port"])]
+    parsed_cmd += ["--topic", saver_desc["topic"]]
+
+    parsed_cmd += ["--filename", expandpath(saver_desc["filename"])]
+    parsed_cmd += ["--mode", saver_desc["mode"]]
+    parsed_cmd += ["--libver", saver_desc["libver"]]
+
+    try:
+        if saver_desc["hdf5"] is True:
+            parsed_cmd += ["--hdf5"]
+    except Exception:
+        pass
+
+    try:
+        if saver_desc["zarr"] is True:
+            parsed_cmd += ["--zarr"]
+    except Exception:
+        pass
+
+    return parsed_cmd
+
+
 parser = argparse.ArgumentParser("AER Launch")
 parser.add_argument("--launch_file", type=expandpath,
                     help="AER Launch File")
@@ -168,7 +195,6 @@ for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
 
     if pg_type == HUB:
         parsed_hub_cmd = parse_hub(pg_desc)
-        print(parsed_hub_cmd)
         process_collector.append(
             AERProcess(parsed_hub_cmd, daemon=True))
     elif PUB in pg_type:
@@ -179,6 +205,11 @@ for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
         parsed_sub_cmd = parse_subscriber(pg_desc)
         process_collector.append(
             AERProcess(parsed_sub_cmd, daemon=True))
+    elif SAVER in pg_type:
+        parsed_saver_cmd = parse_saver(pg_desc)
+        print(parsed_saver_cmd)
+        process_collector.append(
+            AERProcess(parsed_saver_cmd, daemon=True))
     else:
         print("Unsupported Type {}".format(pg_type))
 

@@ -44,7 +44,7 @@ parser.add_argument("--extra_configs", type=str,
 
 args = parser.parse_args()
 
-# define publisher
+# define subscriber
 if args.use_default_sub:
     # fall back to the default publisher
     subscriber = AERSubscriber(url=args.url, port=args.port, topic=args.topic)
@@ -65,4 +65,4 @@ else:
         cfg=args.custom_args, extra_cfg=args.extra_configs)
 
 # Start sending data
-subscriber.recv_data()
+subscriber.run()
