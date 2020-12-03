@@ -21,6 +21,7 @@ import sys
 import time
 import json
 import subprocess
+import signal
 from threading import Thread, Event
 import numpy as np
 import zmq
@@ -593,6 +594,7 @@ class AERProcess(Thread):
             assert pid.poll() is None, "Process {} was killed".format(
                 self.program_name)
 
+        pid.send_signal(signal.SIGINT)
         pid.terminate()
         pid.communicate()
 

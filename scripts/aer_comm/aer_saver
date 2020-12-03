@@ -49,7 +49,6 @@ class AERSaverSubscriber(AERSubscriber):
                     data_id, imu_events = self.unpack_imu_events(data)
                     if imu_events is not None:
                         self.saver.save(data_id, imu_events)
-
             except Exception as e:
                 print(e)
                 print("Closing saver before shutting down")

@@ -207,7 +207,6 @@ for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
             AERProcess(parsed_sub_cmd, daemon=True))
     elif SAVER in pg_type:
         parsed_saver_cmd = parse_saver(pg_desc)
-        print(parsed_saver_cmd)
         process_collector.append(
             AERProcess(parsed_saver_cmd, daemon=True))
     else:
@@ -223,6 +222,6 @@ while True:
         time.sleep(1)
     except KeyboardInterrupt:
         print("Exiting")
-        for process in process_collector:
+        for process in reversed(process_collector):
             process.stop()
         break
