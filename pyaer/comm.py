@@ -22,7 +22,8 @@ import time
 import json
 import subprocess
 import signal
-from threading import Thread, Event
+#  from threading import Thread, Event
+from multiprocessing import Process, Event
 import numpy as np
 import zmq
 import h5py
@@ -562,7 +563,7 @@ class AERZarrSaver(object):
         self.aer_file.close()
 
 
-class AERProcess(Thread):
+class AERProcess(Process):
     def __init__(self, cmd, daemon=True):
         """AER Process.
 

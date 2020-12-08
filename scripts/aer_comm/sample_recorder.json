@@ -3,6 +3,16 @@
         "use_default": true
     },
 
+    "Saver-hdf5": {
+        "url": "tcp://127.0.0.1",
+        "port": 5099,
+        "topic": "",
+        "filename": "~/data/pyaer_test.hdf5",
+        "mode": "w",
+        "hdf5": true,
+        "libver": "latest"
+    },
+
     "Subscriber-frame": {
         "use_default": true,
         "url": "tcp://127.0.0.1",
