@@ -22,6 +22,8 @@ import time
 import json
 import subprocess
 import signal
+from collections import OrderedDict
+from datetime import datetime
 #  from threading import Thread, Event
 from multiprocessing import Process, Event
 import numpy as np
@@ -549,6 +551,135 @@ class AERHDF5Saver(object):
         # save data
         self.aer_file.create_dataset(
             data_name, data=data)
+
+    def close(self):
+        self.aer_file.close()
+
+
+class AERHDF5Reader(object):
+    def __init__(self, filename, mode="r", libver="latest",
+                 use_wall_clock=True):
+        """AERHDF5Saver.
+
+        A high performance AER HDF5 Reader for events.
+
+        WARNING: The use of latest lib version is intended for
+        better performance in IO. This may made the saved volume
+        not compatible with older libraries.
+
+        We use the wall clock to determine the timestamp.
+
+        # Arguments
+        filename: str
+            the absolute path of the file to be read.
+
+        mode: str
+            opening mode. We use "r" as default, it means
+            "read-only, file must exist".
+            You can change to "r+" or "a" for your own need.
+
+        libver: str
+            We use "latest" as default to get high performance,
+            However, you can see this page to choose the HDF5 library version,
+            See this page for detailed explanation:
+            https://docs.h5py.org/en/stable/high/
+                file.html?highlight=libver#file-version
+        """
+        self.filename = filename
+        self.libver = libver
+
+        self.aer_file = h5py.File(
+            name=filename, mode=mode, libver=libver,
+            rdcc_nbytes=50*1024**2,  # 50MB Cache
+            track_order=True  # Follow the order of the message
+            )
+
+        self.logger = log.get_logger(
+            "HDFReader", log.INFO, stream=sys.stdout)
+
+        self.logger.info("Getting Device Keys")
+        self.device_keys = self.aer_file.keys()
+
+        self.logger.info("Getting group keys")
+        self.group_keys = OrderedDict()
+
+        for device in self.device_keys:
+            self.group_keys[device] = self.aer_file[device].keys()
+
+    def get_devices(self):
+        return self.device_keys
+
+    def get_keys(self):
+        return self.group_keys
+
+    def get_frame(self, device_name, group_name):
+        """Get frame events at this packet."""
+
+        try:
+            frame_events = \
+                self.aer_file[device_name][group_name]["frame_events"][()]
+
+            if frame_events.size == 0:
+                frame_events = None
+
+            return frame_events
+        except Exception:
+            return None
+
+    def get_polarity_events(self, device_name, group_name):
+        """Get polarity events.
+
+        Note that the time is converted to nanosecs.
+        """
+        try:
+            polarity_events = \
+                self.aer_file[device_name][group_name]["polarity_events"][()]
+
+            # modify time
+            polarity_events[:, 0] -= polarity_events[0, 0]
+            polarity_events[:, 0] *= 1000
+            polarity_events[:, 0] += int(group_name)
+
+            return polarity_events
+        except Exception:
+            return None
+
+    def get_imu_events(self, device_name, group_name):
+        """Get IMU events."""
+        try:
+            imu_events = \
+                self.aer_file[device_name][group_name]["imu_events"][()]
+
+            # modify time
+            imu_events[:, 0] -= imu_events[0, 0]
+            imu_events[:, 0] *= 1000
+            imu_events[:, 0] += float(group_name)
+
+            return imu_events
+        except Exception:
+            return None
+
+    def get_special_events(self, device_name, group_name):
+        """Get spcial events."""
+        try:
+            special_events = \
+                self.aer_file[device_name][group_name]["special_events"][()]
+
+            # modify time
+            special_events[:, 0] -= special_events[0, 0]
+            special_events[:, 0] *= 1000
+            special_events[:, 0] += int(group_name)
+
+            return special_events
+        except Exception:
+            return None
+
+    def get_time(self, device_name, group_name):
+        return int(group_name)
+
+    def get_wall_time(self, nanosecs):
+        dt = datetime.fromtimestamp(float(nanosecs)/1e9)
+        return dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
 
     def close(self):
         self.aer_file.close()
