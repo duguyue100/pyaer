@@ -16,7 +16,6 @@ Email : yuhuang.hu@ini.uzh.ch
 
 from __future__ import print_function, absolute_import
 
-import os
 import sys
 import time
 import json
@@ -620,7 +619,7 @@ class AERHDF5Reader(object):
                 self.aer_file[device_name][group_name]["frame_events"][()]
 
             if frame_events.size == 0:
-                frame_events = None
+                return None
 
             return frame_events
         except Exception:
