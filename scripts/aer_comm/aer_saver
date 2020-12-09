@@ -8,6 +8,7 @@ Email : duguyue100@gmail.com
 
 from __future__ import print_function, absolute_import
 
+import json
 import argparse
 
 from pyaer.utils import expandpath
@@ -16,8 +17,8 @@ from pyaer.comm import AERHDF5Saver, AERZarrSaver
 
 
 class AERSaverSubscriber(AERSubscriber):
-    def __init__(self, url, port, topic):
-        super().__init__(url=url, port=port, topic=topic)
+    def __init__(self, url, port, topic, name):
+        super().__init__(url=url, port=port, topic=topic, name=name)
 
     def set_saver(self, saver):
         self.saver = saver
@@ -50,7 +51,7 @@ class AERSaverSubscriber(AERSubscriber):
                     if imu_events is not None:
                         self.saver.save(data_id, imu_events)
             except KeyboardInterrupt:
-                print("Closing saver before shutting down")
+                self.logger.info("Closing saver before shutting down")
                 self.saver.close()
                 break
 
@@ -65,6 +66,8 @@ parser.add_argument("--port", type=int,
 parser.add_argument("--topic", type=str,
                     default="",
                     help="Topic to subscribe")
+parser.add_argument("--name", type=str,
+                    default="")
 
 parser.add_argument("--filename", type=expandpath,
                     default="record.hdf5",
@@ -88,6 +91,9 @@ parser.add_argument("--libver", type=str,
 
 args = parser.parse_args()
 
+# print all options
+print(json.dumps(args.__dict__, indent=4, sort_keys=True))
+
 
 if args.hdf5:
     # use HDF5 as saver
@@ -102,7 +108,8 @@ else:
     raise ValueError("No saver selected, use --hdf5 or --zarr")
 
 saver_sub = AERSaverSubscriber(
-    url=args.url, port=args.port, topic=args.topic)
+    url=args.url, port=args.port, topic=args.topic,
+    name=args.name)
 
 # set saver
 saver_sub.set_saver(saver)

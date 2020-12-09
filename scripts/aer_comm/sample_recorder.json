@@ -10,7 +10,8 @@
         "filename": "~/data/pyaer_test.hdf5",
         "mode": "w",
         "hdf5": true,
-        "libver": "latest"
+        "libver": "earliest",
+        "name": "aer_saver"
     },
 
     "Subscriber-frame": {
@@ -20,7 +21,8 @@
         "topic": "",
         "use_default_sub": false,
         "custom_sub": "./custom_comm.py",
-        "custom_class": "CustomSubscriber"
+        "custom_class": "CustomSubscriber",
+        "name": "frame_subscriber"
     },
 
     "Publisher-davis": {
@@ -33,6 +35,7 @@
         "custom_class": "CustomPublisher",
         "device": "DAVIS",
         "noise_filter": true,
-        "bias_file": "../configs/davis346_config.json"
+        "bias_file": "../configs/davis346_config.json",
+        "name": "davis_publisher"
     }
 }

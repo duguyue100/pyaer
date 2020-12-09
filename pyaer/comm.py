@@ -162,7 +162,8 @@ class AERHub(object):
 class AERPublisher(object):
     def __init__(self, device=None,
                  url="tcp://127.0.0.1",
-                 port=5100, master_topic=''):
+                 port=5100, master_topic='',
+                 name=""):
         """AERPublisher.
 
         Topics are organized in the following way:
@@ -190,6 +191,8 @@ class AERPublisher(object):
                 the master topic name, such as davis-1
                 This is usually a device level identifier.
                 There can be sub-topics under this identifier
+            name : str
+                the name of the publisher
         """
         # AER device
         self.device = device
@@ -198,6 +201,11 @@ class AERPublisher(object):
         self.url = url
         self.port = port
         self.pub_url = url+":{}".format(port)
+        self.name = name
+
+        self.logger = log.get_logger(
+            "Publisher-{}".format(self.name),
+            log.INFO, stream=sys.stdout)
 
         # initialize socket for publisher
         self.init_socket()
@@ -297,8 +305,9 @@ class AERPublisher(object):
                     self.socket.send_multipart(polarity_data)
 
                     if verbose:
-                        print(polarity_data[0].decode("utf-8"),
-                              timestamp.decode("utf-8"))
+                        self.logger.debug("{} {}".format(
+                            polarity_data[0].decode("utf-8"),
+                            timestamp.decode("utf-8")))
 
                     # send special events
                     special_data = self.pack_special_events(
@@ -307,7 +316,8 @@ class AERPublisher(object):
                     self.socket.send_multipart(special_data)
 
                     if verbose:
-                        print(special_data[0].decode("utf-8"))
+                        self.logger.debug(
+                            "{}".format(special_data[0].decode("utf-8")))
 
                     if len(data) > 4:
                         # DAVIS related device
@@ -320,7 +330,8 @@ class AERPublisher(object):
                         self.socket.send_multipart(frame_data)
 
                         if verbose:
-                            print(frame_data[0].decode("utf-8"))
+                            self.logger.debug("{}".format(
+                                frame_data[0].decode("utf-8")))
 
                         # send IMU events
                         imu_data = self.pack_imu_events(
@@ -329,8 +340,11 @@ class AERPublisher(object):
                         self.socket.send_multipart(imu_data)
 
                         if verbose:
-                            print(imu_data[0].decode("utf-8"))
+                            self.logger.debug("{}".format(
+                                imu_data[0].decode("utf-8")))
             except KeyboardInterrupt:
+                self.logger.info("Shutting down publisher {}".format(
+                    self.name))
                 self.close()
                 break
 
@@ -341,7 +355,7 @@ class AERPublisher(object):
 
 class AERSubscriber(object):
     def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic=''):
+                 port=5099, topic='', name=""):
         """AERSubscriber.
 
         A subscriber can subscribe to a specific topic or all
@@ -352,18 +366,25 @@ class AERSubscriber(object):
         "master topic name/timestamp/data type"
 
         # Arguments
-            url: str
+            url : str
                 address to subscribe
-            port: int
+            port : int
                 port number to listen
-            topic: string
+            topic : string
                 set to "" (default) to listen everything.
                 subscribe to specific topics otherwise
+            name : str
+                the name of the subscriber
         """
         self.url = url
         self.port = port
         self.sub_url = url+":{}".format(port)
         self.topic = topic
+        self.name = name
+
+        self.logger = log.get_logger(
+            "Subscriber-{}".format(self.name),
+            log.INFO, stream=sys.stdout)
 
         # initialize socket for subscriber
         self.init_socket()

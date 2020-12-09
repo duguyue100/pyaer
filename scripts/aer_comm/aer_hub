@@ -8,7 +8,9 @@ Email : yuhuang.hu@ini.uzh.ch
 
 from __future__ import print_function, absolute_import
 
+import json
 import argparse
+
 from pyaer.comm import AERHub
 
 parser = argparse.ArgumentParser("AER Hub")
@@ -32,6 +34,9 @@ parser.add_argument("--aer_hub_name", type=str,
                     default="PyAER Message Hub")
 
 args = parser.parse_args()
+
+# print all options
+print(json.dumps(args.__dict__, indent=4, sort_keys=True))
 
 
 aer_hub = AERHub(url=args.url,

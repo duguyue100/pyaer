@@ -24,6 +24,9 @@ parser.add_argument("--port", type=int,
 parser.add_argument("--topic", type=str,
                     default="",
                     help="Topic to subscribe")
+parser.add_argument("--name", type=str,
+                    default="",
+                    help="Name of the subscriber")
 
 parser.add_argument("--use_default_sub", action="store_true")
 
@@ -44,11 +47,16 @@ parser.add_argument("--extra_configs", type=str,
 
 args = parser.parse_args()
 
+# print all options
+print(json.dumps(args.__dict__, indent=4, sort_keys=True))
+
 # define subscriber
 if args.use_default_sub:
     # fall back to the default publisher
-    subscriber = AERSubscriber(url=args.url, port=args.port, topic=args.topic)
-    print("Use default subscriber")
+    subscriber = AERSubscriber(
+        url=args.url, port=args.port, topic=args.topic,
+        name=args.name)
+    subscriber.logger.info("Use default subscriber")
 else:
     if args.custom_args is not None:
         with open(args.custom_args, "r") as f:
@@ -58,11 +66,12 @@ else:
             extra_cfg = json(f)
 
     # use custom publisher
-    print("Use custom subscriber {}".format(args.custom_class))
     CustomSubscriber = import_custom_module(args.custom_sub, args.custom_class)
     subscriber = CustomSubscriber(
-        url=args.url, port=args.port, topic=args.topic,
+        url=args.url, port=args.port, topic=args.topic, name=args.name,
         cfg=args.custom_args, extra_cfg=args.extra_configs)
+    subscriber.logger.info(
+        "Use custom subscriber {}".format(args.custom_class))
 
 # Start sending data
 subscriber.run()

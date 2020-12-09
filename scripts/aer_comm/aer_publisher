@@ -26,6 +26,9 @@ parser.add_argument("--port", type=int,
 parser.add_argument("--master_topic", type=str,
                     default="device",
                     help="Master topic name for the publisher")
+parser.add_argument("--name", type=str,
+                    default="",
+                    help="Name of the publisher")
 
 parser.add_argument("--use_default_pub", action="store_true")
 
@@ -75,8 +78,9 @@ if args.use_default_pub:
     publisher = AERPublisher(device=device,
                              url=args.url,
                              port=args.port,
-                             master_topic=args.master_topic)
-    print("Use default publisher")
+                             master_topic=args.master_topic,
+                             name=args.name)
+    publisher.logger.info("Use default publisher")
 else:
     if args.custom_args is not None:
         with open(args.custom_args, "r") as f:
@@ -86,12 +90,13 @@ else:
             extra_cfg = json(f)
 
     # use custom publisher
-    print("Use custom publisher {}".format(args.custom_class))
     CustomPublisher = import_custom_module(args.custom_pub, args.custom_class)
     publisher = CustomPublisher(
         device=device,
         url=args.url, port=args.port, master_topic=args.master_topic,
+        name=args.name,
         cfg=args.custom_args, extra_cfg=args.extra_configs)
+    publisher.logger.info("Use custom publisher {}".format(args.custom_class))
 
 # Start sending data
 publisher.run()

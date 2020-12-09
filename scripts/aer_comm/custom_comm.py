@@ -14,7 +14,7 @@ from pyaer.comm import AERPublisher, AERSubscriber
 
 class CustomPublisher(AERPublisher):
 
-    def __init__(self, device, url, port, master_topic,
+    def __init__(self, device, url, port, master_topic, name,
                  cfg=None, extra_cfg=None):
         super().__init__(
             device=device, url=url, port=port, master_topic=master_topic)
@@ -41,8 +41,8 @@ class CustomPublisher(AERPublisher):
 
 class CustomSubscriber(AERSubscriber):
 
-    def __init__(self, url, port, topic, cfg=None, extra_cfg=None):
-        super().__init__(url, port, topic)
+    def __init__(self, url, port, topic, name, cfg=None, extra_cfg=None):
+        super().__init__(url, port, topic, name)
 
     def run(self):
         """Subscribe data main loop.

@@ -78,6 +78,7 @@ def parse_publisher(pub_desc):
     parsed_cmd += ["--url", pub_desc["url"]]
     parsed_cmd += ["--port", str(pub_desc["port"])]
     parsed_cmd += ["--master_topic", pub_desc["master_topic"]]
+    parsed_cmd += ["--name", pub_desc["name"]]
 
     if pub_desc[USE_DEFAULT_PUB] is True:
         parsed_cmd += ["--use_default_pub"]
@@ -123,6 +124,7 @@ def parse_subscriber(sub_desc):
     parsed_cmd += ["--url", sub_desc["url"]]
     parsed_cmd += ["--port", str(sub_desc["port"])]
     parsed_cmd += ["--topic", sub_desc["topic"]]
+    parsed_cmd += ["--name", sub_desc["name"]]
 
     if sub_desc[USE_DEFAULT_SUB] is True:
         parsed_cmd += ["--use_default_sub"]
@@ -153,6 +155,7 @@ def parse_saver(saver_desc):
     parsed_cmd += ["--url", saver_desc["url"]]
     parsed_cmd += ["--port", str(saver_desc["port"])]
     parsed_cmd += ["--topic", saver_desc["topic"]]
+    parsed_cmd += ["--name", saver_desc["name"]]
 
     parsed_cmd += ["--filename", expandpath(saver_desc["filename"])]
     parsed_cmd += ["--mode", saver_desc["mode"]]
