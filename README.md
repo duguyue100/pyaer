@@ -140,6 +140,11 @@ cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
 
 ## Limitations and Notes
 
++ __2020-12-10__: From 0.2.1, we will support experimental interfaces for
+DVXplorer, DVXplorer Lite, and Samsung EVK. We will test these interfaces
+if we manage to get physical devices. Otherwise, we welcome community
+tests and improvements.
+
 + __2020-12-02__: From 0.2.0, we support a `zeromq`-based communication
 module that allow users to leverage multiple processes during development.
 It should be able to support multiple devices and concurrent logging and
