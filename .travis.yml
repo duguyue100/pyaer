@@ -5,18 +5,14 @@ cache:
 
 language: generic
 
+os: linux
+
 env:
     global:
         - TWINE_USERNAME=duguyue100
 
 jobs:
     include:
-        # - os: linux
-        #   sudo: required
-        #   env: TOXENV=py27
-        # - os: linux
-        #   sudo: required
-        #   env: TOXENV=py34
         - os: linux
           env: TOXENV=py35
         - os: linux
@@ -25,16 +21,6 @@ jobs:
           env: TOXENV=py37
         - os: linux
           env: TOXENV=py38
-        # - os: osx
-        #   sudo: required
-        #   env:
-        #       - TOXENV=py27
-        #       - HOMEBREW_NO_AUTO_UPDATE=1
-        # - os: osx
-        #   sudo: required
-        #   env:
-        #       - TOXENV=py34
-        #       - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
           env:
               - TOXENV=py35
@@ -52,14 +38,11 @@ jobs:
               - TOXENV=py38
               - HOMEBREW_NO_AUTO_UPDATE=1
 
-
-
 deploy:
   provider: releases
   token: $GITHUB_TOKEN 
   file_glob: true
   file: dist/*.whl
-  skip_cleanup: true
   on:
     tags: true
 
@@ -77,10 +60,6 @@ before_install:
     - export PATH=$HOME/miniconda/bin:$PATH
     - conda info -a
     - conda update --yes conda
-    # - if [[ "$TOXENV" == "py34" ]]; then
-    #     conda create -n py34 python=3.4 --yes;
-    #     source activate py34;
-    #   fi
     - if [[ "$TOXENV" == "py35" ]]; then
         conda create -n py35 python=3.5 --yes;
         source activate py35;
