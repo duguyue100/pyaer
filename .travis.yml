@@ -9,7 +9,7 @@ env:
     global:
         - TWINE_USERNAME=duguyue100
 
-matrix:
+jobs:
     include:
         # - os: linux
         #   sudo: required
@@ -18,16 +18,12 @@ matrix:
         #   sudo: required
         #   env: TOXENV=py34
         - os: linux
-          sudo: required
           env: TOXENV=py35
         - os: linux
-          sudo: required
           env: TOXENV=py36
         - os: linux
-          sudo: required
           env: TOXENV=py37
         - os: linux
-          sudo: required
           env: TOXENV=py38
         # - os: osx
         #   sudo: required
@@ -40,22 +36,18 @@ matrix:
         #       - TOXENV=py34
         #       - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
-          sudo: required
           env:
               - TOXENV=py35
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
-          sudo: required
           env:
               - TOXENV=py36
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
-          sudo: required
           env:
               - TOXENV=py37
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
-          sudo: required
           env:
               - TOXENV=py38
               - HOMEBREW_NO_AUTO_UPDATE=1
@@ -64,7 +56,7 @@ matrix:
 
 deploy:
   provider: releases
-  api_key: $GITHUB_TOKEN 
+  token: $GITHUB_TOKEN 
   file_glob: true
   file: dist/*.whl
   skip_cleanup: true
