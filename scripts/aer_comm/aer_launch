@@ -9,6 +9,7 @@ Email : yuhuang.hu@ini.uzh.ch
 from __future__ import print_function, absolute_import
 
 import os
+import sys
 import argparse
 import time
 import json
@@ -17,6 +18,7 @@ from tempfile import mkstemp
 
 from pyaer.utils import expandpath
 from pyaer.comm import AERProcess
+from pyaer import log
 
 HUB = "Hub"
 PUB = "Publisher"
@@ -34,6 +36,10 @@ DEFAULT_AER_PUBLISHER_PROGRAM = "aer_publisher"
 DEFAULT_AER_SUBSCRIBER_PROGRAM = "aer_subscriber"
 
 PROGRAM_KEY = "program"
+
+launch_logger = log.get_logger(
+    "AER Launcher",
+    log.INFO, stream=sys.stdout)
 
 
 def make_temp_json(dict_to_dump):
@@ -213,7 +219,7 @@ for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
         process_collector.append(
             AERProcess(parsed_saver_cmd, daemon=True))
     else:
-        print("Unsupported Type {}".format(pg_type))
+        launch_logger.error("Unsupported Type {}".format(pg_type))
 
 
 # launching
@@ -224,7 +230,7 @@ while True:
     try:
         time.sleep(1)
     except KeyboardInterrupt:
-        print("Exiting")
+        launch_logger.info("Exiting launcher, terminating all processes.")
         for process in reversed(process_collector):
             process.stop()
         break

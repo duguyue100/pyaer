@@ -15,12 +15,12 @@ from pyaer.comm import AERSubscriber
 
 class ListSubscriber(AERSubscriber):
     def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic=''):
+                 port=5099, topic='', name="Topic List"):
         """ListSubscriber.
 
         Used for list all the topics.
         """
-        super().__init__(url=url, port=port, topic=topic)
+        super().__init__(url=url, port=port, topic=topic, name=name)
 
     def run(self):
         topic_list = []
