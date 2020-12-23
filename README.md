@@ -1,4 +1,6 @@
-# PyAER
+![PyAER](./res/pyaer_cover_img.png)
+
+---
 
 [![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
