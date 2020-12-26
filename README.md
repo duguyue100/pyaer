@@ -8,9 +8,17 @@
 [![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1419354.svg)](https://doi.org/10.5281/zenodo.1419354)
 
-![Ubuntu](https://img.shields.io/badge/OS-Ubuntu-orange.svg)
+![Linux](https://img.shields.io/badge/OS-Linux-orange.svg)
 ![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
-![Raspbian](https://img.shields.io/badge/OS-Raspbian%20Stretch-orange.svg)
+![ARM](https://img.shields.io/badge/ARCH-ARM-orange.svg)
+
+![DVS128](https://img.shields.io/badge/DEVICE-DVS128-blueviolet.svg)
+![eDVS](https://img.shields.io/badge/DEVICE-eDVS-blueviolet.svg)
+![DVS240C](https://img.shields.io/badge/DEVICE-DVS240C-blueviolet.svg)
+![DVS346](https://img.shields.io/badge/DEVICE-DVS346-blueviolet.svg)
+![DVXLite](https://img.shields.io/badge/DEVICE-DVXplorer%20Lite-blueviolet.svg)
+![DVX](https://img.shields.io/badge/DEVICE-DVXplorer-blueviolet.svg)
+![EVK](https://img.shields.io/badge/DEVICE-Samsung%20EVK-blueviolet.svg)
 
 PyAER with Swig Bindings
 
@@ -34,7 +42,7 @@ Although there are large function overlaps between these frameworks, PyAER serve
 
 + Minimum installation effort.
 + Clean, simple, easy to manage.
-+ Well documented, human-readable code.
+ Well documented, human-readable code.
 
 ## Installation
 
@@ -61,12 +69,6 @@ Although there are large function overlaps between these frameworks, PyAER serve
     $ make install
     ```
 
-4. ARM wheels
-
-    We are planning to support ARMv8 64bit wheels for all Python versions
-    from `0.2.1`. Since `pypi` is not very friendly with ARM wheels,
-    please go to our Releases page to download respective wheel files.
-
 ## Got a Linux? [Optional]
 
 __NOTE__: The `libcaer` installation has taken care of this problem.
@@ -86,11 +88,9 @@ The [scripts](./scripts) folder provides some examples for you to play with:
 
 1. `dvs128-test`: you need OpenCV to run this example, note that if you are on Mac, OpenCV's `waitKey()` function may cause delay of displaying frames.
 
-2. `dvs128-glumpy`: you need `glumpy` package to run this example. `glumpy` is a fast visualization library based on OpenGL. We found it's very fast to render images. In our case, we use GLFW backend. If `glumpy` couldn't find your installed GLFW on your system, make sure you set the `GLFW_LIBRARY` variable to `/your/glfw/library/path/libglfw.so`.
+2. `dvs240-test`: you need OpenCV to run this example.
 
-3. `dvs240-test`: you need OpenCV to run this example.
-
-4. `dvs346-test`: you need OpenCV to run this example.
+3. `dvs346-test`: you need OpenCV to run this example.
 
 More examples are coming...
 
@@ -152,22 +152,6 @@ module that allow users to leverage multiple processes during development.
 It should be able to support multiple devices and concurrent logging and
 visualization (haven't tested). If you are familiar with ROS, you should
 find this feature very comfortable.
-
-+ Current status of the project is meant for single device use. Potentially,
-this library supports multiple devices at the same time by giving concrete
-device names and serial numbers. Supporting and testing for multiple devices
-setup is in long-term plan, but we are not working on this right now.
-
-+ Once the data stream is open, the data will be streamed through USB connection
-at certain publishing frequency (e.g. 100Hz). This is a hardware configuration,
-therefore you couldn't drop event packets by putting software-level delay.
-You can either skip processing the coming packets by some conditions or
-implement a queuing system that can do a particular dynamic fetching.
-
-+ It's recommended to implement a multi-processing or multi-threading
-program so that each process or thread only deals with one particular task.
-The fetching of the event packets may be very fast, your program may be delayed
-if you are not carefully coping with this fact.
 
 + DYNAP is generally supported. We are currently looking for the correct
 bias configuration mechanism so that it can easily support the use of the
