@@ -50,9 +50,9 @@
 %include <libcaer/devices/dynapse.h>
 %include <libcaer/devices/device_discover.h>
 %include <libcaer/devices/dvs132s.h>
-#include <libcaer/devices/dvxplorer.h>
-#include <libcaer/devices/imu_support.h>
-#include <libcaer/devices/samsung_evk.h>
+%include <libcaer/devices/dvxplorer.h>
+%include <libcaer/devices/imu_support.h>
+%include <libcaer/devices/samsung_evk.h>
 %include <libcaer/events/common.h>
 %include <libcaer/events/frame.h>
 %include <libcaer/events/imu6.h>

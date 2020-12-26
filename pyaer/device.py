@@ -5,8 +5,6 @@ Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
 import abc
-import cv2
-import numpy as np
 from pyaer import libcaer
 
 

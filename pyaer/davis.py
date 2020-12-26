@@ -106,7 +106,7 @@ class DAVIS(USBDevice):
 
         This function collects the following information from the device:
 
-        - Deveice ID
+        - Device ID
         - Device serial number
         - Device USB bus number
         - Device USB device address

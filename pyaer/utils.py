@@ -131,6 +131,52 @@ def load_davis_bias(file_path, verbose=False):
         return None
 
 
+def load_dvxplorer_bias(file_path, verbose=False):
+    """Load DVXPLORER bias.
+
+    # Arguments
+        file_path : `str`<br/>`
+            the absolute path to the JSON string.
+
+    # Returns
+        bias_obj: `dict`<br/>
+            A dictionary that contains valid DVXPLORER bias.
+    """
+    bias_obj = load_json(file_path)
+
+    if bias_obj is not None:
+        if verbose:
+            for key, value in bias_obj.iteritems():
+                logger.debug("%s: %d" % (key, value))
+        # TODO: to check validity of the bias file
+        return bias_obj
+    else:
+        return None
+
+
+def load_evk_bias(file_path, verbose=False):
+    """Load EVK bias.
+
+    # Arguments
+        file_path : `str`<br/>`
+            the absolute path to the JSON string.
+
+    # Returns
+        bias_obj: `dict`<br/>
+            A dictionary that contains valid EVK bias.
+    """
+    bias_obj = load_json(file_path)
+
+    if bias_obj is not None:
+        if verbose:
+            for key, value in bias_obj.iteritems():
+                logger.debug("%s: %d" % (key, value))
+        # TODO: to check validity of the bias file
+        return bias_obj
+    else:
+        return None
+
+
 def load_dynapse_bias(file_path, verbose=False):
     """Load DYNAPSE bias.
 
