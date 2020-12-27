@@ -112,19 +112,17 @@ before_install:
       fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-get install build-essential -y;
-        sudo apt-get install cmake;
         sudo apt-get install libusb-1.0-0-dev -y;
         sudo apt-get install automake -y;
         sudo apt-get install bison -y;
+
+        sudo apt-get install snapd;
+        sudo snap install cmake --classic;
+        export PATH=/snap/bin:$PATH;
       else
         brew install libusb;
         brew install automake;
         brew install bison;
-      fi
-    - if [[ "${TRAVIS_CPU_ARCH}" == "arm64" ]]; then
-        sudo apt-get install snapd;
-        sudo snap install cmake --classic;
-        export PATH=/snap/bin:$PATH;
       fi
     - git clone git://sigrok.org/libserialport
     - cd libserialport
@@ -137,7 +135,7 @@ before_install:
     - git clone https://github.com/duguyue100/swig
     - cd swig
     - ./autogen.sh
-    - ./configure --without-alllang --with-python=$(command -v python)
+    - ./configure --without-alllang --with-python=$(command -v python) ----without-pcre
     - make
     - sudo make install
     - cd ..
