@@ -80,9 +80,8 @@ setup(
 
     url=about["__url__"],
 
-    install_requires=["numpy >= 1.16.1",
-                      "future",
-                      "pyzmq"],
+    install_requires=["numpy >= 1.18.0",
+                      "future"],
 
     packages=find_packages(),
 

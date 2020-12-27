@@ -141,7 +141,15 @@ before_install:
     - cd ..
 
 install:
-    - pip install numpy==1.18.0
+    - if [[ "$TRAVIS_OS_NAME" == "amd64" ]]; then
+        pip install numpy==1.18.0;
+      else
+        sudo apt-get -yq --no-install-suggests --no-install-recommends --force-yes install gcc-7 g++-7;
+        sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-7 /usr/bin/gcc;
+        sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-7 /usr/bin/g++;
+        gcc --version;
+        pip install numpy==1.18.0;
+      fi
     - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then

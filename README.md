@@ -54,8 +54,6 @@ Although there are large function overlaps between these frameworks, PyAER serve
 
     __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
 
-    __NOTE:__ From 0.1.0a18, we support eDVS, you will need to install `libserialport` so that the package can work properly, follow the building instructions from [here](https://sigrok.org/wiki/Libserialport). Currently, this support is not built into the release since we are not clear how useful is this feature. If you are interested, you can build the project from scratch.
-
 2. Install `pyaer` from pypi (RECOMMEND)
 
     ```bash
@@ -68,6 +66,13 @@ Although there are large function overlaps between these frameworks, PyAER serve
     $ git clone https://github.com/duguyue100/pyaer.git
     $ make install
     ```
+
+4. Install `pyzmq`
+    ```
+    $ pip install pyzmq
+    ```
+
+    __NOTE:__ `pyzmq` is not available on ARM-based computer, you will need to build yourself.
 
 ## Got a Linux? [Optional]
 
