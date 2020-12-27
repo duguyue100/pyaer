@@ -110,6 +110,12 @@ before_install:
         sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++;
         gcc --version;
       fi
+    - if [[ "$TRAVIS_CPU_ARCH" == "arm64" ]]; then
+        sudo apt-get -yq --no-install-suggests --no-install-recommends --force-yes install gcc-7 g++-7;
+        sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-7 /usr/bin/gcc;
+        sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-7 /usr/bin/g++;
+        gcc --version;
+      fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-get install build-essential -y;
         sudo apt-get install libusb-1.0-0-dev -y;
@@ -141,15 +147,7 @@ before_install:
     - cd ..
 
 install:
-    - if [[ "$TRAVIS_OS_NAME" == "amd64" ]]; then
-        pip install numpy==1.18.0;
-      else
-        sudo apt-get -yq --no-install-suggests --no-install-recommends --force-yes install gcc-7 g++-7;
-        sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-7 /usr/bin/gcc;
-        sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-7 /usr/bin/g++;
-        gcc --version;
-        pip install numpy==1.18.0;
-      fi
+    - pip install numpy==1.18.0
     - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then
@@ -160,12 +158,12 @@ script:
     - make build-wheel
     - make build-wheel
     - make install
-    - if [[ "$TRAVIS_OS_NAME" == "amd64" ]]; then
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         cd dist;
         for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
         cd ..; 
       fi
-    - if [[ $TRAVIS_TAG && "$TRAVIS_OS_NAME" != "arm64" ]]; then
+    - if [[ $TRAVIS_TAG && "$TRAVIS_CPU_ARCH" != "arm64" ]]; then
         twine upload -u ${TWINE_USERNAME} -p ${TWINE_PASSWORD} dist/*.whl;
       fi
 
