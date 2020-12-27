@@ -14,29 +14,65 @@ env:
 jobs:
     include:
         - os: linux
+          language: python
+          python: "3.5"
           env: TOXENV=py35
         - os: linux
+          language: python
+          python: "3.6"
           env: TOXENV=py36
         - os: linux
+          language: python
+          python: "3.7"
           env: TOXENV=py37
         - os: linux
+          language: python
+          python: "3.8"
           env: TOXENV=py38
         - os: osx
+          language: python
+          python: "3.5"
           env:
               - TOXENV=py35
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
+          language: python
+          python: "3.6"
           env:
               - TOXENV=py36
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
+          language: python
+          python: "3.7"
           env:
               - TOXENV=py37
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: osx
+          language: python
+          python: "3.8"
           env:
               - TOXENV=py38
               - HOMEBREW_NO_AUTO_UPDATE=1
+        - os: linux
+          arch: arm64
+          language: python
+          python: "3.5"
+          env: TOXENV=py35
+        - os: linux
+          arch: arm64
+          language: python
+          python: "3.6"
+          env: TOXENV=py36
+        - os: linux
+          arch: arm64
+          language: python
+          python: "3.7"
+          env: TOXENV=py37
+        - os: linux
+          arch: arm64
+          language: python
+          python: "3.8"
+          env: TOXENV=py38
 
 deploy:
   provider: releases
@@ -49,33 +85,33 @@ deploy:
 before_install:
     - mkdir -p download
     - cd download
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-            wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-        else
-            wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-      fi 
-    - chmod +x miniconda.sh
-    - ./miniconda.sh -b -p $HOME/miniconda
-    - cd ..
-    - export PATH=$HOME/miniconda/bin:$PATH
-    - conda info -a
-    - conda update --yes conda
-    - if [[ "$TOXENV" == "py35" ]]; then
-        conda create -n py35 python=3.5 --yes;
-        source activate py35;
-      fi
-    - if [[ "$TOXENV" == "py36" ]]; then
-        conda create -n py36 python=3.6 --yes;
-        source activate py36;
-      fi
-    - if [[ "$TOXENV" == "py37" ]]; then
-        conda create -n py37 python=3.7 --yes;
-        source activate py37;
-      fi
-    - if [[ "$TOXENV" == "py38" ]]; then
-        conda create -n py38 python=3.8 --yes;
-        source activate py38;
-      fi
+    # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    #         wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    #     else
+    #         wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+    #   fi
+    # - chmod +x miniconda.sh
+    # - ./miniconda.sh -b -p $HOME/miniconda
+    # - cd ..
+    # - export PATH=$HOME/miniconda/bin:$PATH
+    # - conda info -a
+    # - conda update --yes conda
+    # - if [[ "$TOXENV" == "py35" ]]; then
+    #     conda create -n py35 python=3.5 --yes;
+    #     source activate py35;
+    #   fi
+    # - if [[ "$TOXENV" == "py36" ]]; then
+    #     conda create -n py36 python=3.6 --yes;
+    #     source activate py36;
+    #   fi
+    # - if [[ "$TOXENV" == "py37" ]]; then
+    #     conda create -n py37 python=3.7 --yes;
+    #     source activate py37;
+    #   fi
+    # - if [[ "$TOXENV" == "py38" ]]; then
+    #     conda create -n py38 python=3.8 --yes;
+    #     source activate py38;
+    #   fi
     - python --version
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test";
