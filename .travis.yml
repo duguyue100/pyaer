@@ -154,7 +154,7 @@ install:
     - if [[ $TRAVIS_TAG ]]; then
         pip install twine;
       fi
-    - conda list
+    # - conda list
 
 script:
     - make build-wheel
