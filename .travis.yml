@@ -83,9 +83,9 @@ deploy:
   provider: releases
   token: $GITHUB_TOKEN 
   file_glob: true
-  file: dist/*.whl
-  on:
-    tags: true
+  file: dist/*.*
+  skip_cleanup: true
+  on.tags: true
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
@@ -147,6 +147,7 @@ before_install:
     - cd ..
 
 install:
+    - pip install pip -U
     - pip install numpy==1.18.0
     - pip install future -U
     - pip install wheel
