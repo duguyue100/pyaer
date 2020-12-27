@@ -10,7 +10,8 @@
 
 ![Linux](https://img.shields.io/badge/OS-Linux-orange.svg)
 ![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
-![ARM](https://img.shields.io/badge/ARCH-ARM-orange.svg)
+![AMD64](https://img.shields.io/badge/ARCH-AMD64-orange.svg)
+![ARM](https://img.shields.io/badge/ARCH-ARM64-orange.svg)
 
 ![DVS128](https://img.shields.io/badge/DEVICE-DVS128-blueviolet.svg)
 ![eDVS](https://img.shields.io/badge/DEVICE-eDVS-blueviolet.svg)
