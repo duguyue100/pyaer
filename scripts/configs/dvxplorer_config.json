@@ -1,0 +1,18 @@
+{
+    "mux_timestamp_reset": false,
+    "drop_extinput_on_transfer_stall": true,
+    "mux_drop_dvs_on_transfer_stall": false,
+    "extinput_detect_rising_edges": false,
+    "extinput_detect_falling_edges": false,
+    "extinput_detect_pulses": true,
+    "extinput_detect_pulse_polarity": true,
+    "extinput_detect_pulse_length": 10,
+    "extinput_ran_generator": false,
+    "extinput_generate_pulse_polarity": true,
+    "extinput_generate_pulse_interval": 10,
+    "extinput_generate_pulse_length": 5,
+    "extinput_generate_inject_on_rising_edge": false,
+    "extinput_generate_inject_on_falling_edge": false,
+    "usb_early_packet_delay": 8,
+    "bias_simple": "default"
+}

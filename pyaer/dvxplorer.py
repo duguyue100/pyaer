@@ -212,26 +212,6 @@ class DVXPLORER(USBDevice):
                         libcaer.DVX_MUX_DROP_DVS_ON_TRANSFER_STALL,
                         bias_obj["mux_drop_dvs_on_transfer_stall"])
 
-        # DVX IMU
-        self.set_config(libcaer.DVX_IMU,
-                        libcaer.DVX_IMU_ACCEL_DATA_RATE,
-                        bias_obj["imu_accel_data_rate"])
-        self.set_config(libcaer.DVX_IMU,
-                        libcaer.DVX_IMU_ACCEL_FILTER,
-                        bias_obj["imu_accel_filter"])
-        self.set_config(libcaer.DVX_IMU,
-                        libcaer.DVX_IMU_ACCEL_RANGE,
-                        bias_obj["imu_accel_range"])
-        self.set_config(libcaer.DVX_IMU,
-                        libcaer.DVX_IMU_GYRO_DATA_RATE,
-                        bias_obj["imu_gyro_data_rate"])
-        self.set_config(libcaer.DVX_IMU,
-                        libcaer.DVX_IMU_GYRO_FILTER,
-                        bias_obj["imu_gyro_filter"])
-        self.set_config(libcaer.DVX_IMU,
-                        libcaer.DVX_IMU_GYRO_RANGE,
-                        bias_obj["imu_gyro_range"])
-
         # DVX EXTINPUT
         self.set_config(libcaer.DVX_EXTINPUT,
                         libcaer.DVX_EXTINPUT_DETECT_RISING_EDGES,

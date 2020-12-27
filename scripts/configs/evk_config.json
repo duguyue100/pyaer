@@ -1,0 +1,13 @@
+{
+    "bias_simple": "default",
+    "global_hold_enable": true,
+    "global_reset_enable": false,
+    "global_reset_during_readout": false,
+    "fixed_read_time_enable": false,
+    "event_flatten": false,
+    "event_on_only": false,
+    "event_off_only": false,
+    "subsample_enable": false,
+    "area_blocking_enable": false,
+    "dual_binning_enable": false
+}

@@ -92,7 +92,7 @@ More examples are coming...
 
 ## Limitations and Notes
 
-+ __2020-12-10__: From 0.2.1, we will support experimental interfaces for
++ __2020-12-10__: From 0.2.1, we support experimental interfaces for
 DVXplorer, DVXplorer Lite, and Samsung EVK. We will test these interfaces
 if we manage to get physical devices. Otherwise, we welcome community
 tests and improvements.
