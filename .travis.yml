@@ -121,6 +121,11 @@ before_install:
         brew install automake;
         brew install bison;
       fi
+    - if [[ "${TRAVIS_CPU_ARCH}" == "arm64" ]]; then
+        sudo apt-get install snapd;
+        sudo snap install cmake --classic;
+        export PATH=/snap/bin:$PATH;
+      fi
     - git clone git://sigrok.org/libserialport
     - cd libserialport
     - ./autogen.sh
