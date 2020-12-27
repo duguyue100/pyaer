@@ -29,6 +29,10 @@ jobs:
           language: python
           python: "3.8"
           env: TOXENV=py38
+        - os: linux
+          language: python
+          python: "3.9"
+          env: TOXENV=py39
         - os: osx
           env:
               - TOXENV=3.5
@@ -44,6 +48,10 @@ jobs:
         - os: osx
           env:
               - TOXENV=3.8
+              - HOMEBREW_NO_AUTO_UPDATE=1
+        - os: osx
+          env:
+              - TOXENV=3.9
               - HOMEBREW_NO_AUTO_UPDATE=1
         - os: linux
           arch: arm64
@@ -65,6 +73,11 @@ jobs:
           language: python
           python: "3.8"
           env: TOXENV=py38
+        - os: linux
+          arch: arm64
+          language: python
+          python: "3.9"
+          env: TOXENV=py39
 
 deploy:
   provider: releases
@@ -125,7 +138,7 @@ before_install:
     - cd ..
 
 install:
-    - pip install numpy==1.19.0
+    - pip install numpy==1.18.0
     - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then
@@ -136,12 +149,12 @@ script:
     - make build-wheel
     - make build-wheel
     - make install
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+    - if [[ "$TRAVIS_OS_NAME" == "amd64" ]]; then
         cd dist;
         for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
         cd ..; 
       fi
-    - if [[ $TRAVIS_TAG ]]; then
+    - if [[ $TRAVIS_TAG && "$TRAVIS_OS_NAME" != "arm64" ]]; then
         twine upload -u ${TWINE_USERNAME} -p ${TWINE_PASSWORD} dist/*.whl;
       fi
 
