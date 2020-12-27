@@ -85,33 +85,31 @@ deploy:
 before_install:
     - mkdir -p download
     - cd download
-    # - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    #         wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    #     else
-    #         wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-    #   fi
-    # - chmod +x miniconda.sh
-    # - ./miniconda.sh -b -p $HOME/miniconda
-    # - cd ..
-    # - export PATH=$HOME/miniconda/bin:$PATH
-    # - conda info -a
-    # - conda update --yes conda
-    # - if [[ "$TOXENV" == "py35" ]]; then
-    #     conda create -n py35 python=3.5 --yes;
-    #     source activate py35;
-    #   fi
-    # - if [[ "$TOXENV" == "py36" ]]; then
-    #     conda create -n py36 python=3.6 --yes;
-    #     source activate py36;
-    #   fi
-    # - if [[ "$TOXENV" == "py37" ]]; then
-    #     conda create -n py37 python=3.7 --yes;
-    #     source activate py37;
-    #   fi
-    # - if [[ "$TOXENV" == "py38" ]]; then
-    #     conda create -n py38 python=3.8 --yes;
-    #     source activate py38;
-    #   fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+            wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+            chmod +x miniconda.sh
+            ./miniconda.sh -b -p $HOME/miniconda
+            export PATH=$HOME/miniconda/bin:$PATH
+            conda info -a
+            conda update --yes conda
+            if [[ "$TOXENV" == "py35" ]]; then
+              conda create -n py35 python=3.5 --yes;
+              source activate py35;
+            fi
+            if [[ "$TOXENV" == "py36" ]]; then
+              conda create -n py36 python=3.6 --yes;
+              source activate py36;
+            fi
+            if [[ "$TOXENV" == "py37" ]]; then
+              conda create -n py37 python=3.7 --yes;
+              source activate py37;
+            fi
+            if [[ "$TOXENV" == "py38" ]]; then
+              conda create -n py38 python=3.8 --yes;
+              source activate py38;
+            fi
+      fi
+    - cd ..
     - python --version
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test";
@@ -123,6 +121,7 @@ before_install:
       fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-get install build-essential -y;
+        sudo apt-get install cmake
         sudo apt-get install libusb-1.0-0-dev -y;
         sudo apt-get install automake -y;
         sudo apt-get install bison -y;
@@ -148,13 +147,12 @@ before_install:
     - cd ..
 
 install:
-    - pip install numpy==1.16.1
+    - pip install numpy==1.19.0
     - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then
         pip install twine;
       fi
-    # - conda list
 
 script:
     - make build-wheel
