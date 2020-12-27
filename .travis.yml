@@ -86,6 +86,7 @@ before_install:
             conda update --yes conda;
             conda create -n pyenv python=$TOXENV --yes;
             source activate pyenv;
+            cd ..
       fi
     - python --version
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -98,7 +99,7 @@ before_install:
       fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sudo apt-get install build-essential -y;
-        sudo apt-get install cmake
+        sudo apt-get install cmake;
         sudo apt-get install libusb-1.0-0-dev -y;
         sudo apt-get install automake -y;
         sudo apt-get install bison -y;
