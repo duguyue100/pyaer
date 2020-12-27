@@ -20,13 +20,11 @@
 ![DVX](https://img.shields.io/badge/DEVICE-DVXplorer-blueviolet.svg)
 ![EVK](https://img.shields.io/badge/DEVICE-Samsung%20EVK-blueviolet.svg)
 
-PyAER with Swig Bindings
+Special thanks to [iniVation](https://inivation.com/) for making this possible!
 
-Special thanks to [iniVation](https://inivation.com/) for making this possible.
+The project is in its Beta development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you encountered a problem.
 
-The project is in its Beta development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you need our help.
-
-Check out the [documentation](https://dgyblog.com/pyaer-doc/) for more help!
+For ARM wheels, please check out the [Releases](https://github.com/duguyue100/pyaer/releases).
 
 ## Why PyAER?
 
@@ -36,13 +34,13 @@ For robotics projects, you may find [rpg_dvs_ros](https://github.com/uzh-rpg/rpg
 
 So the natural question is: why PyAER?
 
-Although there are large function overlaps between these frameworks, PyAER serves as an agile package that focus on fast development and extensibility. In fact, in some scenario, e.g. edge devices, PyAER is more user friendly than other alternatives.
+In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight "ROS". PyAER serves as an agile package that focus on fast development and extensibility. In fact, in some scenario, e.g., edge devices, PyAER is more user friendly than other alternatives.
 
 ### Design Principle
 
 + Minimum installation effort.
 + Clean, simple, easy to manage.
- Well documented, human-readable code.
++ Well documented, human-readable code.
 
 ## Installation
 
@@ -52,7 +50,14 @@ Although there are large function overlaps between these frameworks, PyAER serve
     $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
     ```
 
-    __NOTE:__ For more information, see [`libcaer` repo](https://github.com/inilabs/libcaer).
+    Update `udev` rules if you use a Linux system:
+
+    ```bash
+    $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
+    ```
+
+    __NOTE__: The `libcaer` installation has taken care of this update.
+    However, if the problem persists, please try it.
 
 2. Install `pyaer` from pypi (RECOMMEND)
 
@@ -60,32 +65,17 @@ Although there are large function overlaps between these frameworks, PyAER serve
     $ pip install pyaer
     ```
 
-3. Install from source
-
-    ```
-    $ git clone https://github.com/duguyue100/pyaer.git
-    $ make install
-    ```
-
-4. Install `pyzmq`
+3. Install `pyzmq`
     ```
     $ pip install pyzmq
     ```
 
     __NOTE:__ `pyzmq` is not available on ARM-based computer, you will need to build yourself.
 
-## Got a Linux? [Optional]
+### Development
 
-__NOTE__: The `libcaer` installation has taken care of this problem.
-However, if the problem persists, please try following.
-
-`libcaer` relies on `libusb` based driver, you won't be able
-to access the camera unless fixing the `udev` rules. Refer to details
-at [here](https://inivation.com/support/hardware/davis240/#linux).
-
-```bash
-$ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
-```
+For development purpose, you might build `pyaer` from source.
+Please follow the instructions in [INSTALL_FROM_SOURCE.md](./INSTALL_FROM_SOURCE.md)
 
 ## Running Examples
 
@@ -98,52 +88,6 @@ The [scripts](./scripts) folder provides some examples for you to play with:
 3. `dvs346-test`: you need OpenCV to run this example.
 
 More examples are coming...
-
-## Yeah, you need SWIG
-
-__You only need to read this section if you are planning to compile
-`pyaer` from source.__
-
-This repository uses SWIG to create Python bindings. And you will need to
-compile the latest SWIG from source. The reason is because current SWIG
-cannot handle some cases in libcaer, we made a modified SWIG for this purpose.
-
-1. Install compilation dependency
-
-    ```
-    $ sudo apt-get install automake
-    $ sudo apt-get install bison
-    ```
-
-    _There might be other dependencies for compiling SWIG_
-
-2. Compile SIWG
-
-    ```
-    $ git clone https://github.com/duguyue100/swig
-    $ cd swig
-    $ ./autogen.sh
-    $ ./configure
-    $ make
-    $ sudo make install
-    ```
-
-    For compiling SWIG with Python
-
-    ```
-    $ ./configure --without-alllang --with-python=$(command -v python)
-    ```
-
-    __NOTE:__ If you are not compile the SWIG with system Python distribution,
-    it won't link to the custom Python automatically.
-
-    You will need to configure `LD_LIBRARY_PATH` for swig running properly.
-
-    i.e.
-
-    ```
-    LD_LIBRARY_PATH=$HOME/anaconda2/lib:$LD_LIBRARY_PATH swig
-    ```
 
 ## Limitations and Notes
 
