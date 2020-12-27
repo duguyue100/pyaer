@@ -85,7 +85,8 @@ deploy:
   file_glob: true
   file: dist/*.*
   skip_cleanup: true
-  on.tags: true
+  on:
+      tags: true
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
