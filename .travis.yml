@@ -135,7 +135,7 @@ before_install:
     - git clone https://github.com/duguyue100/swig
     - cd swig
     - ./autogen.sh
-    - ./configure --without-alllang --with-python=$(command -v python) ----without-pcre
+    - ./configure --without-alllang --with-python=$(command -v python) --without-pcre
     - make
     - sudo make install
     - cd ..
