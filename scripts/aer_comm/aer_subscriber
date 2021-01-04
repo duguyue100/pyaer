@@ -12,6 +12,7 @@ import json
 import argparse
 
 from pyaer.utils import expandpath, import_custom_module
+from pyaer.utils import parse_custom_args
 from pyaer.comm import AERSubscriber
 
 parser = argparse.ArgumentParser()
@@ -37,18 +38,15 @@ parser.add_argument("--custom_class", type=str,
                     default="",
                     help="custom publisher class name")
 
-parser.add_argument("--custom_args", type=str,
-                    default=None,
-                    help="custom arguments, a JSON file")
-parser.add_argument("--extra_configs", type=str,
-                    default=None,
-                    help="custom arguments, a JSON file")
 
+args, custom_args = parser.parse_known_args()
 
-args = parser.parse_args()
+custom_args_dict = parse_custom_args(custom_args)
 
 # print all options
-print(json.dumps(args.__dict__, indent=4, sort_keys=True))
+print(json.dumps(
+    {**args.__dict__, **custom_args_dict},
+    indent=4, sort_keys=True))
 
 # define subscriber
 if args.use_default_sub:
@@ -58,18 +56,11 @@ if args.use_default_sub:
         name=args.name)
     subscriber.logger.info("Use default subscriber")
 else:
-    if args.custom_args is not None:
-        with open(args.custom_args, "r") as f:
-            cfg = json(f)
-    if args.extra_configs is not None:
-        with open(args.extra_configs, "r") as f:
-            extra_cfg = json(f)
-
     # use custom publisher
     CustomSubscriber = import_custom_module(args.custom_sub, args.custom_class)
     subscriber = CustomSubscriber(
         url=args.url, port=args.port, topic=args.topic, name=args.name,
-        cfg=args.custom_args, extra_cfg=args.extra_configs)
+        **custom_args_dict)
     subscriber.logger.info(
         "Use custom subscriber {}".format(args.custom_class))
 

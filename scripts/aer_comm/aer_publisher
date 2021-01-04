@@ -14,6 +14,7 @@ import json
 from pyaer.davis import DAVIS
 from pyaer.dvs128 import DVS128
 from pyaer.utils import expandpath, import_custom_module
+from pyaer.utils import parse_custom_args
 from pyaer.comm import AERPublisher
 
 parser = argparse.ArgumentParser()
@@ -30,21 +31,6 @@ parser.add_argument("--name", type=str,
                     default="",
                     help="Name of the publisher")
 
-parser.add_argument("--use_default_pub", action="store_true")
-
-parser.add_argument("--custom_pub", type=expandpath,
-                    default="",
-                    help="path to the custom publisher class")
-parser.add_argument("--custom_class", type=str,
-                    default="",
-                    help="custom publisher class name")
-parser.add_argument("--custom_args", type=str,
-                    default=None,
-                    help="custom arguments, a JSON file")
-parser.add_argument("--extra_configs", type=str,
-                    default=None,
-                    help="custom arguments, a JSON file")
-
 parser.add_argument("--device", type=str,
                     default="DAVIS",
                     help="Currently supported options: DAVIS, DVS")
@@ -54,10 +40,23 @@ parser.add_argument("--bias_file", type=expandpath,
                     default=None,
                     help="Optional bias file")
 
-args = parser.parse_args()
+parser.add_argument("--use_default_pub", action="store_true")
+
+parser.add_argument("--custom_pub", type=expandpath,
+                    default="",
+                    help="path to the custom publisher class")
+parser.add_argument("--custom_class", type=str,
+                    default="",
+                    help="custom publisher class name")
+
+args, custom_args = parser.parse_known_args()
+
+custom_args_dict = parse_custom_args(custom_args)
 
 # print all options
-print(json.dumps(args.__dict__, indent=4, sort_keys=True))
+print(json.dumps(
+    {**args.__dict__, **custom_args_dict},
+    indent=4, sort_keys=True))
 
 # open the device
 if args.device == "None":
@@ -82,20 +81,13 @@ if args.use_default_pub:
                              name=args.name)
     publisher.logger.info("Use default publisher")
 else:
-    if args.custom_args is not None:
-        with open(args.custom_args, "r") as f:
-            cfg = json(f)
-    if args.extra_configs is not None:
-        with open(args.extra_configs, "r") as f:
-            extra_cfg = json(f)
-
     # use custom publisher
     CustomPublisher = import_custom_module(args.custom_pub, args.custom_class)
     publisher = CustomPublisher(
         device=device,
         url=args.url, port=args.port, master_topic=args.master_topic,
         name=args.name,
-        cfg=args.custom_args, extra_cfg=args.extra_configs)
+        **custom_args_dict)
     publisher.logger.info("Use custom publisher {}".format(args.custom_class))
 
 # Start sending data

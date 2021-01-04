@@ -8,15 +8,12 @@ Email : yuhuang.hu@ini.uzh.ch
 
 from __future__ import print_function, absolute_import
 
-import os
 import sys
 import argparse
 import time
-import json
-from collections import OrderedDict
-from tempfile import mkstemp
 
 from pyaer.utils import expandpath
+from pyaer.utils import ordered_yml_load
 from pyaer.comm import AERProcess
 from pyaer import log
 
@@ -40,17 +37,6 @@ PROGRAM_KEY = "program"
 launch_logger = log.get_logger(
     "AER Launcher",
     log.INFO, stream=sys.stdout)
-
-
-def make_temp_json(dict_to_dump):
-    fd, path = mkstemp()
-
-    with open(path, "w") as f:
-        json.dump(dict_to_dump, f)
-
-    os.close(fd)
-
-    return path
 
 
 def parse_hub(hub_desc):
@@ -80,38 +66,33 @@ def parse_publisher(pub_desc):
         parsed_cmd += [DEFAULT_AER_PUBLISHER_PROGRAM]
     else:
         parsed_cmd += [expandpath(pub_desc[PROGRAM_KEY])]
+    pub_desc.pop(USE_DEFAULT)
 
-    parsed_cmd += ["--url", pub_desc["url"]]
-    parsed_cmd += ["--port", str(pub_desc["port"])]
-    parsed_cmd += ["--master_topic", pub_desc["master_topic"]]
-    parsed_cmd += ["--name", pub_desc["name"]]
+    parsed_cmd += ["--url", pub_desc.pop("url")]
+    parsed_cmd += ["--port", str(pub_desc.pop("port"))]
+    parsed_cmd += ["--master_topic", pub_desc.pop("master_topic")]
+    parsed_cmd += ["--name", pub_desc.pop("name")]
 
     if pub_desc[USE_DEFAULT_PUB] is True:
         parsed_cmd += ["--use_default_pub"]
     else:
         # parse custom command
-        parsed_cmd += ["--custom_pub", expandpath(pub_desc["custom_pub"])]
-        parsed_cmd += ["--custom_class", pub_desc["custom_class"]]
+        parsed_cmd += ["--custom_pub", expandpath(pub_desc.pop("custom_pub"))]
+        parsed_cmd += ["--custom_class", pub_desc.pop("custom_class")]
 
-        try:
-            custom_args_file_path = make_temp_json(
-                pub_desc["custom_args"])
-            parsed_cmd += ["--custom_args", custom_args_file_path]
-        except Exception:
-            pass
+    pub_desc.pop(USE_DEFAULT_PUB)
 
     try:
-        parsed_cmd += ["--device", pub_desc["device"]]
-        if pub_desc["noise_filter"]:
+        parsed_cmd += ["--device", pub_desc.pop("device")]
+        if pub_desc.pop("noise_filter", default=False):
             parsed_cmd += ["--noise_filter"]
-        parsed_cmd += ["--bias_file", expandpath(pub_desc["bias_file"])]
+        parsed_cmd += ["--bias_file", expandpath(pub_desc.pop("bias_file"))]
     except Exception:
         pass
 
     try:
-        extra_configs_file_path = make_temp_json(
-            pub_desc["extra_configs"])
-        parsed_cmd += ["--extra_configs", extra_configs_file_path]
+        for (option, value) in pub_desc.items():
+            parsed_cmd += ["--{}".format(option), str(value)]
     except Exception:
         pass
 
@@ -126,29 +107,25 @@ def parse_subscriber(sub_desc):
         parsed_cmd += [DEFAULT_AER_SUBSCRIBER_PROGRAM]
     else:
         parsed_cmd += [expandpath(sub_desc[PROGRAM_KEY])]
+    sub_desc.pop(USE_DEFAULT)
 
-    parsed_cmd += ["--url", sub_desc["url"]]
-    parsed_cmd += ["--port", str(sub_desc["port"])]
-    parsed_cmd += ["--topic", sub_desc["topic"]]
-    parsed_cmd += ["--name", sub_desc["name"]]
+    parsed_cmd += ["--url", sub_desc.pop("url")]
+    parsed_cmd += ["--port", str(sub_desc.pop("port"))]
+    parsed_cmd += ["--topic", sub_desc.pop("topic")]
+    parsed_cmd += ["--name", sub_desc.pop("name")]
 
     if sub_desc[USE_DEFAULT_SUB] is True:
         parsed_cmd += ["--use_default_sub"]
     else:
         # parse custom command
-        parsed_cmd += ["--custom_sub", expandpath(sub_desc["custom_sub"])]
-        parsed_cmd += ["--custom_class", sub_desc["custom_class"]]
-        try:
-            custom_args_file_path = make_temp_json(
-                sub_desc["custom_args"])
-            parsed_cmd += ["--custom_args", custom_args_file_path]
-        except Exception:
-            pass
+        parsed_cmd += ["--custom_sub", expandpath(sub_desc.pop("custom_sub"))]
+        parsed_cmd += ["--custom_class", sub_desc.pop("custom_class")]
+
+    sub_desc.pop(USE_DEFAULT_SUB)
 
     try:
-        extra_configs_file_path = make_temp_json(
-            sub_desc["extra_configs"])
-        parsed_cmd += ["--extra_configs", extra_configs_file_path]
+        for (option, value) in sub_desc.items():
+            parsed_cmd += ["--{}".format(option), str(value)]
     except Exception:
         pass
 
@@ -190,7 +167,7 @@ args = parser.parse_args()
 
 # load launch file
 with open(args.launch_file, "r") as launch_file:
-    launch_desc = json.load(launch_file, object_pairs_hook=OrderedDict)
+    launch_desc = ordered_yml_load(launch_file)
 
 # main parsing loop
 process_collector = []  # collect all active processes

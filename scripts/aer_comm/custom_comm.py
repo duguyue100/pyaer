@@ -14,10 +14,12 @@ from pyaer.comm import AERPublisher, AERSubscriber
 
 class CustomPublisher(AERPublisher):
 
-    def __init__(self, device, url, port, master_topic, name,
-                 cfg=None, extra_cfg=None):
+    def __init__(self, device, url, port, master_topic, name, **kwargs):
         super().__init__(
             device=device, url=url, port=port, master_topic=master_topic)
+
+        for arg in kwargs.values():
+            print(arg)
 
     def run(self):
         while True:
@@ -25,9 +27,9 @@ class CustomPublisher(AERPublisher):
                 data = self.device.get_event()
 
                 if data is not None:
-                    data = self.pack_data(data)
-
-                    self.socket.send_multipart(data)
+                    #  data = self.pack_polarity_events
+                    #
+                    #  self.socket.send_multipart(data)
 
                     t = time.localtime()
 
@@ -41,8 +43,11 @@ class CustomPublisher(AERPublisher):
 
 class CustomSubscriber(AERSubscriber):
 
-    def __init__(self, url, port, topic, name, cfg=None, extra_cfg=None):
+    def __init__(self, url, port, topic, name, **kwargs):
         super().__init__(url, port, topic, name)
+
+        for arg in kwargs.values():
+            print(arg)
 
     def run(self):
         """Subscribe data main loop.
