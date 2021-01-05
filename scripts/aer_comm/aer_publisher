@@ -54,9 +54,11 @@ args, custom_args = parser.parse_known_args()
 custom_args_dict = parse_custom_args(custom_args)
 
 # print all options
+print("="*50)
 print(json.dumps(
     {**args.__dict__, **custom_args_dict},
     indent=4, sort_keys=True))
+print("="*50)
 
 # open the device
 if args.device == "None":

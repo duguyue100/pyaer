@@ -92,7 +92,9 @@ parser.add_argument("--libver", type=str,
 args = parser.parse_args()
 
 # print all options
+print("="*50)
 print(json.dumps(args.__dict__, indent=4, sort_keys=True))
+print("="*50)
 
 
 if args.hdf5:
@@ -113,6 +115,8 @@ saver_sub = AERSaverSubscriber(
 
 # set saver
 saver_sub.set_saver(saver)
+
+saver_sub.logger.info("AER Saver initialized.")
 
 # Start sending data
 saver_sub.run()

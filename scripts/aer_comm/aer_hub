@@ -36,7 +36,9 @@ parser.add_argument("--aer_hub_name", type=str,
 args = parser.parse_args()
 
 # print all options
+print("="*50)
 print(json.dumps(args.__dict__, indent=4, sort_keys=True))
+print("="*50)
 
 
 aer_hub = AERHub(url=args.url,
@@ -50,6 +52,7 @@ aer_hub.logger.info("aer_hub: launch a central message relay hub")
 aer_hub.logger.info("aer_lstopic: display all published topics")
 aer_hub.logger.info("aer_publisher: add a custom publisher")
 aer_hub.logger.info("aer_subscriber: add a custom subscriber")
+aer_hub.logger.info("aer_saver: add an AER Saver")
 aer_hub.logger.info("="*50)
 
 # run the hub

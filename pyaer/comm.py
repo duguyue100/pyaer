@@ -23,8 +23,6 @@ import subprocess
 import signal
 from collections import OrderedDict
 from datetime import datetime
-#  from threading import Thread, Event
-from multiprocessing import Process, Event
 import numpy as np
 import zmq
 import h5py
@@ -114,7 +112,6 @@ class AERHub(object):
         self.hub_pub_port = hub_pub_port
         self.hub_sub_port = hub_pub_port
         self.hub_pub_url = url+":{}".format(hub_pub_port)
-        print(self.hub_pub_url)
         self.hub_sub_url = url+":{}".format(hub_sub_port)
 
         # logger
@@ -714,8 +711,8 @@ class AERZarrSaver(object):
         self.aer_file.close()
 
 
-class AERProcess(Process):
-    def __init__(self, cmd, daemon=True):
+class AERProcess(object):
+    def __init__(self, cmd):
         """AER Process.
 
         # Arguments
@@ -724,32 +721,21 @@ class AERProcess(Process):
         """
         super().__init__()
 
-        self.event = Event()
-        self.daemon = daemon
-
         self.cmd = cmd
         self.program_name = cmd[0]
 
     def create_process(self):
         pid = subprocess.Popen(self.cmd)
-        time.sleep(3)
+        time.sleep(0.5)
         assert pid.poll() is None, 'Process {} launch failed'.format(
             self.program_name)
 
         return pid
 
     def run(self):
-        pid = self.create_process()
-
-        while not self.event.is_set():
-            time.sleep(1)
-            assert pid.poll() is None, "Process {} was killed".format(
-                self.program_name)
-
-        pid.send_signal(signal.SIGINT)
-        pid.terminate()
-        pid.communicate()
+        self.pid = self.create_process()
 
     def stop(self):
-        self.event.set()
-        self.join()
+        self.pid.send_signal(signal.SIGINT)
+        self.pid.terminate()
+        self.pid.communicate()

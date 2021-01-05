@@ -182,26 +182,26 @@ for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
     if pg_type == HUB:
         parsed_hub_cmd = parse_hub(pg_desc)
         process_collector.append(
-            AERProcess(parsed_hub_cmd, daemon=True))
+            AERProcess(parsed_hub_cmd))
     elif PUB in pg_type:
         parsed_pub_cmd = parse_publisher(pg_desc)
         process_collector.append(
-            AERProcess(parsed_pub_cmd, daemon=True))
+            AERProcess(parsed_pub_cmd))
     elif SUB in pg_type:
         parsed_sub_cmd = parse_subscriber(pg_desc)
         process_collector.append(
-            AERProcess(parsed_sub_cmd, daemon=True))
+            AERProcess(parsed_sub_cmd))
     elif SAVER in pg_type:
         parsed_saver_cmd = parse_saver(pg_desc)
         process_collector.append(
-            AERProcess(parsed_saver_cmd, daemon=True))
+            AERProcess(parsed_saver_cmd))
     else:
         launch_logger.error("Unsupported Type {}".format(pg_type))
 
 
 # launching
 for process in process_collector:
-    process.start()
+    process.run()
 
 while True:
     try:
