@@ -6,7 +6,7 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
 [![Build Status](https://api.travis-ci.org/duguyue100/pyaer.svg?branch=master)](https://travis-ci.org/duguyue100/pyaer)
 [![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1419354.svg)](https://doi.org/10.5281/zenodo.1419354)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1346279.svg)](https://doi.org/10.5281/zenodo.1346279)
 
 ![Linux](https://img.shields.io/badge/OS-Linux-orange.svg)
 ![macOS](https://img.shields.io/badge/OS-macOS-orange.svg)
