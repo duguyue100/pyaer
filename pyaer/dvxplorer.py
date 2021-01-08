@@ -230,7 +230,7 @@ class DVXPLORER(USBDevice):
                         bias_obj["extinput_detect_pulse_length"])
 
         # setting for noise filter
-        if self.info.ext_input_has_generator is True:
+        if self.ext_input_has_generator is True:
             self.set_config(libcaer.DVX_EXTINPUT,
                             libcaer.DVX_EXTINPUT_RUN_GENERATOR,
                             bias_obj["extinput_ran_generator"])
@@ -349,7 +349,7 @@ class DVXPLORER(USBDevice):
                             libcaer.DVX_EXTINPUT_DETECT_PULSE_LENGTH)
 
         # setting for noise filter
-        if self.info.ext_input_has_generator is True:
+        if self.ext_input_has_generator is True:
             bias_obj["extinput_ran_generator"] = \
                 self.get_config(libcaer.DVX_EXTINPUT,
                                 libcaer.DVX_EXTINPUT_RUN_GENERATOR)

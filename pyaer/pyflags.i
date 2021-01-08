@@ -253,6 +253,8 @@ Numpy related
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_240[180][240][2])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_346[260][346][2])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_128[128][128][2])};
+%apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_dvxplorer[480][640][2])};
+%apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_dvxplorer_lite[240][320][2])};
 
 %inline %{
 void device_discover(int16_t deviceType, uint64_t* devices_vec, int32_t device_len) {
@@ -386,6 +388,30 @@ void get_polarity_event_histogram_346(caerPolarityEventPacket event_packet, int3
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
 
         pol_hist_346[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
+    }
+}
+%}
+
+%inline %{
+void get_polarity_event_histogram_dvxplorer(caerPolarityEventPacket event_packet, int32_t packet_len, int64_t pol_hist_dvxplorer[480][640][2]) {
+    memset(pol_hist_dvxplorer, 0, sizeof(pol_hist_dvxplorer[0][0][0])*480*640*2);
+    long i;
+    for (i=0; i<(long)packet_len; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+
+        pol_hist_dvxplorer[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
+    }
+}
+%}
+
+%inline %{
+void get_polarity_event_histogram_dvxplorer_lite(caerPolarityEventPacket event_packet, int32_t packet_len, int64_t pol_hist_dvxplorer_lite[240][320][2]) {
+    memset(pol_hist_dvxplorer_lite, 0, sizeof(pol_hist_dvxplorer_lite[0][0][0])*240*320*2);
+    long i;
+    for (i=0; i<(long)packet_len; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+
+        pol_hist_dvxplorer_lite[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
     }
 }
 %}

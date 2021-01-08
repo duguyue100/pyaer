@@ -55,23 +55,23 @@ while True:
             if frames.shape[0] != 0:
                 cv2.imshow("frame", frames[0])
 
-            print ("Number of events:", num_pol_event, "Number of Frames:",
-                   frames.shape, "Exposure:",
-                   device.get_config(
-                       libcaer.DAVIS_CONFIG_APS,
-                       libcaer.DAVIS_CONFIG_APS_EXPOSURE),
-                   "Autoexposure:", device.get_config(
-                       libcaer.DAVIS_CONFIG_APS,
-                       libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE))
+            print("Number of events:", num_pol_event, "Number of Frames:",
+                  frames.shape, "Exposure:",
+                  device.get_config(
+                      libcaer.DAVIS_CONFIG_APS,
+                      libcaer.DAVIS_CONFIG_APS_EXPOSURE),
+                  "Autoexposure:", device.get_config(
+                      libcaer.DAVIS_CONFIG_APS,
+                      libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE))
 
             if num_pol_event != 0:
                 if num_packet_before_disable > 0:
-                    print (pol_events[:, 4].sum())
+                    print(pol_events[:, 4].sum())
                     pol_events = pol_events[pol_events[:, 4] == 1]
                     num_packet_before_disable -= 1
                 else:
                     device.disable_noise_filter()
-                    print ("Noise filter disabled")
+                    print("Noise filter disabled")
                 pol_on = (pol_events[:, 3] == 1)
                 pol_off = np.logical_not(pol_on)
                 img_on, _, _ = np.histogram2d(

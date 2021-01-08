@@ -43,6 +43,9 @@ davis346-test:
 davis346-color-test:
 	python ./scripts/davis346_color_test.py
 
+dvxplorer-test:
+	python ./scripts/dvxplorer_test.py
+
 dynapse-test:
 	python ./scripts/dynapse_test.py
 

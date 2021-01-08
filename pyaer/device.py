@@ -400,6 +400,12 @@ class USBDevice(object):
         elif device_type == "DVS128":
             hist = libcaer.get_polarity_event_histogram_128(
                 polarity, num_events)
+        elif device_type == libcaer.DVXPLORER_CHIP_ID:
+            hist = libcaer.get_polarity_event_histogram_dvxplorer(
+                polarity, num_events)
+        elif device_type == libcaer.DVXPLORER_LITE_CHIP_ID:
+            hist = libcaer.get_polarity_event_histogram_dvxplorer_lite(
+                polarity, num_events)
         else:
             return None, 0
 
