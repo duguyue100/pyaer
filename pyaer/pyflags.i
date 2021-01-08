@@ -399,7 +399,7 @@ void get_polarity_event_histogram_dvxplorer(caerPolarityEventPacket event_packet
     for (i=0; i<(long)packet_len; i++) {
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
 
-        pol_hist_dvxplorer[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
+        pol_hist_dvxplorer[(int)caerPolarityEventGetY(event)][639-(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
     }
 }
 %}
@@ -411,7 +411,7 @@ void get_polarity_event_histogram_dvxplorer_lite(caerPolarityEventPacket event_p
     for (i=0; i<(long)packet_len; i++) {
         caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
 
-        pol_hist_dvxplorer_lite[(int)caerPolarityEventGetY(event)][(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
+        pol_hist_dvxplorer_lite[(int)caerPolarityEventGetY(event)][319-(int)caerPolarityEventGetX(event)][(bool)caerPolarityEventGetPolarity(event)] += 1;
     }
 }
 %}
