@@ -26,7 +26,10 @@ from datetime import datetime
 import numpy as np
 import zmq
 import h5py
-import zarr
+try:
+    import zarr
+except Exception:
+    pass
 
 from pyaer import log
 from pyaer.utils import get_nanotime
@@ -199,6 +202,45 @@ class Publisher(object):
         self.socket.connect(self.pub_url)
         time.sleep(1)
 
+    def pack_np_array(self, data_array):
+        """Pack numpy array for sending.
+
+        # Arguments
+            data_array: numpy.ndarray
+                the numpy array to append.
+
+        # Returns
+            packed_data_array: list
+                The array and its data type, shape information.
+        """
+        if data_array is None:
+            return [b'None', b'None']
+
+        md = dict(
+            dtype=str(data_array.dtype),
+            shape=data_array.shape)
+
+        return [data_array, json.dumps(md).encode("utf-8")]
+
+    def pack_data_by_topic(self, data_topic_name, timestamp, packed_data_list):
+        """Packing data by its topic name.
+
+        # Arguments
+            data_topic_name: str
+                the topic name for this data.
+                E.g., polarity_events, frame_events, imu_events
+            timestamp: byte string
+                a byte string
+            packed_data_list: byte list
+                a list of packed data without topic name
+
+        # Returns:
+            packed_data: byte list
+                a list of packed data ready to be sent.
+        """
+        return [encode_topic_name([self.master_topic, data_topic_name]),
+                timestamp]+packed_data_list
+
     def run(self):
         """Implement your publishing method."""
         raise NotImplementedError
@@ -244,45 +286,6 @@ class AERPublisher(Publisher):
             name=name)
         # AER device
         self.device = device
-
-    def pack_np_array(self, data_array):
-        """Pack numpy array for sending.
-
-        # Arguments
-            data_array: numpy.ndarray
-                the numpy array to append.
-
-        # Returns
-            packed_data_array: list
-                The array and its data type, shape information.
-        """
-        if data_array is None:
-            return [b'None', b'None']
-
-        md = dict(
-            dtype=str(data_array.dtype),
-            shape=data_array.shape)
-
-        return [data_array, json.dumps(md).encode("utf-8")]
-
-    def pack_data_by_topic(self, data_topic_name, timestamp, packed_data_list):
-        """Packing data by its topic name.
-
-        # Arguments
-            data_topic_name: str
-                the topic name for this data.
-                E.g., polarity_events, frame_events, imu_events
-            timestamp: byte string
-                a byte string
-            packed_data_list: byte list
-                a list of packed data without topic name
-
-        # Returns:
-            packed_data: byte list
-                a list of packed data ready to be sent.
-        """
-        return [encode_topic_name([self.master_topic, data_topic_name]),
-                timestamp]+packed_data_list
 
     def pack_polarity_events(self, timestamp, packed_event,
                              data_topic_name="polarity_events"):
@@ -418,47 +421,6 @@ class Subscriber(object):
         self.socket.setsockopt(zmq.SUBSCRIBE, self.topic.encode("utf-8"))
         self.socket.connect(self.sub_url)
 
-    def run(self):
-        raise NotImplementedError
-
-
-class AERSubscriber(Subscriber):
-    def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic='', name=""):
-        """AERSubscriber.
-
-        A subscriber can subscribe to a specific topic or all
-        topics. When received a message, it needs to unpack
-        the first two elements: topic name and timestamp
-
-        When saving, make sure the naming strategy is:
-        "master topic name/timestamp/data type"
-
-        # Arguments
-            url : str
-                address to subscribe
-            port : int
-                port number to listen
-            topic : string
-                set to "" (default) to listen everything.
-                subscribe to specific topics otherwise
-            name : str
-                the name of the subscriber
-        """
-        super(AERSubscriber, self).__init__(
-            url=url, port=port, topic=topic, name=name)
-
-    def process_data(self, data):
-        """Process data object.
-
-        # Arguments
-            data: to be processed data.
-                This is subscriber side pre-process,
-                could be some specific processing.
-                Simply return the data for now.
-        """
-        return data
-
     def unpack_np_array(self, packed_data_array):
         """Unpack a numpy array list from buffer.
 
@@ -508,6 +470,47 @@ class AERSubscriber(Subscriber):
         array_data = self.unpack_np_array(packed_data[2:])
 
         return data_identifier, array_data
+
+    def run(self):
+        raise NotImplementedError
+
+
+class AERSubscriber(Subscriber):
+    def __init__(self, url="tcp://127.0.0.1",
+                 port=5099, topic='', name=""):
+        """AERSubscriber.
+
+        A subscriber can subscribe to a specific topic or all
+        topics. When received a message, it needs to unpack
+        the first two elements: topic name and timestamp
+
+        When saving, make sure the naming strategy is:
+        "master topic name/timestamp/data type"
+
+        # Arguments
+            url : str
+                address to subscribe
+            port : int
+                port number to listen
+            topic : string
+                set to "" (default) to listen everything.
+                subscribe to specific topics otherwise
+            name : str
+                the name of the subscriber
+        """
+        super(AERSubscriber, self).__init__(
+            url=url, port=port, topic=topic, name=name)
+
+    def process_data(self, data):
+        """Process data object.
+
+        # Arguments
+            data: to be processed data.
+                This is subscriber side pre-process,
+                could be some specific processing.
+                Simply return the data for now.
+        """
+        return data
 
     def unpack_polarity_events(self, packed_polarity_events):
         return self.unpack_array_data_by_name(packed_polarity_events)
@@ -560,6 +563,8 @@ class PubSuber(object):
                  sub_topic="", sub_name=""):
         """Publisher-Subscriber.
 
+        This is a shell implementation.
+
         Intend to use as a processing unit.
         First subscribe on a topic, process it, and then publish to
         a topic
@@ -573,12 +578,9 @@ class PubSuber(object):
         self.sub_topic = sub_topic
         self.sub_name = sub_name
 
-        self.publisher = Publisher(url=self.url, port=self.pub_port,
-                                   master_topic=self.pub_topic,
-                                   name=self.pub_name)
-        self.subscriber = Subscriber(url=self.url, port=self.sub_port,
-                                     topic=self.sub_topic,
-                                     name=self.sub_name)
+        self.logger = log.get_logger(
+            "PubSuber-{}-{}".format(self.pub_name, self.sub_name),
+            log.INFO, stream=sys.stdout)
 
     def run(self):
         raise NotImplementedError

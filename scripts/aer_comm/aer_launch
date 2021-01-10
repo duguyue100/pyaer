@@ -20,6 +20,7 @@ from pyaer import log
 HUB = "Hub"
 PUB = "Publisher"
 SUB = "Subscriber"
+PUBSUB = "PubSuber"
 SAVER = "Saver"
 
 USE_DEFAULT = "use_default"
@@ -31,6 +32,7 @@ DEFAULT_SUBSCRIBER_PORT = "5099"
 DEFAULT_AER_HUB_NAME = "PyAER Message Hub"
 DEFAULT_AER_PUBLISHER_PROGRAM = "aer_publisher"
 DEFAULT_AER_SUBSCRIBER_PROGRAM = "aer_subscriber"
+DEFAULT_AER_PUBSUBER_PROGRAM = "aer_pubsuber"
 
 PROGRAM_KEY = "program"
 
@@ -132,6 +134,49 @@ def parse_subscriber(sub_desc):
     return parsed_cmd
 
 
+def parse_pubsuber(pubsuber_desc):
+    parsed_cmd = []
+
+    # select program
+    if pubsuber_desc[USE_DEFAULT] is True:
+        parsed_cmd += [DEFAULT_AER_PUBSUBER_PROGRAM]
+    else:
+        parsed_cmd += [expandpath(pubsuber_desc[PROGRAM_KEY])]
+    pubsuber_desc.pop(USE_DEFAULT)
+
+    parsed_cmd += ["--url", pubsuber_desc.pop("url")]
+
+    parsed_cmd += ["--pub_port", str(pubsuber_desc.pop("pub_port"))]
+    parsed_cmd += ["--pub_topic", pubsuber_desc.pop("pub_topic")]
+    parsed_cmd += ["--pub_name", pubsuber_desc.pop("pub_name")]
+
+    parsed_cmd += ["--sub_port", str(pubsuber_desc.pop("sub_port"))]
+    parsed_cmd += ["--sub_topic", pubsuber_desc.pop("sub_topic")]
+    parsed_cmd += ["--sub_name", pubsuber_desc.pop("sub_name")]
+
+    parsed_cmd += ["--custom_pubsuber", expandpath(
+        pubsuber_desc.pop("custom_pubsuber"))]
+    parsed_cmd += ["--custom_class", pubsuber_desc.pop("custom_class")]
+
+    # Leave this here, maybe useful
+    try:
+        parsed_cmd += ["--device", pubsuber_desc.pop("device")]
+        if pubsuber_desc.pop("noise_filter", default=False):
+            parsed_cmd += ["--noise_filter"]
+        parsed_cmd += ["--bias_file", expandpath(
+            pubsuber_desc.pop("bias_file"))]
+    except Exception:
+        pass
+
+    try:
+        for (option, value) in pubsuber_desc.items():
+            parsed_cmd += ["--{}".format(option), str(value)]
+    except Exception:
+        pass
+
+    return parsed_cmd
+
+
 def parse_saver(saver_desc):
     parsed_cmd = ["aer_saver"]
 
@@ -172,36 +217,45 @@ with open(args.launch_file, "r") as launch_file:
 # main parsing loop
 process_collector = []  # collect all active processes
 
-for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
-    # if the first one is not a hub type, then start the default hub
-    if pg_i == 0 and pg_type != HUB:
-        parsed_hub_cmd = parse_hub({"use_default": True})
-        process_collector.append(
-            AERProcess(parsed_hub_cmd, daemon=True))
+try:
+    for pg_i, (pg_type, pg_desc) in enumerate(launch_desc.items()):
+        # if the first one is not a hub type, then start the default hub
+        if pg_i == 0 and pg_type != HUB:
+            parsed_hub_cmd = parse_hub({"use_default": True})
+            process_collector.append(
+                AERProcess(parsed_hub_cmd, daemon=True))
 
-    if pg_type == HUB:
-        parsed_hub_cmd = parse_hub(pg_desc)
-        process_collector.append(
-            AERProcess(parsed_hub_cmd))
-    elif PUB in pg_type:
-        parsed_pub_cmd = parse_publisher(pg_desc)
-        process_collector.append(
-            AERProcess(parsed_pub_cmd))
-    elif SUB in pg_type:
-        parsed_sub_cmd = parse_subscriber(pg_desc)
-        process_collector.append(
-            AERProcess(parsed_sub_cmd))
-    elif SAVER in pg_type:
-        parsed_saver_cmd = parse_saver(pg_desc)
-        process_collector.append(
-            AERProcess(parsed_saver_cmd))
-    else:
-        launch_logger.error("Unsupported Type {}".format(pg_type))
+        if pg_type == HUB:
+            parsed_hub_cmd = parse_hub(pg_desc)
+            process_collector.append(
+                AERProcess(parsed_hub_cmd))
+        elif PUB in pg_type:
+            parsed_pub_cmd = parse_publisher(pg_desc)
+            process_collector.append(
+                AERProcess(parsed_pub_cmd))
+        elif SUB in pg_type:
+            parsed_sub_cmd = parse_subscriber(pg_desc)
+            process_collector.append(
+                AERProcess(parsed_sub_cmd))
+        elif PUBSUB in pg_type:
+            parsed_pubsuber_cmd = parse_pubsuber(pg_desc)
+            process_collector.append(
+                AERProcess(parsed_pubsuber_cmd))
+        elif SAVER in pg_type:
+            parsed_saver_cmd = parse_saver(pg_desc)
+            process_collector.append(
+                AERProcess(parsed_saver_cmd))
+        else:
+            launch_logger.error("Unsupported Type {}".format(pg_type))
 
+    # launching
+    for process in process_collector:
+        process.run()
+except Exception:
+    launch_logger.info("Error launching, terminating all processes.")
+    for process in reversed(process_collector):
+        process.stop()
 
-# launching
-for process in process_collector:
-    process.run()
 
 while True:
     try:
