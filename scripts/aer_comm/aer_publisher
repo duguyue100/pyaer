@@ -13,6 +13,7 @@ import json
 
 from pyaer.davis import DAVIS
 from pyaer.dvs128 import DVS128
+from pyaer.dvxplorer import DVXPLORER
 from pyaer.utils import expandpath, import_custom_module
 from pyaer.utils import parse_custom_args
 from pyaer.comm import AERPublisher
@@ -33,7 +34,7 @@ parser.add_argument("--name", type=str,
 
 parser.add_argument("--device", type=str,
                     default="DAVIS",
-                    help="Currently supported options: DAVIS, DVS")
+                    help="Currently supported options: DAVIS, DVS, DVXPLORER")
 parser.add_argument("--noise_filter", action="store_true",
                     help="Add option to enable noise filter.")
 parser.add_argument("--bias_file", type=expandpath,
@@ -68,6 +69,8 @@ else:
         device = DAVIS(noise_filter=args.noise_filter)
     elif args.device == "DVS":
         device = DVS128(noise_filter=args.noise_filter)
+    elif args.device == "DVXPLORER":
+        device = DVXPLORER(noise_filter=args.noise_filter)
 
     device.start_data_stream()
     if args.bias_file is not None:

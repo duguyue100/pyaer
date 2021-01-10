@@ -90,6 +90,7 @@ setup(
              "scripts/aer_comm/aer_lstopic",
              "scripts/aer_comm/aer_publisher",
              "scripts/aer_comm/aer_subscriber",
+             "scripts/aer_comm/aer_pubsuber",
              "scripts/aer_comm/aer_launch",
              "scripts/aer_comm/aer_saver"],
 

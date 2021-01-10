@@ -157,7 +157,54 @@ class AERHub(object):
                 break
 
 
-class AERPublisher(object):
+class Publisher(object):
+    def __init__(self, url="tcp://127.0.0.1",
+                 port=5100, master_topic="",
+                 name=""):
+        """Publisher.
+
+        A abstract publisher implementation.
+
+        # Arguments
+            url: str
+                tcp address
+            port : int
+                port number connected by publisher
+            master_topic : str
+                the master topic name, such as davis-1
+                This is usually a device level identifier.
+                There can be sub-topics under this identifier
+            name : str
+                the name of the publisher
+        """
+
+        self.url = url
+        self.port = port
+        self.pub_url = url+":{}".format(port)
+        self.master_topic = master_topic
+        self.name = name
+
+        self.logger = log.get_logger(
+            "Publisher-{}".format(self.name),
+            log.INFO, stream=sys.stdout)
+
+        # initialize socket for publisher
+        self.init_socket()
+
+    def init_socket(self):
+        """Initialize zmq socket, override for your own use."""
+        self.context = zmq.Context.instance()
+        self.socket = self.context.socket(zmq.PUB)
+
+        self.socket.connect(self.pub_url)
+        time.sleep(1)
+
+    def run(self):
+        """Implement your publishing method."""
+        raise NotImplementedError
+
+
+class AERPublisher(Publisher):
     def __init__(self, device=None,
                  url="tcp://127.0.0.1",
                  port=5100, master_topic='',
@@ -192,29 +239,11 @@ class AERPublisher(object):
             name : str
                 the name of the publisher
         """
+        super(AERPublisher, self).__init__(
+            url=url, port=port, master_topic=master_topic,
+            name=name)
         # AER device
         self.device = device
-
-        self.master_topic = master_topic
-        self.url = url
-        self.port = port
-        self.pub_url = url+":{}".format(port)
-        self.name = name
-
-        self.logger = log.get_logger(
-            "Publisher-{}".format(self.name),
-            log.INFO, stream=sys.stdout)
-
-        # initialize socket for publisher
-        self.init_socket()
-
-    def init_socket(self):
-        """Initialize zmq socket, override for your own use."""
-        self.context = zmq.Context.instance()
-        self.socket = self.context.socket(zmq.PUB)
-
-        self.socket.connect(self.pub_url)
-        time.sleep(1)
 
     def pack_np_array(self, data_array):
         """Pack numpy array for sending.
@@ -351,17 +380,11 @@ class AERPublisher(object):
         self.device.shutdown()
 
 
-class AERSubscriber(object):
-    def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic='', name=""):
-        """AERSubscriber.
+class Subscriber(object):
+    def __init__(self, url, port, topic, name):
+        """Subscriber.
 
-        A subscriber can subscribe to a specific topic or all
-        topics. When received a message, it needs to unpack
-        the first two elements: topic name and timestamp
-
-        When saving, make sure the naming strategy is:
-        "master topic name/timestamp/data type"
+        A general implementation of subscriber.
 
         # Arguments
             url : str
@@ -394,6 +417,36 @@ class AERSubscriber(object):
 
         self.socket.setsockopt(zmq.SUBSCRIBE, self.topic.encode("utf-8"))
         self.socket.connect(self.sub_url)
+
+    def run(self):
+        raise NotImplementedError
+
+
+class AERSubscriber(Subscriber):
+    def __init__(self, url="tcp://127.0.0.1",
+                 port=5099, topic='', name=""):
+        """AERSubscriber.
+
+        A subscriber can subscribe to a specific topic or all
+        topics. When received a message, it needs to unpack
+        the first two elements: topic name and timestamp
+
+        When saving, make sure the naming strategy is:
+        "master topic name/timestamp/data type"
+
+        # Arguments
+            url : str
+                address to subscribe
+            port : int
+                port number to listen
+            topic : string
+                set to "" (default) to listen everything.
+                subscribe to specific topics otherwise
+            name : str
+                the name of the subscriber
+        """
+        super(AERSubscriber, self).__init__(
+            url=url, port=port, topic=topic, name=name)
 
     def process_data(self, data):
         """Process data object.
@@ -499,6 +552,38 @@ class AERSubscriber(object):
             data = self.process_data(data)
 
 
+class PubSuber(object):
+    def __init__(self, url="tcp://127.0.0.1",
+                 pub_port=5100,
+                 pub_topic="", pub_name="",
+                 sub_port=5099,
+                 sub_topic="", sub_name=""):
+        """Publisher-Subscriber.
+
+        Intend to use as a processing unit.
+        First subscribe on a topic, process it, and then publish to
+        a topic
+
+        """
+        self.url = url
+        self.pub_port = pub_port
+        self.pub_topic = pub_topic
+        self.pub_name = pub_name
+        self.sub_port = sub_port
+        self.sub_topic = sub_topic
+        self.sub_name = sub_name
+
+        self.publisher = Publisher(url=self.url, port=self.pub_port,
+                                   master_topic=self.pub_topic,
+                                   name=self.pub_name)
+        self.subscriber = Subscriber(url=self.url, port=self.sub_port,
+                                     topic=self.sub_topic,
+                                     name=self.sub_name)
+
+    def run(self):
+        raise NotImplementedError
+
+
 class AERHDF5Saver(object):
     def __init__(self, filename, mode="w-", libver="latest"):
         """AERHDF5Saver.
@@ -555,7 +640,7 @@ class AERHDF5Saver(object):
 class AERHDF5Reader(object):
     def __init__(self, filename, mode="r", libver="latest",
                  use_wall_clock=True):
-        """AERHDF5Saver.
+        """AERHDF5Reader.
 
         A high performance AER HDF5 Reader for events.
 
