@@ -66,9 +66,10 @@ In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight
     $ pip install pyaer
     ```
 
-3. Install `pyzmq`
+3. Install `pyzmq` and `h5py`
     ```
     $ pip install pyzmq
+    $ pip install h5py
     ```
 
     __NOTE:__ `pyzmq` is not available on ARM-based computer, you will need to build yourself.
