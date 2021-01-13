@@ -25,7 +25,7 @@ Special thanks to [iniVation](https://inivation.com/) for making this possible!
 
 The project is in its Beta development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you encountered a problem.
 
-For ARM wheels, please check out the [Releases](https://github.com/duguyue100/pyaer/releases).
+For ARM wheels, please check out the [Releases](https://github.com/duguyue100/pyaer/releases/latest).
 
 ## Why PyAER?
 
@@ -57,7 +57,7 @@ In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight
     $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-udev.sh)
     ```
 
-    __NOTE__: The `libcaer` installation has taken care of this update.
+    __NOTE__: The `libcaer` installation has taken care of the `udev` update.
     However, if the problem persists, please try it.
 
 2. Install `pyaer` from pypi (RECOMMEND)
@@ -81,28 +81,21 @@ Please follow the instructions in [INSTALL_FROM_SOURCE.md](./INSTALL_FROM_SOURCE
 
 ## Running Examples
 
-The [scripts](./scripts) folder provides some examples for you to play with:
++ The [scripts](./scripts) folder provides some examples for you to play with.
 
-1. `dvs128-test`: you need OpenCV to run this example, note that if you are on Mac, OpenCV's `waitKey()` function may cause delay of displaying frames.
-
-2. `dvs240-test`: you need OpenCV to run this example.
-
-3. `dvs346-test`: you need OpenCV to run this example.
-
-More examples are coming...
++ Extra more advanced demos are available at [pyaer-demo](https://github.com/duguyue100/pyaer-demo).
 
 ## Limitations and Notes
 
-+ __2020-12-10__: From 0.2.1, we support experimental interfaces for
-DVXplorer, DVXplorer Lite, and Samsung EVK. We will test these interfaces
-if we manage to get physical devices. Otherwise, we welcome community
-tests and improvements.
++ __2021-01-13__: DVXplorer cameras are officially supported
+(Thanks [iniVation](https://inivation.com/))
+for borrowing devices. Samsung EVK support is yet to be tested.
 
 + __2020-12-02__: From 0.2.0, we support a `zeromq`-based communication
 module that allow users to leverage multiple processes during development.
-It should be able to support multiple devices and concurrent logging and
-visualization (haven't tested). If you are familiar with ROS, you should
-find this feature very comfortable.
+It can support multiple devices and concurrent logging and
+visualization. If you are familiar with ROS, you should
+find this feature comfortable.
 
 + DYNAP is generally supported. We are currently looking for the correct
 bias configuration mechanism so that it can easily support the use of the
