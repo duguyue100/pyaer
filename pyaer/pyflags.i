@@ -236,6 +236,15 @@ bool biasHigh, bool typeNormal, bool sexN, bool enabled) {
 }
 %}
 
+%inline %{
+caerDeviceDiscoveryResult device_discover(int16_t device_type) {
+    caerDeviceDiscoveryResult discoveredDevices;
+    ssize_t num_devices = caerDeviceDiscover(device_type, &discoveredDevices);
+
+    return discoveredDevices;
+}
+%}
+
 /*
 Numpy related
 */
@@ -255,61 +264,6 @@ Numpy related
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_128[128][128][2])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_dvxplorer[480][640][2])};
 %apply (int64_t ARGOUT_ARRAY3[ANY][ANY][ANY]) {(int64_t pol_hist_dvxplorer_lite[240][320][2])};
-
-%inline %{
-void device_discover(int16_t deviceType, uint64_t* devices_vec, int32_t device_len) {
-    caerDeviceDiscoveryResult discoveredDevices;
-    ssize_t result = caerDeviceDiscover(deviceType, &discoveredDevices);
-
-    size_t i=0;
-    for (i=0; i< (size_t) result; i++){
-        devices_vec[i*3] = (uint64_t)discoveredDevices[i].deviceType;
-        switch (discoveredDevices[i].deviceType){
-            case CAER_DEVICE_DVS128: {
-                struct caer_dvs128_info *info = &discoveredDevices[i].deviceInfo.dvs128Info;
-                devices_vec[i*3+1] = (uint64_t)info->deviceUSBBusNumber;
-                devices_vec[i*3+2] = (uint64_t)info->deviceUSBDeviceAddress;
-            break;
-            }
-
-            case CAER_DEVICE_DAVIS_FX2:
-            case CAER_DEVICE_DAVIS_FX3:
-            case CAER_DEVICE_DAVIS: {
-                struct caer_davis_info *info = &discoveredDevices[i].deviceInfo.davisInfo;
-                devices_vec[i*3+1] = (uint64_t)info->deviceUSBBusNumber;
-                devices_vec[i*3+2] = (uint64_t)info->deviceUSBDeviceAddress;
-                break;
-            }
-
-            case CAER_DEVICE_DYNAPSE: {
-                struct caer_dynapse_info *info = &discoveredDevices[i].deviceInfo.dynapseInfo;
-                devices_vec[i*3+1] = (uint64_t)info->deviceUSBBusNumber;
-                devices_vec[i*3+2] = (uint64_t)info->deviceUSBDeviceAddress;
-                break;
-            }
-
-            case CAER_DEVICE_EDVS: {
-                struct caer_edvs_info *info = &discoveredDevices[i].deviceInfo.edvsInfo;
-                devices_vec[i*3+1] = 0;
-                devices_vec[i*3+2] = (uint64_t)info->serialBaudRate;
-                break;
-            }
-
-            case CAER_DEVICE_DAVIS_RPI: {
-                devices_vec[i*3+1] = 0;
-                devices_vec[i*3+2] = 0;
-                break;
-            }
-
-            default:
-                break;
-        }
-    }
-    devices_vec[(size_t)result*3]=42;
-
-    free(discoveredDevices);
-}
-%}
 
 %inline %{
 void get_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {

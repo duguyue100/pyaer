@@ -52,6 +52,9 @@ dynapse-test:
 dvs-noise-filter-test:
 	python ./scripts/dvs_noise_filter_test.py
 
+device-discovery:
+	python ./scripts/device_discovery.py
+
 install:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
 
