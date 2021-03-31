@@ -84,15 +84,15 @@ def parse_publisher(pub_desc):
     parsed_cmd += ["--name", pub_desc.pop("name")]
     parsed_cmd += ["--master_topic", pub_desc.pop("master_topic")]
 
-    if pub_desc[USE_DEFAULT_PUB] is True:
-        parsed_cmd += ["--use_default_pub"]
-    else:
+    if "custom_pub" in pub_desc:
         # parse custom command
         # follows the form /file/path/class_name
         custom_pub, custom_class = os.path.split(pub_desc.pop("custom_pub"))
 
         parsed_cmd += ["--custom_pub", expandpath(custom_pub)]
         parsed_cmd += ["--custom_class", custom_class]
+    else:
+        parsed_cmd += ["--use_default_pub"]
 
     pub_desc.pop(USE_DEFAULT_PUB)
 
@@ -134,15 +134,15 @@ def parse_subscriber(sub_desc):
     parsed_cmd += ["--name", sub_desc.pop("name")]
     parsed_cmd += ["--topic", sub_desc.pop("topic")]
 
-    if sub_desc[USE_DEFAULT_SUB] is True:
-        parsed_cmd += ["--use_default_sub"]
-    else:
+    if "custom_sub" in sub_desc:
         # parse custom command
         # follows the form /file/path/class_name
         custom_sub, custom_class = os.path.split(sub_desc.pop("custom_sub"))
 
         parsed_cmd += ["--custom_sub", expandpath(custom_sub)]
         parsed_cmd += ["--custom_class", custom_class]
+    else:
+        parsed_cmd += ["--use_default_sub"]
 
     sub_desc.pop(USE_DEFAULT_SUB)
 
