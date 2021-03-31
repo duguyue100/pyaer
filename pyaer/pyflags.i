@@ -63,6 +63,7 @@
 %include <libcaer/events/spike.h>
 %include <libcaer/filters/dvs_noise.h>
 
+%include "carrays.i"
 %include "numpy.i"
 
 %init %{
@@ -73,6 +74,8 @@
 %rename(caerDeviceConfigGet) caerDeviceConfigGetW;
 %rename(caerDeviceConfigGet64) caerDeviceConfigGet64W;
 %rename(caerFilterDVSNoiseConfigGet) caerFilterDVSNoiseConfigGetW;
+
+%array_class(struct caer_device_discovery_result, discovery_result);
 
 %inline %{
 bool caerDeviceCloseW(caerDeviceHandle handle) {
