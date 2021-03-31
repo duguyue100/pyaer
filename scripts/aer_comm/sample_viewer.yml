@@ -2,24 +2,15 @@
     "use_default": true
 
 "Subscriber-frame":
-    "use_default": true
-    "url": "tcp://127.0.0.1"
-    "port": 5099
     "topic": ""
     "use_default_sub": false
-    "custom_sub": "./custom_comm.py"
-    "custom_class": "DVViewerSubscriber"
+    "custom_sub": "./custom_comm.py/DVViewerSubscriber"
     "name": "dv_subscriber"
 
 "Publisher-davis":
-    "use_default": true
-    "url": "tcp://127.0.0.1"
-    "port": 5100
     "master_topic": "davis_1"
     "use_default_pub": true
-    "custom_pub": "./custom_comm.py"
-    "custom_class": "CustomPublisher"
-    "device": "DVXPLORER"
+    "device": "DAVIS"
     "noise_filter": true
-    "bias_file": "../configs/dvxplorer_config.json"
+    "bias_file": "../configs/davis346_config.json"
     "name": "dvxplorer_publisher"

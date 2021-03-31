@@ -8,6 +8,7 @@ Email : yuhuang.hu@ini.uzh.ch
 
 from __future__ import print_function, absolute_import
 
+import os
 import sys
 import argparse
 import time
@@ -33,6 +34,9 @@ DEFAULT_AER_HUB_NAME = "PyAER Message Hub"
 DEFAULT_AER_PUBLISHER_PROGRAM = "aer_publisher"
 DEFAULT_AER_SUBSCRIBER_PROGRAM = "aer_subscriber"
 DEFAULT_AER_PUBSUBER_PROGRAM = "aer_pubsuber"
+
+DEFAULT_HDF5_MODE = "w"
+DEFAULT_LIBVER_VERSION = "earliest"
 
 PROGRAM_KEY = "program"
 
@@ -64,23 +68,31 @@ def parse_publisher(pub_desc):
     parsed_cmd = []
 
     # select program
-    if pub_desc[USE_DEFAULT] is True:
-        parsed_cmd += [DEFAULT_AER_PUBLISHER_PROGRAM]
-    else:
+    if PROGRAM_KEY in pub_desc:
         parsed_cmd += [expandpath(pub_desc[PROGRAM_KEY])]
-    pub_desc.pop(USE_DEFAULT)
+    else:
+        parsed_cmd += [DEFAULT_AER_PUBLISHER_PROGRAM]
 
-    parsed_cmd += ["--url", pub_desc.pop("url")]
-    parsed_cmd += ["--port", str(pub_desc.pop("port"))]
-    parsed_cmd += ["--master_topic", pub_desc.pop("master_topic")]
+    parsed_cmd += [
+        "--url",
+        DEFAULT_URL if "url" not in pub_desc else pub_desc.pop("url")]
+    parsed_cmd += [
+        "--port",
+        DEFAULT_PUBLISHER_PORT if "port" not in pub_desc else
+        str(pub_desc.pop("port"))]
+
     parsed_cmd += ["--name", pub_desc.pop("name")]
+    parsed_cmd += ["--master_topic", pub_desc.pop("master_topic")]
 
     if pub_desc[USE_DEFAULT_PUB] is True:
         parsed_cmd += ["--use_default_pub"]
     else:
         # parse custom command
-        parsed_cmd += ["--custom_pub", expandpath(pub_desc.pop("custom_pub"))]
-        parsed_cmd += ["--custom_class", pub_desc.pop("custom_class")]
+        # follows the form /file/path/class_name
+        custom_pub, custom_class = os.path.split(pub_desc.pop("custom_pub"))
+
+        parsed_cmd += ["--custom_pub", expandpath(custom_pub)]
+        parsed_cmd += ["--custom_class", custom_class]
 
     pub_desc.pop(USE_DEFAULT_PUB)
 
@@ -88,7 +100,9 @@ def parse_publisher(pub_desc):
         parsed_cmd += ["--device", pub_desc.pop("device")]
         if pub_desc.pop("noise_filter", default=False):
             parsed_cmd += ["--noise_filter"]
-        parsed_cmd += ["--bias_file", expandpath(pub_desc.pop("bias_file"))]
+        if "bias_file" in pub_desc:
+            parsed_cmd += [
+                "--bias_file", expandpath(pub_desc.pop("bias_file"))]
     except Exception:
         pass
 
@@ -105,23 +119,30 @@ def parse_subscriber(sub_desc):
     parsed_cmd = []
 
     # select program
-    if sub_desc[USE_DEFAULT] is True:
-        parsed_cmd += [DEFAULT_AER_SUBSCRIBER_PROGRAM]
-    else:
+    if PROGRAM_KEY in sub_desc:
         parsed_cmd += [expandpath(sub_desc[PROGRAM_KEY])]
-    sub_desc.pop(USE_DEFAULT)
+    else:
+        parsed_cmd += [DEFAULT_AER_SUBSCRIBER_PROGRAM]
 
-    parsed_cmd += ["--url", sub_desc.pop("url")]
-    parsed_cmd += ["--port", str(sub_desc.pop("port"))]
-    parsed_cmd += ["--topic", sub_desc.pop("topic")]
+    parsed_cmd += [
+        "--url",
+        DEFAULT_URL if "url" not in sub_desc else sub_desc.pop("url")]
+    parsed_cmd += [
+        "--port",
+        DEFAULT_SUBSCRIBER_PORT if "port" not in sub_desc else
+        str(sub_desc.pop("port"))]
     parsed_cmd += ["--name", sub_desc.pop("name")]
+    parsed_cmd += ["--topic", sub_desc.pop("topic")]
 
     if sub_desc[USE_DEFAULT_SUB] is True:
         parsed_cmd += ["--use_default_sub"]
     else:
         # parse custom command
-        parsed_cmd += ["--custom_sub", expandpath(sub_desc.pop("custom_sub"))]
-        parsed_cmd += ["--custom_class", sub_desc.pop("custom_class")]
+        # follows the form /file/path/class_name
+        custom_sub, custom_class = os.path.split(sub_desc.pop("custom_sub"))
+
+        parsed_cmd += ["--custom_sub", expandpath(custom_sub)]
+        parsed_cmd += ["--custom_class", custom_class]
 
     sub_desc.pop(USE_DEFAULT_SUB)
 
@@ -138,33 +159,42 @@ def parse_pubsuber(pubsuber_desc):
     parsed_cmd = []
 
     # select program
-    if pubsuber_desc[USE_DEFAULT] is True:
-        parsed_cmd += [DEFAULT_AER_PUBSUBER_PROGRAM]
-    else:
+    if PROGRAM_KEY in pubsuber_desc:
         parsed_cmd += [expandpath(pubsuber_desc[PROGRAM_KEY])]
-    pubsuber_desc.pop(USE_DEFAULT)
+    else:
+        parsed_cmd += [DEFAULT_AER_PUBSUBER_PROGRAM]
 
-    parsed_cmd += ["--url", pubsuber_desc.pop("url")]
-
-    parsed_cmd += ["--pub_port", str(pubsuber_desc.pop("pub_port"))]
-    parsed_cmd += ["--pub_topic", pubsuber_desc.pop("pub_topic")]
+    parsed_cmd += [
+        "--url",
+        DEFAULT_URL if "url" not in pubsuber_desc else
+        pubsuber_desc.pop("url")]
+    parsed_cmd += [
+        "--pub_port",
+        DEFAULT_PUBLISHER_PORT if "pub_port" not in pubsuber_desc else
+        str(pubsuber_desc.pop("pub_port"))]
     parsed_cmd += ["--pub_name", pubsuber_desc.pop("pub_name")]
+    parsed_cmd += ["--pub_topic", pubsuber_desc.pop("pub_topic")]
 
-    parsed_cmd += ["--sub_port", str(pubsuber_desc.pop("sub_port"))]
-    parsed_cmd += ["--sub_topic", pubsuber_desc.pop("sub_topic")]
+    parsed_cmd += [
+        "--sub_port",
+        DEFAULT_SUBSCRIBER_PORT if "sub_port" not in pubsuber_desc else
+        str(pubsuber_desc.pop("sub_port"))]
     parsed_cmd += ["--sub_name", pubsuber_desc.pop("sub_name")]
+    parsed_cmd += ["--sub_topic", pubsuber_desc.pop("sub_topic")]
 
-    parsed_cmd += ["--custom_pubsuber", expandpath(
-        pubsuber_desc.pop("custom_pubsuber"))]
-    parsed_cmd += ["--custom_class", pubsuber_desc.pop("custom_class")]
+    custom_pubsuber, custom_class = os.path.split(
+        pubsuber_desc.pop("custom_pubsuber"))
+    parsed_cmd += ["--custom_pubsuber", expandpath(custom_pubsuber)]
+    parsed_cmd += ["--custom_class", custom_class]
 
     # Leave this here, maybe useful
     try:
         parsed_cmd += ["--device", pubsuber_desc.pop("device")]
         if pubsuber_desc.pop("noise_filter", default=False):
             parsed_cmd += ["--noise_filter"]
-        parsed_cmd += ["--bias_file", expandpath(
-            pubsuber_desc.pop("bias_file"))]
+        if "bias_file" in pubsuber_desc:
+            parsed_cmd += ["--bias_file", expandpath(
+                pubsuber_desc.pop("bias_file"))]
     except Exception:
         pass
 
@@ -180,26 +210,33 @@ def parse_pubsuber(pubsuber_desc):
 def parse_saver(saver_desc):
     parsed_cmd = ["aer_saver"]
 
-    parsed_cmd += ["--url", saver_desc["url"]]
-    parsed_cmd += ["--port", str(saver_desc["port"])]
-    parsed_cmd += ["--topic", saver_desc["topic"]]
+    parsed_cmd += [
+        "--url",
+        DEFAULT_URL if "url" not in saver_desc else saver_desc["url"]]
+    parsed_cmd += [
+        "--port",
+        DEFAULT_SUBSCRIBER_PORT if "port" not in saver_desc else
+        str(saver_desc["port"])]
     parsed_cmd += ["--name", saver_desc["name"]]
+    parsed_cmd += ["--topic", saver_desc["topic"]]
 
     parsed_cmd += ["--filename", expandpath(saver_desc["filename"])]
-    parsed_cmd += ["--mode", saver_desc["mode"]]
-    parsed_cmd += ["--libver", saver_desc["libver"]]
 
-    try:
-        if saver_desc["hdf5"] is True:
-            parsed_cmd += ["--hdf5"]
-    except Exception:
-        pass
+    parsed_cmd += [
+        "--mode",
+        DEFAULT_HDF5_MODE if "mode" not in saver_desc else
+        saver_desc["mode"]]
+    parsed_cmd += [
+        "--libver",
+        DEFAULT_LIBVER_VERSION if "libver" not in saver_desc else
+        saver_desc["libver"]]
 
+    # Use HDF5 as the default saver
     try:
         if saver_desc["zarr"] is True:
             parsed_cmd += ["--zarr"]
     except Exception:
-        pass
+        parsed_cmd += ["--hdf5"]
 
     return parsed_cmd
 
@@ -254,14 +291,22 @@ try:
 except Exception:
     launch_logger.info("Error launching, terminating all processes.")
     for process in reversed(process_collector):
-        process.stop()
-
+        try:
+            process.stop()
+        except Exception:
+            pass
+        del process
+    sys.exit(1)
 
 while True:
     try:
         time.sleep(1)
-    except KeyboardInterrupt:
+    except Exception:
         launch_logger.info("Exiting launcher, terminating all processes.")
         for process in reversed(process_collector):
-            process.stop()
+            try:
+                process.stop()
+            except Exception:
+                pass
+            del process
         break
