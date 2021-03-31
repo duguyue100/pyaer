@@ -19,27 +19,19 @@ class CustomPublisher(AERPublisher):
             device=device, url=url, port=port, master_topic=master_topic,
             **kwargs)
 
-        for arg in kwargs.values():
-            print(arg)
+    def run_once(self, verbose=False):
+        data = self.device.get_event()
 
-    def run(self):
-        while True:
-            try:
-                data = self.device.get_event()
+        if data is not None:
+            #  data = self.pack_polarity_events
+            #
+            #  self.socket.send_multipart(data)
 
-                if data is not None:
-                    #  data = self.pack_polarity_events
-                    #
-                    #  self.socket.send_multipart(data)
+            t = time.localtime()
 
-                    t = time.localtime()
+            curr_time = time.strftime("%H:%M:%S", t)
 
-                    curr_time = time.strftime("%H:%M:%S", t)
-
-                    print("Publishing {}".format(curr_time))
-            except KeyboardInterrupt:
-                self.close()
-                break
+            print("Publishing {}".format(curr_time))
 
 
 class CustomSubscriber(AERSubscriber):
@@ -50,32 +42,27 @@ class CustomSubscriber(AERSubscriber):
         for arg in kwargs.values():
             print(arg)
 
-    def run(self):
-        """Subscribe data main loop.
+    def run_once(self, verbose=False):
+        data = self.socket.recv_multipart()
 
-        Reimplement to your need.
-        """
-        while True:
-            data = self.socket.recv_multipart()
+        topic_name = self.unpack_data_name(
+            data[:2], topic_name_only=True)
 
-            topic_name = self.unpack_data_name(
-                data[:2], topic_name_only=True)
+        if "frame" in topic_name:
+            data_id, frame_events, frame_ts = \
+                self.unpack_frame_events(data)
 
-            if "frame" in topic_name:
-                data_id, frame_events, frame_ts = \
-                    self.unpack_frame_events(data)
-
-                if frame_events is not None:
-                    try:
-                        cv2.imshow(
-                            "frame",
-                            cv2.cvtColor(
-                                frame_events[0],
-                                cv2.COLOR_BGR2RGB))
-                        if cv2.waitKey(1) & 0xFF == ord('q'):
-                            break
-                    except Exception:
-                        pass
+            if frame_events is not None:
+                try:
+                    cv2.imshow(
+                        "frame",
+                        cv2.cvtColor(
+                            frame_events[0],
+                            cv2.COLOR_BGR2RGB))
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        return
+                except Exception:
+                    pass
 
 
 class DVViewerSubscriber(AERSubscriber):
@@ -86,29 +73,24 @@ class DVViewerSubscriber(AERSubscriber):
         for arg in kwargs.values():
             print(arg)
 
-    def run(self):
-        """Subscribe data main loop.
+    def run_once(self, verbose=False):
+        data = self.socket.recv_multipart()
 
-        Reimplement to your need.
-        """
-        while True:
-            data = self.socket.recv_multipart()
+        topic_name = self.unpack_data_name(
+            data[:2], topic_name_only=True)
 
-            topic_name = self.unpack_data_name(
-                data[:2], topic_name_only=True)
+        if "frame" in topic_name:
+            data_id, frame_events, frame_ts = \
+                self.unpack_frame_events(data)
 
-            if "frame" in topic_name:
-                data_id, frame_events, frame_ts = \
-                    self.unpack_frame_events(data)
-
-                if frame_events is not None:
-                    try:
-                        cv2.imshow(
-                            "frame",
-                            cv2.cvtColor(
-                                frame_events[0],
-                                cv2.COLOR_BGR2RGB))
-                        if cv2.waitKey(1) & 0xFF == ord('q'):
-                            break
-                    except Exception:
-                        pass
+            if frame_events is not None:
+                try:
+                    cv2.imshow(
+                        "frame",
+                        cv2.cvtColor(
+                            frame_events[0],
+                            cv2.COLOR_BGR2RGB))
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        return
+                except Exception:
+                    pass

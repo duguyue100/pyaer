@@ -155,7 +155,7 @@ class AERHub(object):
                 elif self.hub_sub in events:
                     data = self.hub_sub.recv_multipart()
                     self.hub_pub.send_multipart(data)
-            except KeyboardInterrupt:
+            except Exception:
                 self.logger.info("{} Exiting...".format(self.aer_hub_name))
                 break
 
@@ -243,9 +243,24 @@ class Publisher(object):
         return [encode_topic_name([self.master_topic, data_topic_name]),
                 timestamp]+packed_data_list
 
-    def run(self):
-        """Implement your publishing method."""
+    def run_once(self, verbose=False):
+        """One iteration of processing."""
         raise NotImplementedError
+
+    def run(self, verbose):
+        """Implement your publishing method."""
+        while True:
+            try:
+                self.run_once(verbose=verbose)
+            except NotImplementedError:
+                self.logger.error(
+                    "Please implement run_once method for {}".format(
+                        self.name))
+                break
+            except Exception:
+                self.logger.info(
+                    "{} Exiting...".format(self.name))
+                break
 
 
 class AERPublisher(Publisher):
@@ -316,6 +331,59 @@ class AERPublisher(Publisher):
         return self.pack_data_by_topic(
             data_topic_name, timestamp, packed_event)
 
+    def run_once(self, verbose=False):
+        data = self.device.get_event()
+        timestamp = get_nanotime()
+        if data is not None:
+            # You can manipulate data here before sending,
+            # note that this is a publisher side
+            # pre-processing, it may slowdown the publishing rate.
+
+            # send polarity events
+            polarity_data = self.pack_polarity_events(
+                timestamp,
+                self.pack_np_array(data[0]))
+            self.socket.send_multipart(polarity_data)
+
+            if verbose:
+                self.logger.debug("{} {}".format(
+                    polarity_data[0].decode("utf-8"),
+                    timestamp.decode("utf-8")))
+
+            # send special events
+            special_data = self.pack_special_events(
+                timestamp,
+                self.pack_np_array(data[2]))
+            self.socket.send_multipart(special_data)
+
+            if verbose:
+                self.logger.debug(
+                    "{}".format(special_data[0].decode("utf-8")))
+
+            if len(data) > 4:
+                # DAVIS related device
+
+                # send frame events
+                frame_data = self.pack_frame_events(
+                    timestamp,
+                    self.pack_np_array(data[5]),
+                    self.pack_np_array(data[4]))
+                self.socket.send_multipart(frame_data)
+
+                if verbose:
+                    self.logger.debug("{}".format(
+                        frame_data[0].decode("utf-8")))
+
+                # send IMU events
+                imu_data = self.pack_imu_events(
+                    timestamp,
+                    self.pack_np_array(data[6]))
+                self.socket.send_multipart(imu_data)
+
+                if verbose:
+                    self.logger.debug("{}".format(
+                        imu_data[0].decode("utf-8")))
+
     def run(self, verbose=False):
         """Publish data main loop.
 
@@ -323,60 +391,9 @@ class AERPublisher(Publisher):
         """
         while True:
             try:
-                data = self.device.get_event()
-                timestamp = get_nanotime()
-                if data is not None:
-                    # You can manipulate data here before sending,
-                    # note that this is a publisher side
-                    # pre-processing, it may slowdown the publishing rate.
-
-                    # send polarity events
-                    polarity_data = self.pack_polarity_events(
-                        timestamp,
-                        self.pack_np_array(data[0]))
-                    self.socket.send_multipart(polarity_data)
-
-                    if verbose:
-                        self.logger.debug("{} {}".format(
-                            polarity_data[0].decode("utf-8"),
-                            timestamp.decode("utf-8")))
-
-                    # send special events
-                    special_data = self.pack_special_events(
-                        timestamp,
-                        self.pack_np_array(data[2]))
-                    self.socket.send_multipart(special_data)
-
-                    if verbose:
-                        self.logger.debug(
-                            "{}".format(special_data[0].decode("utf-8")))
-
-                    if len(data) > 4:
-                        # DAVIS related device
-
-                        # send frame events
-                        frame_data = self.pack_frame_events(
-                            timestamp,
-                            self.pack_np_array(data[5]),
-                            self.pack_np_array(data[4]))
-                        self.socket.send_multipart(frame_data)
-
-                        if verbose:
-                            self.logger.debug("{}".format(
-                                frame_data[0].decode("utf-8")))
-
-                        # send IMU events
-                        imu_data = self.pack_imu_events(
-                            timestamp,
-                            self.pack_np_array(data[6]))
-                        self.socket.send_multipart(imu_data)
-
-                        if verbose:
-                            self.logger.debug("{}".format(
-                                imu_data[0].decode("utf-8")))
-            except KeyboardInterrupt:
-                self.logger.info("Shutting down publisher {}".format(
-                    self.name))
+                self.run_once(verbose=verbose)
+            except Exception:
+                self.logger.info("{} Exiting...".format(self.name))
                 self.close()
                 break
 
@@ -475,8 +492,22 @@ class Subscriber(object):
 
         return data_identifier, array_data
 
-    def run(self):
+    def run_once(self, verbose=False):
         raise NotImplementedError
+
+    def run(self, verbose=False):
+        while True:
+            try:
+                self.run_once(verbose=verbose)
+            except NotImplementedError:
+                self.logger.error(
+                    "Please implement run_once method for {}".format(
+                        self.name))
+                break
+            except Exception:
+                self.logger.info(
+                    "{} Exiting...".format(self.name))
+                break
 
 
 class AERSubscriber(Subscriber):
@@ -533,30 +564,37 @@ class AERSubscriber(Subscriber):
     def unpack_imu_events(self, packed_imu_events):
         return self.unpack_array_data_by_name(packed_imu_events)
 
-    def run(self, verbose=True):
+    def run_once(self, verbose=False):
+        data = self.socket.recv_multipart()
+
+        topic_name = self.unpack_array_data_by_name(
+            data[:2], topic_name_only=True)
+
+        # you can select some of these functions to use
+        if "polarity" in topic_name:
+            data_id, polarity_events = self.unpack_polarity_events(data)
+        elif "special" in topic_name:
+            data_id, special_events = self.unpack_special_events(data)
+        elif "frame" in topic_name:
+            data_id, frame_events, frame_ts = \
+                self.unpack_frame_events(data)
+        elif "imu" in topic_name:
+            data_id, imu_events = self.unpack_imu_events(data)
+
+        # your processing pipe line here
+        data = self.process_data(data)
+
+    def run(self, verbose=False):
         """Subscribe data main loop.
 
         Reimplement to your need.
         """
         while True:
-            data = self.socket.recv_multipart()
-
-            topic_name = self.unpack_array_data_by_name(
-                data[:2], topic_name_only=True)
-
-            # you can select some of these functions to use
-            if "polarity" in topic_name:
-                data_id, polarity_events = self.unpack_polarity_events(data)
-            elif "special" in topic_name:
-                data_id, special_events = self.unpack_special_events(data)
-            elif "frame" in topic_name:
-                data_id, frame_events, frame_ts = \
-                    self.unpack_frame_events(data)
-            elif "imu" in topic_name:
-                data_id, imu_events = self.unpack_imu_events(data)
-
-            # your processing pipe line here
-            data = self.process_data(data)
+            try:
+                self.run_once(verbose=verbose)
+            except Exception:
+                self.logger("{} Exiting...".format(self.name))
+                break
 
 
 class PubSuber(object):
@@ -589,8 +627,22 @@ class PubSuber(object):
             "PubSuber-{}-{}".format(self.pub_name, self.sub_name),
             log.INFO, stream=sys.stdout)
 
-    def run(self):
+    def run_once(self, verbose=False):
         raise NotImplementedError
+
+    def run(self, verbose=False):
+        while True:
+            try:
+                self.run_once(verbose=verbose)
+            except NotImplementedError:
+                self.logger.error(
+                    "Please implement run_once method for {}".format(
+                        self.name))
+                break
+            except Exception:
+                self.logger.info(
+                    "{} Exiting...".format(self.name))
+                break
 
 
 class AERHDF5Saver(object):
