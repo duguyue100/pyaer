@@ -16,7 +16,8 @@ class CustomPublisher(AERPublisher):
 
     def __init__(self, device, url, port, master_topic, name, **kwargs):
         super().__init__(
-            device=device, url=url, port=port, master_topic=master_topic)
+            device=device, url=url, port=port, master_topic=master_topic,
+            **kwargs)
 
         for arg in kwargs.values():
             print(arg)
@@ -44,7 +45,7 @@ class CustomPublisher(AERPublisher):
 class CustomSubscriber(AERSubscriber):
 
     def __init__(self, url, port, topic, name, **kwargs):
-        super().__init__(url, port, topic, name)
+        super().__init__(url, port, topic, name, **kwargs)
 
         for arg in kwargs.values():
             print(arg)
@@ -80,7 +81,7 @@ class CustomSubscriber(AERSubscriber):
 class DVViewerSubscriber(AERSubscriber):
 
     def __init__(self, url, port, topic, name, **kwargs):
-        super().__init__(url, port, topic, name)
+        super().__init__(url, port, topic, name, **kwargs)
 
         for arg in kwargs.values():
             print(arg)

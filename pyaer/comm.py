@@ -156,14 +156,14 @@ class AERHub(object):
                     data = self.hub_sub.recv_multipart()
                     self.hub_pub.send_multipart(data)
             except KeyboardInterrupt:
-                self.logger.info("{} Existing...".format(self.aer_hub_name))
+                self.logger.info("{} Exiting...".format(self.aer_hub_name))
                 break
 
 
 class Publisher(object):
     def __init__(self, url="tcp://127.0.0.1",
                  port=5100, master_topic="",
-                 name=""):
+                 name="", **kwargs):
         """Publisher.
 
         A abstract publisher implementation.
@@ -180,6 +180,8 @@ class Publisher(object):
             name : str
                 the name of the publisher
         """
+
+        self.__dict__.update(kwargs)
 
         self.url = url
         self.port = port
@@ -250,7 +252,7 @@ class AERPublisher(Publisher):
     def __init__(self, device=None,
                  url="tcp://127.0.0.1",
                  port=5100, master_topic='',
-                 name=""):
+                 name="", **kwargs):
         """AERPublisher.
 
         Topics are organized in the following way:
@@ -283,7 +285,7 @@ class AERPublisher(Publisher):
         """
         super(AERPublisher, self).__init__(
             url=url, port=port, master_topic=master_topic,
-            name=name)
+            name=name, **kwargs)
         # AER device
         self.device = device
 
@@ -384,7 +386,7 @@ class AERPublisher(Publisher):
 
 
 class Subscriber(object):
-    def __init__(self, url, port, topic, name):
+    def __init__(self, url, port, topic, name, **kwargs):
         """Subscriber.
 
         A general implementation of subscriber.
@@ -400,6 +402,8 @@ class Subscriber(object):
             name : str
                 the name of the subscriber
         """
+        self.__dict__.update(kwargs)
+
         self.url = url
         self.port = port
         self.sub_url = url+":{}".format(port)
@@ -477,7 +481,7 @@ class Subscriber(object):
 
 class AERSubscriber(Subscriber):
     def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic='', name=""):
+                 port=5099, topic='', name="", **kwargs):
         """AERSubscriber.
 
         A subscriber can subscribe to a specific topic or all
@@ -499,7 +503,7 @@ class AERSubscriber(Subscriber):
                 the name of the subscriber
         """
         super(AERSubscriber, self).__init__(
-            url=url, port=port, topic=topic, name=name)
+            url=url, port=port, topic=topic, name=name, **kwargs)
 
     def process_data(self, data):
         """Process data object.
@@ -560,7 +564,8 @@ class PubSuber(object):
                  pub_port=5100,
                  pub_topic="", pub_name="",
                  sub_port=5099,
-                 sub_topic="", sub_name=""):
+                 sub_topic="", sub_name="",
+                 **kwargs):
         """Publisher-Subscriber.
 
         This is a shell implementation.
@@ -570,6 +575,8 @@ class PubSuber(object):
         a topic
 
         """
+        self.__dict__.update(kwargs)
+
         self.url = url
         self.pub_port = pub_port
         self.pub_topic = pub_topic
