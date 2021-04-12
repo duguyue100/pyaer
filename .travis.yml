@@ -83,7 +83,7 @@ deploy:
   provider: releases
   token: $GITHUB_TOKEN 
   file_glob: true
-  file: dist/*.*
+  file: dist/*.whl
   skip_cleanup: true
   on:
       tags: true
