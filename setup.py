@@ -79,8 +79,7 @@ setup(
 
     url=about["__url__"],
 
-    install_requires=["numpy >= 1.18.0",
-                      "future"],
+    install_requires=["numpy >= 1.18.0"],
 
     packages=find_packages(),
 

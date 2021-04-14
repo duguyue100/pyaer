@@ -4,7 +4,6 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from __future__ import print_function, absolute_import
-from future.utils import iteritems
 from builtins import range
 import time
 import numpy as np
@@ -369,7 +368,7 @@ class DYNAPSE(USBDevice):
             assert isinstance(scope, dict)
 
         # Set biases for some activity
-        for (chip_id, core_ids) in iteritems(scope):
+        for (chip_id, core_ids) in scope.items():
             self.set_activity_bias(bias_obj, self.chip_config[chip_id],
                                    core_ids=core_ids)
 

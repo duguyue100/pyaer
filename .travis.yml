@@ -150,7 +150,6 @@ before_install:
 install:
     - pip install pip -U
     - pip install numpy==1.18.0
-    - pip install future -U
     - pip install wheel
     - if [[ $TRAVIS_TAG ]]; then
         pip install twine;
