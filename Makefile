@@ -55,6 +55,9 @@ dvs-noise-filter-test:
 device-discovery:
 	python ./scripts/device_discovery.py
 
+event-container-test:
+	python ./scripts/event_container_test.py
+
 install:
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(PYTHONLIBPATH) python setup.py install
 

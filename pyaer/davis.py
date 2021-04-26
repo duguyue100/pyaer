@@ -10,6 +10,7 @@ from pyaer import libcaer
 from pyaer.device import USBDevice
 from pyaer.filters import DVSNoise
 from pyaer import utils
+from pyaer.container import EventContainer
 
 
 class DAVIS(USBDevice):
@@ -1188,6 +1189,25 @@ class DAVIS(USBDevice):
                 polarity, num_events*4).reshape(num_events, 4)
 
         return events, num_events
+
+    def get_event_container(self):
+        """Get Event Container.
+
+        Instead of returning different variables,
+        return an event container.
+        """
+
+        data = self.get_event()
+
+        if data is None:
+            return None
+
+        return EventContainer(
+            pol_events=data[0],
+            special_events=data[2],
+            frames_ts=data[4],
+            frames=data[5],
+            imu_events=data[6])
 
     def get_event(self, mode="events"):
         """Get Event.
