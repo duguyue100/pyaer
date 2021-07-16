@@ -364,11 +364,12 @@ class AERPublisher(Publisher):
                 # DAVIS related device
 
                 # send frame events
-                frame_data = self.pack_frame_events(
-                    timestamp,
-                    self.pack_np_array(data[5]),
-                    self.pack_np_array(data[4]))
-                self.socket.send_multipart(frame_data)
+                if data[5].shape[0] != 0:
+                    frame_data = self.pack_frame_events(
+                        timestamp,
+                        self.pack_np_array(data[5]),
+                        self.pack_np_array(data[4]))
+                    self.socket.send_multipart(frame_data)
 
                 if verbose:
                     self.logger.debug("{}".format(

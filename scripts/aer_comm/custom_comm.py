@@ -23,7 +23,7 @@ class CustomPublisher(AERPublisher):
         data = self.device.get_event()
 
         if data is not None:
-            #  data = self.pack_polarity_events
+            #  data = self.pack_frame_events
             #
             #  self.socket.send_multipart(data)
 

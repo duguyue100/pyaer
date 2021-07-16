@@ -48,7 +48,7 @@
     "aps_enabled": true,
     "dvs_enabled": true,
     "exposure": 30000,
-    "autoexposure": true,
+    "autoexposure": false,
     "frame_interval": 0,
     "imu_enabled": true,
     "imu_acc_scale": 3,

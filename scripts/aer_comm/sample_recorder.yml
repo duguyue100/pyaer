@@ -16,6 +16,7 @@
     "name": "davis_publisher"
     "master_topic": "davis_1"
     "use_default_pub": true
-    "custom_pub": "./custom_comm.py/CustomPublisher"
+    # "custom_pub": "./custom_comm.py/CustomPublisher"
     "device": "DAVIS"
+    "bias_file": "../configs/davis346_config.json"
     "noise_filter": true
