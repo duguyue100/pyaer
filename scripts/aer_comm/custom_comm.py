@@ -54,11 +54,11 @@ class CustomSubscriber(AERSubscriber):
 
             if frame_events is not None:
                 try:
-                    cv2.imshow(
-                        "frame",
-                        cv2.cvtColor(
+                    frame = cv2.cvtColor(
                             frame_events[0],
-                            cv2.COLOR_BGR2RGB))
+                            cv2.COLOR_BGR2RGB)
+                    frame = cv2.resize(frame, (1384, 1040))
+                    cv2.imshow("frame", frame)
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         return
                 except Exception:

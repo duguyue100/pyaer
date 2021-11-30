@@ -506,6 +506,63 @@ void get_filtered_polarity_event(caerPolarityEventPacket event_packet, int64_t* 
 %}
 
 %inline %{
+int64_t get_polarity_event_color_filter(int64_t x, int64_t y) {
+    /*x and y are pixel locations*/
+    /* The color filter is set as follows:
+    lower_left: 1 Green
+    lower_right: 2 Blue
+    upper_left: 3 Red
+    upper_right: 4 Green
+    GBRG in short
+    */
+
+    if (y % 2 == 0)
+        return (x % 2 == 0) ? 1 : 2;
+    else
+        return (x % 2 == 0) ? 3 : 4;
+}
+%}
+
+/* get color filtered events, with noise filter */
+%inline %{
+void get_color_and_filtered_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len/6; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+        event_vec[i*6] = caerPolarityEventGetTimestamp64(event, event_packet);
+        event_vec[i*6+1] = caerPolarityEventGetX(event);
+        event_vec[i*6+2] = caerPolarityEventGetY(event);
+        event_vec[i*6+3] = caerPolarityEventGetPolarity(event);
+        event_vec[i*6+4] = (int64_t)(caerPolarityEventIsValid(event));
+
+        /* color filter assignment */
+        event_vec[i*6+5] = get_polarity_event_color_filter(
+            caerPolarityEventGetX(event),
+            caerPolarityEventGetY(event));
+    }
+}
+%}
+
+/* get only color filtered events, without noise filter */
+%inline %{
+void get_color_polarity_event(caerPolarityEventPacket event_packet, int64_t* event_vec, int32_t packet_len) {
+    long i;
+    for (i=0; i<(int)packet_len/5; i++) {
+        caerPolarityEvent event = caerPolarityEventPacketGetEvent(event_packet, i);
+        event_vec[i*5] = caerPolarityEventGetTimestamp64(event, event_packet);
+        event_vec[i*5+1] = caerPolarityEventGetX(event);
+        event_vec[i*5+2] = caerPolarityEventGetY(event);
+        event_vec[i*5+3] = caerPolarityEventGetPolarity(event);
+
+        /* color filter assignment */
+        event_vec[i*5+4] = get_polarity_event_color_filter(
+            caerPolarityEventGetX(event),
+            caerPolarityEventGetY(event));
+    }
+}
+%}
+
+%inline %{
 void get_hot_pixels(caerFilterDVSNoise noiseFilter, uint16_t* hotpix_vec, int32_t hotpix_len) {
     caerFilterDVSPixel hotPixels;
     ssize_t numHotPixels = caerFilterDVSNoiseGetHotPixels(noiseFilter, &hotPixels);

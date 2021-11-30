@@ -11,7 +11,7 @@ import numpy as np
 from pyaer import libcaer
 from pyaer.davis import DAVIS
 
-device = DAVIS(noise_filter=True)
+device = DAVIS(noise_filter=True, color_filter=True)
 
 print("Device ID:", device.device_id)
 if device.device_is_master:
@@ -58,14 +58,17 @@ while True:
                 frame = cv2.cvtColor(frames[0], cv2.COLOR_BGR2RGB)
                 cv2.imshow("frame", frame)
 
-            print("Number of events:", num_pol_event, "Number of Frames:",
-                  frames.shape, "Exposure:",
-                  device.get_config(
-                      libcaer.DAVIS_CONFIG_APS,
-                      libcaer.DAVIS_CONFIG_APS_EXPOSURE),
-                  "Autoexposure:", device.get_config(
-                      libcaer.DAVIS_CONFIG_APS,
-                      libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE))
+            if pol_events is not None:
+                print("Number of events:", pol_events.shape,
+                      "Number of Frames:",
+                      frames.shape, "Exposure:",
+                      device.get_config(
+                          libcaer.DAVIS_CONFIG_APS,
+                          libcaer.DAVIS_CONFIG_APS_EXPOSURE),
+                      "Autoexposure:", device.get_config(
+                          libcaer.DAVIS_CONFIG_APS,
+                          libcaer.DAVIS_CONFIG_APS_AUTOEXPOSURE),
+                      "Color:", pol_events[0, 5])
 
             if num_pol_event != 0:
                 if num_packet_before_disable > 0:

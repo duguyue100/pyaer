@@ -4,7 +4,7 @@
 "Saver-hdf5":
     "name": "aer_saver"
     "topic": ""
-    "filename": "~/data/pyaer_test.hdf5"
+    "filename": "~/data/dark/dark_1.hdf5"
 
 "Subscriber-frame":
     "name": "frame_subscriber"

@@ -38,13 +38,17 @@ class DAVIS(USBDevice):
         noise_filter: `bool`<br/>
             if enable noise filter.<br/>
             `default is False`
+        color_filter: `bool`<br/>
+            if enable color filter for events.<br/>
+            `default is False`
     """
     def __init__(self,
                  device_id=1,
                  bus_number_restrict=0,
                  dev_address_restrict=0,
                  serial_number="",
-                 noise_filter=False):
+                 noise_filter=False,
+                 color_filter=False):
         """DAVIS."""
         super(DAVIS, self).__init__()
         # open device
@@ -67,6 +71,9 @@ class DAVIS(USBDevice):
             self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
         else:
             self.noise_filter = None
+
+        # color filter
+        self.filter_color = color_filter
 
     def set_noise_filter(self, noise_filter):
         """Set noise filter.
@@ -1149,7 +1156,9 @@ class DAVIS(USBDevice):
         self.data_start()
         self.set_data_exchange_blocking()
 
-    def get_polarity_event(self, packet_header, noise_filter=False):
+    def get_polarity_event(self, packet_header,
+                           noise_filter=False,
+                           color_filter=False):
         """Get a packet of polarity event.
 
         # Arguments
@@ -1157,6 +1166,8 @@ class DAVIS(USBDevice):
                 the header that represents a event packet
             noise_filter: `bool`<br/>
                 the background activity filter is applied if True.
+            color_filter: `bool`<br/>
+                assign color filter to each event if True
 
         # Returns
             events: `numpy.ndarray`<br/>
@@ -1182,11 +1193,23 @@ class DAVIS(USBDevice):
         if noise_filter is True:
             polarity = self.noise_filter.apply(polarity)
 
-            events = libcaer.get_filtered_polarity_event(
-                polarity, num_events*5).reshape(num_events, 5)
+            if color_filter:
+                # with color filter, with noise filter
+                events = libcaer.get_color_and_filtered_polarity_event(
+                    polarity, num_events*6).reshape(num_events, 6)
+            else:
+                # without color filter, with noise filter
+                events = libcaer.get_filtered_polarity_event(
+                    polarity, num_events*5).reshape(num_events, 5)
         else:
-            events = libcaer.get_polarity_event(
-                polarity, num_events*4).reshape(num_events, 4)
+            if color_filter:
+                # with color filter, without noise filter
+                events = libcaer.get_color_polarity_event(
+                    polarity, num_events*5).reshape(num_events, 5)
+            else:
+                # without color filter, without noise filter
+                events = libcaer.get_polarity_event(
+                    polarity, num_events*4).reshape(num_events, 4)
 
         return events, num_events
 
@@ -1271,7 +1294,8 @@ class DAVIS(USBDevice):
                 if packet_type == libcaer.POLARITY_EVENT:
                     if mode == "events":
                         events, num_events = self.get_polarity_event(
-                            packet_header, self.filter_noise)
+                            packet_header, self.filter_noise,
+                            self.filter_color)
                         pol_events = np.hstack((pol_events, events)) \
                             if pol_events is not None else events
                     elif mode == "events_hist":
