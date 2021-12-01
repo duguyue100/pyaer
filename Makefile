@@ -43,6 +43,9 @@ davis346-test:
 davis346-color-test:
 	python ./scripts/davis346_color_test.py
 
+davis346-color-events:
+	python ./scripts/davis346_color_events.py
+
 dvxplorer-test:
 	python ./scripts/dvxplorer_test.py
 
