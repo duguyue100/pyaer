@@ -5,9 +5,10 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest]
         python-version: ["3.6", "3.7", "3.8"]
 
     steps:
@@ -16,12 +17,22 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
+      - name: Install Ubuntu dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           gcc --version;
           sudo apt-get install build-essential -y;
           sudo apt-get install libusb-1.0-0-dev -y;
           sudo apt-get install cmake -y;
+      - name: Install macos dependencies
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          gcc --version;
+          brew install libusb;
+          brew install automake;
+          brew install bison;
+      - name: Install PyAER specific dependencies
+        run: |
           $GITHUB_WORKSPACE/install-libcaer.sh ci
           git clone https://github.com/duguyue100/swig
           cd swig
