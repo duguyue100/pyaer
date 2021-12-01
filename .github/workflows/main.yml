@@ -1,6 +1,9 @@
 name: PyAER Build and Test
 
-on: [push]
+on:
+  push:
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -49,10 +52,25 @@ jobs:
           make build-wheel
           make build-wheel
           make install
-      - name: Find file
+      - name: Find and manage file
         run: |
             cd $GITHUB_WORKSPACE/dist
             ls -a
             for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
+            rm *.egg;
             ls -a
             cd ..
+      - name: Publish package to Github releases
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./dist/*.whl
+          tag: ${{ github.ref }}
+      - name: Publish package to PyPI
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: duguyue100
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          verbose: true
