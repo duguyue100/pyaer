@@ -18,19 +18,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          sudo apt-add-repository -y "ppa:ubuntu-toolchain-r/test";
-          sudo apt-get -qq update;
-          sudo apt-get -yq --no-install-suggests --no-install-recommends --force-yes install gcc-5 g++-5;
-          sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc;
-          sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++;
           gcc --version;
           sudo apt-get install build-essential -y;
           sudo apt-get install libusb-1.0-0-dev -y;
           sudo apt-get install automake -y;
           sudo apt-get install bison -y;
-          sudo apt-get install snapd;
-          sudo snap install cmake --classic;
-          export PATH=/snap/bin:$PATH;
+          sudo apt-get install cmake -y;
           $HOME/build/duguyue100/pyaer/install-libcaer.sh ci
           git clone https://github.com/duguyue100/swig
           cd swig
