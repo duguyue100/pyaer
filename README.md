@@ -2,9 +2,9 @@
 
 ---
 
-[![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer)
+[![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer/releases/latest)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
-[![Build Status](https://api.travis-ci.org/duguyue100/pyaer.svg?branch=master)](https://travis-ci.org/duguyue100/pyaer)
+[![build](https://github.com/duguyue100/pyaer/actions/workflows/main.yml/badge.svg)](https://github.com/duguyue100/pyaer/actions/workflows/main.yml)
 [![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1346279.svg)](https://doi.org/10.5281/zenodo.1346279)
 
@@ -25,7 +25,7 @@ Special thanks to [iniVation](https://inivation.com/) for making this possible!
 
 The project is in its Beta development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you encountered a problem.
 
-For ARM wheels, please check out the [Releases](https://github.com/duguyue100/pyaer/releases/latest).
+__NEWS__ As from 0.2.5, we switched CI/CD from Travis CI to Github Actions because the building on travis-ci.org is ceased. We are looking for solutions to produce ARM64 build.
 
 ## Why PyAER?
 
@@ -86,6 +86,8 @@ Please follow the instructions in [INSTALL_FROM_SOURCE.md](./INSTALL_FROM_SOURCE
 + Extra more advanced demos are available at [pyaer-demo](https://github.com/duguyue100/pyaer-demo).
 
 ## Limitations and Notes
+
++ __2021-12-01__: For DAVIS346 Color model, we now support color events.
 
 + __2021-01-13__: DVXplorer cameras are officially supported
 (Thanks [iniVation](https://inivation.com/))
