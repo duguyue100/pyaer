@@ -28,7 +28,6 @@ jobs:
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           gcc --version;
-          brew install libusb;
           brew install automake;
           brew install bison;
       - name: Install PyAER specific dependencies
@@ -50,3 +49,10 @@ jobs:
           make build-wheel
           make build-wheel
           make install
+      - name: Find file
+        run: |
+            cd $GITHUB_WORKSPACE/dist
+            ls -a
+            for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
+            ls -a
+            cd ..
