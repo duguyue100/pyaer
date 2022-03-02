@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LIBCAER_TAG=f0e5d92769f69b96906d92eeccd1db131e6b6176
+LIBCAER_TAG=e68c3b4c115f59d5fd030fd44db12c702dddc3a5
 CI_BUILD=false
 # TODO: To support
 LIBSERIAL_PORT_OPTION=false
