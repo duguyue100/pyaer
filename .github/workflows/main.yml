@@ -28,7 +28,8 @@ jobs:
           sudo apt-get install libusb-1.0-0-dev -y;
           sudo apt-get install cmake -y;
           sudo add-apt-repository ppa:inivation-ppa/inivation -y;
-          sudo apt-get install libcaer -y;
+          sudo apt-get update;
+          sudo apt-get install libcaer-dev -y;
       - name: Install macos dependencies
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
@@ -36,7 +37,7 @@ jobs:
           brew install automake;
           brew install bison;
           brew tap inivation/inivation;
-          brew install libcaer;
+          brew install libcaer --with-libserialport --with-opencv;
       - name: Install PyAER specific dependencies
         run: |
           git clone https://github.com/duguyue100/swig
