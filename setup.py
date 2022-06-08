@@ -6,8 +6,7 @@ Email : duguyue100@gmail.com
 from __future__ import print_function, absolute_import
 from setuptools import setup
 from setuptools import find_packages
-
-from distutils.core import Extension
+from setuptools.extension import Extension
 
 import os
 from sysconfig import get_paths
@@ -65,8 +64,8 @@ libcaer_wrap = Extension(
                   python_paths["include"], numpy_include],
     library_dirs=[libcaer_lib,
                   python_paths["stdlib"]],
-    swig_opts=["-I"+libcaer_include],
-    extra_compile_args=["-std=c11"],
+    swig_opts=["-I" + libcaer_include],
+    #  extra_compile_args=["-std=c11"],
     extra_link_args=["-lcaer"])
 
 setup(
