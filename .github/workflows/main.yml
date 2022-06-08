@@ -27,15 +27,16 @@ jobs:
           sudo apt-get install build-essential -y;
           sudo apt-get install libusb-1.0-0-dev -y;
           sudo apt-get install cmake -y;
+          sudo apt-get install libcaer -y;
       - name: Install macos dependencies
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
           gcc --version;
           brew install automake;
           brew install bison;
+          brew install libcaer;
       - name: Install PyAER specific dependencies
         run: |
-          $GITHUB_WORKSPACE/install-libcaer.sh ci
           git clone https://github.com/duguyue100/swig
           cd swig
           ./autogen.sh

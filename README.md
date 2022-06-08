@@ -48,7 +48,10 @@ In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight
 1. Install `libcaer` dependency (RECOMMEND)
 
     ```bash
-    $ bash <(curl -s https://raw.githubusercontent.com/duguyue100/pyaer/master/install-libcaer.sh)
+    # for Ubuntu
+    sudo apt-get install libcaer
+    # for macOS
+    brew install libcaer
     ```
 
     Update `udev` rules if you use a Linux system:
@@ -86,6 +89,8 @@ Please follow the instructions in [INSTALL_FROM_SOURCE.md](./INSTALL_FROM_SOURCE
 + Extra more advanced demos are available at [pyaer-demo](https://github.com/duguyue100/pyaer-demo).
 
 ## Limitations and Notes
+
++ __2022-06-07__: We now switch to follow `libcaer` official release.
 
 + __2021-12-01__: For DAVIS346 Color model, we now support color events.
 
