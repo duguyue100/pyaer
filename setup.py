@@ -31,6 +31,7 @@ License :: OSI Approved :: MIT License
 
 try:
     from pyaer import __about__
+
     about = __about__.__dict__
 except ImportError:
     about = dict()
@@ -60,38 +61,31 @@ elif "win" in platform:
 libcaer_wrap = Extension(
     name="pyaer._libcaer_wrap",
     sources=["./pyaer/pyflags.i"],
-    include_dirs=[libcaer_include,
-                  python_paths["include"], numpy_include],
-    library_dirs=[libcaer_lib,
-                  python_paths["stdlib"]],
+    include_dirs=[libcaer_include, python_paths["include"], numpy_include],
+    library_dirs=[libcaer_lib, python_paths["stdlib"]],
     swig_opts=["-I" + libcaer_include],
     #  extra_compile_args=["-std=c11"],
-    extra_link_args=["-lcaer"])
+    extra_link_args=["-lcaer"],
+)
 
 setup(
     name="pyaer",
     version=about["__version__"],
-
     author=about["__author__"],
     author_email=about["__author_email__"],
-
     url=about["__url__"],
-
     install_requires=["numpy >= 1.18.0"],
-
     packages=find_packages(),
-
     ext_modules=[libcaer_wrap],
-
-    scripts=["scripts/aer_comm/aer_hub",
-             "scripts/aer_comm/aer_lstopic",
-             "scripts/aer_comm/aer_publisher",
-             "scripts/aer_comm/aer_subscriber",
-             "scripts/aer_comm/aer_pubsuber",
-             "scripts/aer_comm/aer_launch",
-             "scripts/aer_comm/aer_saver"],
-
+    scripts=[
+        "scripts/aer_comm/aer_hub",
+        "scripts/aer_comm/aer_lstopic",
+        "scripts/aer_comm/aer_publisher",
+        "scripts/aer_comm/aer_subscriber",
+        "scripts/aer_comm/aer_pubsuber",
+        "scripts/aer_comm/aer_launch",
+        "scripts/aer_comm/aer_saver",
+    ],
     classifiers=list(filter(None, classifiers.split("\n"))),
-    description="PyAER: Low-level Python APIs for "
-                "Accessing Neuromorphic Devices."
+    description="PyAER: Low-level Python APIs for " "Accessing Neuromorphic Devices.",
 )

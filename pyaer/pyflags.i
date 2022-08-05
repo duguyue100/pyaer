@@ -4,6 +4,9 @@
 	Luca Longinotti - luca.longinotti@inilabs.com
     Yuuang Hu - duguyue100@gmail.com
 */
+
+#define LIBRARY_PUBLIC_VISIBILITY
+
 %module libcaer_wrap
 %{
 #define SWIG_FILE_WITH_INIT
