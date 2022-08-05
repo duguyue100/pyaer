@@ -49,7 +49,7 @@ In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight
 
     ```bash
     # for Ubuntu
-    sudo apt-get install libcaer
+    sudo apt-get install libcaer-dev
     # for macOS
     brew install libcaer
     ```
@@ -89,6 +89,8 @@ Please follow the instructions in [INSTALL_FROM_SOURCE.md](./INSTALL_FROM_SOURCE
 + Extra more advanced demos are available at [pyaer-demo](https://github.com/duguyue100/pyaer-demo).
 
 ## Limitations and Notes
+
++ __2022-08-05__: Address the building issue with the latest `libcaer` release.
 
 + __2022-06-07__: We now switch to follow `libcaer` official release.
 
