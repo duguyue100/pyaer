@@ -20,7 +20,9 @@ LOG_LEVEL = log.DEBUG
 try:
     from pyaer import libcaer_wrap as libcaer
 except ImportError:
-    raise ImportError("libcaer might not be in the LD_LIBRARY_PATH "
-                      "or your numpy might not be the required version."
-                      "Try to load _libcaer_wrap.so from the package "
-                      "directory, this will provide more information.")
+    raise ImportError(
+        "libcaer might not be in the LD_LIBRARY_PATH "
+        "or your numpy might not be the required version. "
+        "Try to load _libcaer_wrap.so from the package "
+        "directory, this will provide more information."
+    )

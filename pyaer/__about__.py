@@ -1,9 +1,7 @@
 """About page."""
 from __future__ import print_function, absolute_import
 
-__all__ = [
-    "__version__", "__author__", "__author_email__",
-    "__url__"]
+__all__ = ["__version__", "__author__", "__author_email__", "__url__"]
 
 __version__ = "0.2.6"
 __author__ = "Yuhuang Hu"

@@ -13,37 +13,27 @@ class USBDevice(object):
 
     This class is the base of DVS128, DAVIS240, DAVIS346 and DYNAPSE.
     """
+
     def __init__(self):
         """Device."""
         self.handle = None
 
         # functions for get events number and packet functions
         self.get_event_number_funcs = {
-            libcaer.POLARITY_EVENT:
-                libcaer.caerEventPacketHeaderGetEventNumber,
-            libcaer.SPECIAL_EVENT:
-                libcaer.caerEventPacketHeaderGetEventNumber,
-            libcaer.IMU6_EVENT:
-                libcaer.caerEventPacketHeaderGetEventNumber,
-            libcaer.IMU9_EVENT:
-                libcaer.caerEventPacketHeaderGetEventNumber,
-            libcaer.SPIKE_EVENT:
-                libcaer.caerEventPacketHeaderGetEventNumber
-            }
+            libcaer.POLARITY_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
+            libcaer.SPECIAL_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
+            libcaer.IMU6_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
+            libcaer.IMU9_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
+            libcaer.SPIKE_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
+        }
         self.get_event_packet_funcs = {
-            libcaer.POLARITY_EVENT:
-                libcaer.caerPolarityEventPacketFromPacketHeader,
-            libcaer.SPECIAL_EVENT:
-                libcaer.caerSpecialEventPacketFromPacketHeader,
-            libcaer.FRAME_EVENT:
-                libcaer.caerFrameEventPacketFromPacketHeader,
-            libcaer.IMU6_EVENT:
-                libcaer.caerIMU6EventPacketFromPacketHeader,
-            libcaer.IMU9_EVENT:
-                libcaer.caerIMU9EventPacketFromPacketHeader,
-            libcaer.SPIKE_EVENT:
-                libcaer.caerSpikeEventPacketFromPacketHeader
-            }
+            libcaer.POLARITY_EVENT: libcaer.caerPolarityEventPacketFromPacketHeader,
+            libcaer.SPECIAL_EVENT: libcaer.caerSpecialEventPacketFromPacketHeader,
+            libcaer.FRAME_EVENT: libcaer.caerFrameEventPacketFromPacketHeader,
+            libcaer.IMU6_EVENT: libcaer.caerIMU6EventPacketFromPacketHeader,
+            libcaer.IMU9_EVENT: libcaer.caerIMU9EventPacketFromPacketHeader,
+            libcaer.SPIKE_EVENT: libcaer.caerSpikeEventPacketFromPacketHeader,
+        }
 
     @abc.abstractmethod
     def obtain_device_info(self, handle):
@@ -71,12 +61,14 @@ class USBDevice(object):
         """
         return
 
-    def open(self,
-             device_type,
-             device_id=1,
-             bus_number_restrict=0,
-             dev_address_restrict=0,
-             serial_number=""):
+    def open(
+        self,
+        device_type,
+        device_id=1,
+        bus_number_restrict=0,
+        dev_address_restrict=0,
+        serial_number="",
+    ):
         """Open USB deivce.
 
         # Arguments
@@ -109,8 +101,12 @@ class USBDevice(object):
                 `default is ""`
         """
         self.handle = libcaer.caerDeviceOpen(
-            device_id, device_type, bus_number_restrict,
-            dev_address_restrict, serial_number)
+            device_id,
+            device_type,
+            bus_number_restrict,
+            dev_address_restrict,
+            serial_number,
+        )
         if self.handle is None:
             raise ValueError("The device is failed to open.")
 
@@ -143,7 +139,8 @@ class USBDevice(object):
         # TODO figure out the parameter meaning
         if self.handle is not None:
             data_start_success = libcaer.caerDeviceDataStart(
-                self.handle, None, None, None, None, None)
+                self.handle, None, None, None, None, None
+            )
             return data_start_success
         else:
             return False
@@ -189,7 +186,8 @@ class USBDevice(object):
         return self.set_config(
             libcaer.CAER_HOST_CONFIG_PACKETS,
             libcaer.CAER_HOST_CONFIG_PACKETS_MAX_CONTAINER_PACKET_SIZE,
-            max_packet_size)
+            max_packet_size,
+        )
 
     def set_max_container_interval(self, max_packet_interval=10000):
         """Set max packet interval.
@@ -205,7 +203,8 @@ class USBDevice(object):
         return self.set_config(
             libcaer.CAER_HOST_CONFIG_PACKETS,
             libcaer.CAER_HOST_CONFIG_PACKETS_MAX_CONTAINER_INTERVAL,
-            max_packet_interval)
+            max_packet_interval,
+        )
 
     def set_data_exchange_blocking(self, exchange_blocking=True):
         """Set data exchange blocking.
@@ -223,7 +222,8 @@ class USBDevice(object):
         return self.set_config(
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE,
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING,
-            exchange_blocking)
+            exchange_blocking,
+        )
 
     def set_config(self, mod_addr, param_addr, param):
         """Set configuration.
@@ -251,7 +251,8 @@ class USBDevice(object):
         """
         if self.handle is not None:
             set_success = libcaer.caerDeviceConfigSet(
-                self.handle, mod_addr, param_addr, param)
+                self.handle, mod_addr, param_addr, param
+            )
             return set_success
         else:
             return False
@@ -277,8 +278,7 @@ class USBDevice(object):
                 if the handle is not valid.
         """
         if self.handle is not None:
-            return libcaer.caerDeviceConfigGet(
-                self.handle, mod_addr, param_addr)
+            return libcaer.caerDeviceConfigGet(self.handle, mod_addr, param_addr)
         else:
             return None
 
@@ -293,9 +293,9 @@ class USBDevice(object):
         """
         packet_container = libcaer.caerDeviceDataGet(self.handle)
         if packet_container is not None:
-            packet_number = \
-                libcaer.caerEventPacketContainerGetEventPacketsNumber(
-                    packet_container)
+            packet_number = libcaer.caerEventPacketContainerGetEventPacketsNumber(
+                packet_container
+            )
             return packet_container, packet_number
         else:
             return None, None
@@ -315,14 +315,13 @@ class USBDevice(object):
             packet_type: `caerEventPacketType`<br/>
                 the type of the event packet
         """
-        packet_header = \
-            libcaer.caerEventPacketContainerGetEventPacket(
-                packet_container, idx)
+        packet_header = libcaer.caerEventPacketContainerGetEventPacket(
+            packet_container, idx
+        )
         if packet_header is None:
             return (None, None)
         else:
-            packet_type = libcaer.caerEventPacketHeaderGetEventType(
-                packet_header)
+            packet_type = libcaer.caerEventPacketHeaderGetEventType(packet_header)
             return packet_header, packet_type
 
     def get_event_packet(self, packet_header, packet_type):
@@ -345,13 +344,17 @@ class USBDevice(object):
             event_packet: `caerEventPacket`<br/>
                 a packet of events that are ready to be read.
         """
-        num_events = self.get_event_number_funcs[packet_type](
-            packet_header) if packet_type in self.get_event_number_funcs \
+        num_events = (
+            self.get_event_number_funcs[packet_type](packet_header)
+            if packet_type in self.get_event_number_funcs
             else None
+        )
 
-        event_packet = self.get_event_packet_funcs[packet_type](
-            packet_header) if packet_type in self.get_event_packet_funcs \
+        event_packet = (
+            self.get_event_packet_funcs[packet_type](packet_header)
+            if packet_type in self.get_event_packet_funcs
             else None
+        )
 
         return num_events, event_packet
 
@@ -376,36 +379,36 @@ class USBDevice(object):
                 number of the polarity events available in the packet.
         """
         num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT)
+            packet_header, libcaer.POLARITY_EVENT
+        )
 
         # TODO: to implement a noise filtering process
         # or reimplement this function into specific classes
 
-        events = libcaer.get_polarity_event(
-            polarity, num_events*4).reshape(num_events, 4)
+        events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
+            num_events, 4
+        )
 
         return events, num_events
 
     def get_polarity_hist(self, packet_header, device_type=None):
         """Get the positive and negative histogram for a packet."""
         num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT)
+            packet_header, libcaer.POLARITY_EVENT
+        )
 
         if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
-            hist = libcaer.get_polarity_event_histogram_240(
-                polarity, num_events)
+            hist = libcaer.get_polarity_event_histogram_240(polarity, num_events)
         elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
-            hist = libcaer.get_polarity_event_histogram_346(
-                polarity, num_events)
+            hist = libcaer.get_polarity_event_histogram_346(polarity, num_events)
         elif device_type == "DVS128":
-            hist = libcaer.get_polarity_event_histogram_128(
-                polarity, num_events)
+            hist = libcaer.get_polarity_event_histogram_128(polarity, num_events)
         elif device_type == libcaer.DVXPLORER_CHIP_ID:
-            hist = libcaer.get_polarity_event_histogram_dvxplorer(
-                polarity, num_events)
+            hist = libcaer.get_polarity_event_histogram_dvxplorer(polarity, num_events)
         elif device_type == libcaer.DVXPLORER_LITE_CHIP_ID:
             hist = libcaer.get_polarity_event_histogram_dvxplorer_lite(
-                polarity, num_events)
+                polarity, num_events
+            )
         else:
             return None, 0
 
@@ -414,17 +417,15 @@ class USBDevice(object):
     def get_counter_neuron_event(self, packet_header, device_type=None):
         """Get the positive and negative histogram for a packet."""
         num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT)
+            packet_header, libcaer.POLARITY_EVENT
+        )
 
         if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
-            hist = libcaer.get_counter_neuron_frame_240(
-                polarity, num_events)
+            hist = libcaer.get_counter_neuron_frame_240(polarity, num_events)
         elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
-            hist = libcaer.get_polarity_event_histogram_346(
-                polarity, num_events)
+            hist = libcaer.get_polarity_event_histogram_346(polarity, num_events)
         elif device_type == "DVS128":
-            hist = libcaer.get_polarity_event_histogram_128(
-                polarity, num_events)
+            hist = libcaer.get_polarity_event_histogram_128(polarity, num_events)
         else:
             return None, 0
 
@@ -448,15 +449,18 @@ class USBDevice(object):
                 number of the special events in the packet.
         """
         num_events, special = self.get_event_packet(
-            packet_header, libcaer.SPECIAL_EVENT)
+            packet_header, libcaer.SPECIAL_EVENT
+        )
 
-        events = libcaer.get_special_event(
-            special, num_events*2).reshape(num_events, 2)
+        events = libcaer.get_special_event(special, num_events * 2).reshape(
+            num_events, 2
+        )
 
         return events, num_events
 
-    def get_frame_event(self, packet_header, device_type=None,
-                        aps_filter_type=libcaer.MONO):
+    def get_frame_event(
+        self, packet_header, device_type=None, aps_filter_type=libcaer.MONO
+    ):
         """Get a packet of frame event.
 
         # Arguments
@@ -481,18 +485,23 @@ class USBDevice(object):
         if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
             frame_mat = libcaer.get_frame_event_240(first_event)
         elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
-            frame_mat = libcaer.get_frame_event_346(first_event) \
-                if aps_filter_type == libcaer.MONO else \
-                libcaer.get_rgb_frame_event_346(first_event)
+            frame_mat = (
+                libcaer.get_frame_event_346(first_event)
+                if aps_filter_type == libcaer.MONO
+                else libcaer.get_rgb_frame_event_346(first_event)
+            )
         else:
             Y_range = libcaer.caerFrameEventGetLengthY(first_event)
             X_range = libcaer.caerFrameEventGetLengthX(first_event)
-            frame_mat = libcaer.get_frame_event(
-                first_event, Y_range*X_range).reshape(Y_range, X_range) \
-                if aps_filter_type == libcaer.MONO else \
-                libcaer.get_frame_event(
-                    first_event, Y_range*X_range*3).reshape(
-                        Y_range, X_range, 3)
+            frame_mat = (
+                libcaer.get_frame_event(first_event, Y_range * X_range).reshape(
+                    Y_range, X_range
+                )
+                if aps_filter_type == libcaer.MONO
+                else libcaer.get_frame_event(
+                    first_event, Y_range * X_range * 3
+                ).reshape(Y_range, X_range, 3)
+            )
 
         return frame_mat, frame_ts
 
@@ -516,11 +525,9 @@ class USBDevice(object):
             num_events: `int`<br/>
                 number of the IMU6 events.
         """
-        num_events, imu = self.get_event_packet(
-            packet_header, libcaer.IMU6_EVENT)
+        num_events, imu = self.get_event_packet(packet_header, libcaer.IMU6_EVENT)
 
-        events = libcaer.get_imu6_event(
-            imu, num_events*8).reshape(num_events, 8)
+        events = libcaer.get_imu6_event(imu, num_events * 8).reshape(num_events, 8)
 
         return events, num_events
 
@@ -545,11 +552,9 @@ class USBDevice(object):
             num_events: `int`<br/>
                 number of the IMU9 events.
         """
-        num_events, imu = self.get_event_packet(
-            packet_header, libcaer.IMU9_EVENT)
+        num_events, imu = self.get_event_packet(packet_header, libcaer.IMU9_EVENT)
 
-        events = libcaer.get_imu9_event(
-            imu, num_events*11).reshape(num_events, 11)
+        events = libcaer.get_imu9_event(imu, num_events * 11).reshape(num_events, 11)
 
         return events, num_events
 
@@ -572,11 +577,9 @@ class USBDevice(object):
             num_events: `int`<br/>
                 the number of the spike events.
         """
-        num_events, spike = self.get_event_packet(
-            packet_header, self.SPIKE_EVENT)
+        num_events, spike = self.get_event_packet(packet_header, self.SPIKE_EVENT)
 
-        events = libcaer.get_spike_event(
-            spike, num_events*4).reshape(num_events, 4)
+        events = libcaer.get_spike_event(spike, num_events * 4).reshape(num_events, 4)
 
         return events, num_events
 
@@ -587,6 +590,7 @@ class SerialDevice(object):
     The base class for devices that use the serial port.
     eDVS is the only current supported device in this family.
     """
+
     def __init__(self):
         """Device."""
         self.handle = None
@@ -617,11 +621,13 @@ class SerialDevice(object):
         """
         return
 
-    def open(self,
-             device_type,
-             device_id=1,
-             serial_port_name="/dev/ttyUSB0",
-             serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M):
+    def open(
+        self,
+        device_type,
+        device_id=1,
+        serial_port_name="/dev/ttyUSB0",
+        serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
+    ):
         """Open USB deivce.
 
         # Arguments
@@ -647,8 +653,8 @@ class SerialDevice(object):
                 `default is 12M`
         """
         self.handle = libcaer.caerDeviceOpenSerial(
-            device_id, device_type, serial_port_name,
-            serial_baud_rate)
+            device_id, device_type, serial_port_name, serial_baud_rate
+        )
         if self.handle is None:
             raise ValueError("The device is failed to open.")
 
@@ -681,7 +687,8 @@ class SerialDevice(object):
         # TODO figure out the parameter meaning
         if self.handle is not None:
             data_start_success = libcaer.caerDeviceDataStart(
-                self.handle, None, None, None, None, None)
+                self.handle, None, None, None, None, None
+            )
             return data_start_success
         else:
             return False
@@ -730,7 +737,8 @@ class SerialDevice(object):
         return self.set_config(
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE,
             libcaer.CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING,
-            exchange_blocking)
+            exchange_blocking,
+        )
 
     def set_config(self, mod_addr, param_addr, param):
         """Set configuration.
@@ -758,7 +766,8 @@ class SerialDevice(object):
         """
         if self.handle is not None:
             set_success = libcaer.caerDeviceConfigSet(
-                self.handle, mod_addr, param_addr, param)
+                self.handle, mod_addr, param_addr, param
+            )
             return set_success
         else:
             return False
@@ -784,8 +793,7 @@ class SerialDevice(object):
                 if the handle is not valid.
         """
         if self.handle is not None:
-            return libcaer.caerDeviceConfigGet(
-                self.handle, mod_addr, param_addr)
+            return libcaer.caerDeviceConfigGet(self.handle, mod_addr, param_addr)
         else:
             return None
 
@@ -800,9 +808,9 @@ class SerialDevice(object):
         """
         packet_container = libcaer.caerDeviceDataGet(self.handle)
         if packet_container is not None:
-            packet_number = \
-                libcaer.caerEventPacketContainerGetEventPacketsNumber(
-                    packet_container)
+            packet_number = libcaer.caerEventPacketContainerGetEventPacketsNumber(
+                packet_container
+            )
             return packet_container, packet_number
         else:
             return None, None
@@ -822,14 +830,13 @@ class SerialDevice(object):
             packet_type: `caerEventPacketType`<br/>
                 the type of the event packet
         """
-        packet_header = \
-            libcaer.caerEventPacketContainerGetEventPacket(
-                packet_container, idx)
+        packet_header = libcaer.caerEventPacketContainerGetEventPacket(
+            packet_container, idx
+        )
         if packet_header is None:
             return (None, None)
         else:
-            packet_type = libcaer.caerEventPacketHeaderGetEventType(
-                packet_header)
+            packet_type = libcaer.caerEventPacketHeaderGetEventType(packet_header)
             return packet_header, packet_type
 
     def get_polarity_event(self, packet_header):
@@ -852,12 +859,11 @@ class SerialDevice(object):
             num_events: `int`
                 number of the polarity events available in the packet.
         """
-        num_events = libcaer.caerEventPacketHeaderGetEventNumber(
-            packet_header)
-        polarity = libcaer.caerPolarityEventPacketFromPacketHeader(
-            packet_header)
+        num_events = libcaer.caerEventPacketHeaderGetEventNumber(packet_header)
+        polarity = libcaer.caerPolarityEventPacketFromPacketHeader(packet_header)
 
-        events = libcaer.get_polarity_event(
-            polarity, num_events*4).reshape(num_events, 4)
+        events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
+            num_events, 4
+        )
 
         return events, num_events

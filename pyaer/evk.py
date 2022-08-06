@@ -38,17 +38,19 @@ class EVK(USBDevice):
             if enable noise filter.<br/>
             `default is False`
     """
-    def __init__(self,
-                 device_id=1,
-                 bus_number_restrict=0,
-                 dev_address_restrict=0,
-                 serial_number="",
-                 noise_filter=False):
+
+    def __init__(
+        self,
+        device_id=1,
+        bus_number_restrict=0,
+        dev_address_restrict=0,
+        serial_number="",
+        noise_filter=False,
+    ):
         """EVK."""
         super(EVK, self).__init__()
         # open device
-        self.open(device_id, bus_number_restrict,
-                  dev_address_restrict, serial_number)
+        self.open(device_id, bus_number_restrict, dev_address_restrict, serial_number)
         # get camera information
         self.obtain_device_info(self.handle)
 
@@ -58,7 +60,8 @@ class EVK(USBDevice):
             "low": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_LOW,
             "high": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_HIGH,
             "very_high": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_VERY_HIGH,
-            "default": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_DEFAULT}
+            "default": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_DEFAULT,
+        }
 
         # noise filter
         self.filter_noise = noise_filter
@@ -139,11 +142,13 @@ class EVK(USBDevice):
         self.dvs_size_X = info.dvsSizeX
         self.dvs_size_Y = info.dvsSizeY
 
-    def open(self,
-             device_id=1,
-             bus_number_restrict=0,
-             dev_address_restrict=0,
-             serial_number=""):
+    def open(
+        self,
+        device_id=1,
+        bus_number_restrict=0,
+        dev_address_restrict=0,
+        serial_number="",
+    ):
         """Open EVK device.
 
 
@@ -168,9 +173,12 @@ class EVK(USBDevice):
                 `default is ""`
         """
         super(EVK, self).open(
-            libcaer.CAER_DEVICE_SAMSUNG_EVK, device_id,
-            bus_number_restrict, dev_address_restrict,
-            serial_number)
+            libcaer.CAER_DEVICE_SAMSUNG_EVK,
+            device_id,
+            bus_number_restrict,
+            dev_address_restrict,
+            serial_number,
+        )
 
     def set_bias_from_json(self, file_path, verbose=False):
         """Set bias from loading JSON configuration file.
@@ -198,75 +206,119 @@ class EVK(USBDevice):
         # Set biases
         if "bias_simple" in bias_obj:
             # use system bias configuration, specify all biases otherwise
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_SIMPLE,
-                            self.simple_biases[bias_obj["bias_simple"]])
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_SIMPLE,
+                self.simple_biases[bias_obj["bias_simple"]],
+            )
         else:
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOG,
-                            bias_obj["current_range_log"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_SF,
-                            bias_obj["current_range_sf"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_ON,
-                            bias_obj["current_range_on"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_nRST,
-                            bias_obj["current_range_nrst"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGA,
-                            bias_obj["current_range_loga"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGD,
-                            bias_obj["current_range_logd"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_SF,
-                            bias_obj["current_level_sf"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_nOFF,
-                            bias_obj["current_level_noff"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_AMP,
-                            bias_obj["current_amp"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_ON,
-                            bias_obj["current_on"])
-            self.set_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_OFF,
-                            bias_obj["current_off"])
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOG,
+                bias_obj["current_range_log"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_SF,
+                bias_obj["current_range_sf"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_ON,
+                bias_obj["current_range_on"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_nRST,
+                bias_obj["current_range_nrst"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGA,
+                bias_obj["current_range_loga"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGD,
+                bias_obj["current_range_logd"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_SF,
+                bias_obj["current_level_sf"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_nOFF,
+                bias_obj["current_level_noff"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_AMP,
+                bias_obj["current_amp"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_ON,
+                bias_obj["current_on"],
+            )
+            self.set_config(
+                libcaer.SAMSUNG_EVK_DVS_BIAS,
+                libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_OFF,
+                bias_obj["current_off"],
+            )
 
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_GLOBAL_HOLD_ENABLE,
-                        bias_obj["global_hold_enable"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_ENABLE,
-                        bias_obj["global_reset_enable"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_DURING_READOUT,
-                        bias_obj["global_reset_during_readout"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_FIXED_READ_TIME_ENABLE,
-                        bias_obj["fixed_read_time_enable"])
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_GLOBAL_HOLD_ENABLE,
+            bias_obj["global_hold_enable"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_ENABLE,
+            bias_obj["global_reset_enable"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_DURING_READOUT,
+            bias_obj["global_reset_during_readout"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_FIXED_READ_TIME_ENABLE,
+            bias_obj["fixed_read_time_enable"],
+        )
 
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_EVENT_FLATTEN,
-                        bias_obj["event_flatten"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_EVENT_ON_ONLY,
-                        bias_obj["event_on_only"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_EVENT_OFF_ONLY,
-                        bias_obj["event_off_only"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_SUBSAMPLE_ENABLE,
-                        bias_obj["subsample_enable"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_AREA_BLOCKING_ENABLE,
-                        bias_obj["area_blocking_enable"])
-        self.set_config(libcaer.SAMSUNG_EVK_DVS,
-                        libcaer.SAMSUNG_EVK_DVS_DUAL_BINNING_ENABLE,
-                        bias_obj["dual_binning_enable"])
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_EVENT_FLATTEN,
+            bias_obj["event_flatten"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_EVENT_ON_ONLY,
+            bias_obj["event_on_only"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_EVENT_OFF_ONLY,
+            bias_obj["event_off_only"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_SUBSAMPLE_ENABLE,
+            bias_obj["subsample_enable"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_AREA_BLOCKING_ENABLE,
+            bias_obj["area_blocking_enable"],
+        )
+        self.set_config(
+            libcaer.SAMSUNG_EVK_DVS,
+            libcaer.SAMSUNG_EVK_DVS_DUAL_BINNING_ENABLE,
+            bias_obj["dual_binning_enable"],
+        )
 
     def get_bias(self):
         """Get bias settings.
@@ -277,72 +329,75 @@ class EVK(USBDevice):
         """
         bias_obj = {}
 
-        bias_obj["current_range_log"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOG)
-        bias_obj["current_range_sf"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_SF)
-        bias_obj["current_range_on"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_ON)
-        bias_obj["current_range_nrst"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_nRST)
-        bias_obj["current_range_loga"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGA)
-        bias_obj["current_range_logd"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGD)
-        bias_obj["current_level_sf"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_SF)
-        bias_obj["current_level_noff"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_nOFF)
-        bias_obj["current_amp"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_AMP)
-        bias_obj["current_on"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_ON)
-        bias_obj["current_off"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS_BIAS,
-                            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_OFF)
+        bias_obj["current_range_log"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS, libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOG
+        )
+        bias_obj["current_range_sf"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS, libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_SF
+        )
+        bias_obj["current_range_on"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS, libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_ON
+        )
+        bias_obj["current_range_nrst"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS,
+            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_nRST,
+        )
+        bias_obj["current_range_loga"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS,
+            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGA,
+        )
+        bias_obj["current_range_logd"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS,
+            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_RANGE_LOGD,
+        )
+        bias_obj["current_level_sf"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS, libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_SF
+        )
+        bias_obj["current_level_noff"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS,
+            libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_LEVEL_nOFF,
+        )
+        bias_obj["current_amp"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS, libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_AMP
+        )
+        bias_obj["current_on"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS, libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_ON
+        )
+        bias_obj["current_off"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS_BIAS, libcaer.SAMSUNG_EVK_DVS_BIAS_CURRENT_OFF
+        )
 
-        bias_obj["global_hold_enable"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_GLOBAL_HOLD_ENABLE)
-        bias_obj["global_reset_enable"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_ENABLE)
-        bias_obj["global_reset_during_readout"] = \
-            self.get_config(
-                libcaer.SAMSUNG_EVK_DVS,
-                libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_DURING_READOUT)
-        bias_obj["fixed_read_time_enable"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_FIXED_READ_TIME_ENABLE)
+        bias_obj["global_hold_enable"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_GLOBAL_HOLD_ENABLE
+        )
+        bias_obj["global_reset_enable"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_ENABLE
+        )
+        bias_obj["global_reset_during_readout"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_GLOBAL_RESET_DURING_READOUT
+        )
+        bias_obj["fixed_read_time_enable"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_FIXED_READ_TIME_ENABLE
+        )
 
-        bias_obj["event_flatten"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_EVENT_FLATTEN)
-        bias_obj["event_on_only"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_EVENT_ON_ONLY)
-        bias_obj["event_off_only"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_EVENT_OFF_ONLY)
-        bias_obj["subsample_enable"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_SUBSAMPLE_ENABLE)
-        bias_obj["area_blocking_enable"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_AREA_BLOCKING_ENABLE)
-        bias_obj["dual_binning_enable"] = \
-            self.get_config(libcaer.SAMSUNG_EVK_DVS,
-                            libcaer.SAMSUNG_EVK_DVS_DUAL_BINNING_ENABLE)
+        bias_obj["event_flatten"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_EVENT_FLATTEN
+        )
+        bias_obj["event_on_only"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_EVENT_ON_ONLY
+        )
+        bias_obj["event_off_only"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_EVENT_OFF_ONLY
+        )
+        bias_obj["subsample_enable"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_SUBSAMPLE_ENABLE
+        )
+        bias_obj["area_blocking_enable"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_AREA_BLOCKING_ENABLE
+        )
+        bias_obj["dual_binning_enable"] = self.get_config(
+            libcaer.SAMSUNG_EVK_DVS, libcaer.SAMSUNG_EVK_DVS_DUAL_BINNING_ENABLE
+        )
 
         return bias_obj
 
@@ -360,9 +415,9 @@ class EVK(USBDevice):
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
-    def start_data_stream(self, send_default_config=True,
-                          max_packet_size=None,
-                          max_packet_interval=None):
+    def start_data_stream(
+        self, send_default_config=True, max_packet_size=None, max_packet_interval=None
+    ):
         """Start streaming data.
 
         # Arguments
@@ -421,16 +476,19 @@ class EVK(USBDevice):
 
         """
         num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT)
+            packet_header, libcaer.POLARITY_EVENT
+        )
 
         if noise_filter is True:
             polarity = self.noise_filter.apply(polarity)
 
             events = libcaer.get_filtered_polarity_event(
-                polarity, num_events*5).reshape(num_events, 5)
+                polarity, num_events * 5
+            ).reshape(num_events, 5)
         else:
-            events = libcaer.get_polarity_event(
-                polarity, num_events*4).reshape(num_events, 4)
+            events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
+                num_events, 4
+            )
 
         return events, num_events
 
@@ -470,36 +528,40 @@ class EVK(USBDevice):
             special_events = None
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
-                    packet_container, packet_id)
+                    packet_container, packet_id
+                )
                 if packet_type == libcaer.POLARITY_EVENT:
                     if mode == "events":
                         events, num_events = self.get_polarity_event(
-                            packet_header, self.filter_noise)
-                        pol_events = np.hstack((pol_events, events)) \
-                            if pol_events is not None else events
+                            packet_header, self.filter_noise
+                        )
+                        pol_events = (
+                            np.hstack((pol_events, events))
+                            if pol_events is not None
+                            else events
+                        )
                     elif mode == "events_hist":
-                        hist, num_events = \
-                            self.get_polarity_hist(
-                                packet_header, device_type=self.chip_id)
-                        pol_events = hist if pol_events is None else \
-                            pol_events+hist
+                        hist, num_events = self.get_polarity_hist(
+                            packet_header, device_type=self.chip_id
+                        )
+                        pol_events = hist if pol_events is None else pol_events + hist
                     elif mode == "counter_neuron":
-                        hist, num_events = \
-                            self.get_counter_neuron_event(
-                                packet_header, device_type=self.chip_id)
-                        pol_events = hist if pol_events is None else \
-                            pol_events+hist
+                        hist, num_events = self.get_counter_neuron_event(
+                            packet_header, device_type=self.chip_id
+                        )
+                        pol_events = hist if pol_events is None else pol_events + hist
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
-                    events, num_events = self.get_special_event(
-                        packet_header)
-                    special_events = np.hstack((special_events, events)) \
-                        if special_events is not None else events
+                    events, num_events = self.get_special_event(packet_header)
+                    special_events = (
+                        np.hstack((special_events, events))
+                        if special_events is not None
+                        else events
+                    )
                     num_special_event += num_events
 
             libcaer.caerEventPacketContainerFree(packet_container)
 
-            return (pol_events, num_pol_event,
-                    special_events, num_special_event)
+            return (pol_events, num_pol_event, special_events, num_special_event)
         else:
             return None

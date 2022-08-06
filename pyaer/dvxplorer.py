@@ -38,17 +38,19 @@ class DVXPLORER(USBDevice):
             if enable noise filter.<br/>
             `default is False`
     """
-    def __init__(self,
-                 device_id=1,
-                 bus_number_restrict=0,
-                 dev_address_restrict=0,
-                 serial_number="",
-                 noise_filter=False):
+
+    def __init__(
+        self,
+        device_id=1,
+        bus_number_restrict=0,
+        dev_address_restrict=0,
+        serial_number="",
+        noise_filter=False,
+    ):
         """DVXPLORER."""
         super(DVXPLORER, self).__init__()
         # open device
-        self.open(device_id, bus_number_restrict,
-                  dev_address_restrict, serial_number)
+        self.open(device_id, bus_number_restrict, dev_address_restrict, serial_number)
         # get camera information
         self.obtain_device_info(self.handle)
 
@@ -58,7 +60,8 @@ class DVXPLORER(USBDevice):
             "low": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_LOW,
             "high": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_HIGH,
             "very_high": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_VERY_HIGH,
-            "default": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_DEFAULT}
+            "default": libcaer.DVX_DVS_CHIP_BIAS_SIMPLE_DEFAULT,
+        }
 
         # noise filter
         self.filter_noise = noise_filter
@@ -145,11 +148,13 @@ class DVXPLORER(USBDevice):
         self.imu_type = info.imuType
         self.ext_input_has_generator = info.extInputHasGenerator
 
-    def open(self,
-             device_id=1,
-             bus_number_restrict=0,
-             dev_address_restrict=0,
-             serial_number=""):
+    def open(
+        self,
+        device_id=1,
+        bus_number_restrict=0,
+        dev_address_restrict=0,
+        serial_number="",
+    ):
         """Open DVXPLORER device.
 
 
@@ -174,9 +179,12 @@ class DVXPLORER(USBDevice):
                 `default is ""`
         """
         super(DVXPLORER, self).open(
-            libcaer.CAER_DEVICE_DVXPLORER, device_id,
-            bus_number_restrict, dev_address_restrict,
-            serial_number)
+            libcaer.CAER_DEVICE_DVXPLORER,
+            device_id,
+            bus_number_restrict,
+            dev_address_restrict,
+            serial_number,
+        )
 
     def set_bias_from_json(self, file_path, verbose=False):
         """Set bias from loading JSON configuration file.
@@ -202,101 +210,153 @@ class DVXPLORER(USBDevice):
                 True if set successful, False otherwise.
         """
         # DVX MUX
-        self.set_config(libcaer.DVX_MUX,
-                        libcaer.DVX_MUX_TIMESTAMP_RESET,
-                        bias_obj["mux_timestamp_reset"])
-        self.set_config(libcaer.DVX_MUX,
-                        libcaer.DVX_MUX_DROP_EXTINPUT_ON_TRANSFER_STALL,
-                        bias_obj["drop_extinput_on_transfer_stall"])
-        self.set_config(libcaer.DVX_MUX,
-                        libcaer.DVX_MUX_DROP_DVS_ON_TRANSFER_STALL,
-                        bias_obj["mux_drop_dvs_on_transfer_stall"])
+        self.set_config(
+            libcaer.DVX_MUX,
+            libcaer.DVX_MUX_TIMESTAMP_RESET,
+            bias_obj["mux_timestamp_reset"],
+        )
+        self.set_config(
+            libcaer.DVX_MUX,
+            libcaer.DVX_MUX_DROP_EXTINPUT_ON_TRANSFER_STALL,
+            bias_obj["drop_extinput_on_transfer_stall"],
+        )
+        self.set_config(
+            libcaer.DVX_MUX,
+            libcaer.DVX_MUX_DROP_DVS_ON_TRANSFER_STALL,
+            bias_obj["mux_drop_dvs_on_transfer_stall"],
+        )
 
         # DVX EXTINPUT
-        self.set_config(libcaer.DVX_EXTINPUT,
-                        libcaer.DVX_EXTINPUT_DETECT_RISING_EDGES,
-                        bias_obj["extinput_detect_rising_edges"])
-        self.set_config(libcaer.DVX_EXTINPUT,
-                        libcaer.DVX_EXTINPUT_DETECT_FALLING_EDGES,
-                        bias_obj["extinput_detect_falling_edges"])
-        self.set_config(libcaer.DVX_EXTINPUT,
-                        libcaer.DVX_EXTINPUT_DETECT_PULSES,
-                        bias_obj["extinput_detect_pulses"])
-        self.set_config(libcaer.DVX_EXTINPUT,
-                        libcaer.DVX_EXTINPUT_DETECT_PULSE_POLARITY,
-                        bias_obj["extinput_detect_pulse_polarity"])
-        self.set_config(libcaer.DVX_EXTINPUT,
-                        libcaer.DVX_EXTINPUT_DETECT_PULSE_LENGTH,
-                        bias_obj["extinput_detect_pulse_length"])
+        self.set_config(
+            libcaer.DVX_EXTINPUT,
+            libcaer.DVX_EXTINPUT_DETECT_RISING_EDGES,
+            bias_obj["extinput_detect_rising_edges"],
+        )
+        self.set_config(
+            libcaer.DVX_EXTINPUT,
+            libcaer.DVX_EXTINPUT_DETECT_FALLING_EDGES,
+            bias_obj["extinput_detect_falling_edges"],
+        )
+        self.set_config(
+            libcaer.DVX_EXTINPUT,
+            libcaer.DVX_EXTINPUT_DETECT_PULSES,
+            bias_obj["extinput_detect_pulses"],
+        )
+        self.set_config(
+            libcaer.DVX_EXTINPUT,
+            libcaer.DVX_EXTINPUT_DETECT_PULSE_POLARITY,
+            bias_obj["extinput_detect_pulse_polarity"],
+        )
+        self.set_config(
+            libcaer.DVX_EXTINPUT,
+            libcaer.DVX_EXTINPUT_DETECT_PULSE_LENGTH,
+            bias_obj["extinput_detect_pulse_length"],
+        )
 
         # setting for noise filter
         if self.ext_input_has_generator is True:
-            self.set_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_RUN_GENERATOR,
-                            bias_obj["extinput_ran_generator"])
-            self.set_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_GENERATE_PULSE_POLARITY,
-                            bias_obj["extinput_generate_pulse_polarity"])
-            self.set_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_GENERATE_PULSE_INTERVAL,
-                            bias_obj["extinput_generate_pulse_interval"])
-            self.set_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_GENERATE_PULSE_LENGTH,
-                            bias_obj["extinput_generate_pulse_length"])
+            self.set_config(
+                libcaer.DVX_EXTINPUT,
+                libcaer.DVX_EXTINPUT_RUN_GENERATOR,
+                bias_obj["extinput_ran_generator"],
+            )
+            self.set_config(
+                libcaer.DVX_EXTINPUT,
+                libcaer.DVX_EXTINPUT_GENERATE_PULSE_POLARITY,
+                bias_obj["extinput_generate_pulse_polarity"],
+            )
+            self.set_config(
+                libcaer.DVX_EXTINPUT,
+                libcaer.DVX_EXTINPUT_GENERATE_PULSE_INTERVAL,
+                bias_obj["extinput_generate_pulse_interval"],
+            )
+            self.set_config(
+                libcaer.DVX_EXTINPUT,
+                libcaer.DVX_EXTINPUT_GENERATE_PULSE_LENGTH,
+                bias_obj["extinput_generate_pulse_length"],
+            )
             self.set_config(
                 libcaer.DVX_EXTINPUT,
                 libcaer.DVX_EXTINPUT_GENERATE_INJECT_ON_RISING_EDGE,
-                bias_obj["extinput_generate_inject_on_rising_edge"])
+                bias_obj["extinput_generate_inject_on_rising_edge"],
+            )
             self.set_config(
                 libcaer.DVX_EXTINPUT,
                 libcaer.DVX_EXTINPUT_GENERATE_INJECT_ON_FALLING_EDGE,
-                bias_obj["extinput_generate_inject_on_falling_edge"])
+                bias_obj["extinput_generate_inject_on_falling_edge"],
+            )
 
         # DVX USB
-        self.set_config(libcaer.DVX_USB,
-                        libcaer.DVX_USB_EARLY_PACKET_DELAY,
-                        bias_obj["usb_early_packet_delay"])
+        self.set_config(
+            libcaer.DVX_USB,
+            libcaer.DVX_USB_EARLY_PACKET_DELAY,
+            bias_obj["usb_early_packet_delay"],
+        )
 
         # Set biases
         if "bias_simple" in bias_obj:
             # use system bias configuration, specify all biases otherwise
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_SIMPLE,
-                            self.simple_biases[bias_obj["bias_simple"]])
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_SIMPLE,
+                self.simple_biases[bias_obj["bias_simple"]],
+            )
         else:
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOG,
-                            bias_obj["current_range_log"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_SF,
-                            bias_obj["current_range_sf"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_ON,
-                            bias_obj["current_range_on"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_nRST,
-                            bias_obj["current_range_nrst"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGA,
-                            bias_obj["current_range_loga"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGD,
-                            bias_obj["current_range_logd"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_SF,
-                            bias_obj["current_level_sf"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_nOFF,
-                            bias_obj["current_level_noff"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_AMP,
-                            bias_obj["current_amp"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_ON,
-                            bias_obj["current_on"])
-            self.set_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_OFF,
-                            bias_obj["current_off"])
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOG,
+                bias_obj["current_range_log"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_SF,
+                bias_obj["current_range_sf"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_ON,
+                bias_obj["current_range_on"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_nRST,
+                bias_obj["current_range_nrst"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGA,
+                bias_obj["current_range_loga"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGD,
+                bias_obj["current_range_logd"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_SF,
+                bias_obj["current_level_sf"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_nOFF,
+                bias_obj["current_level_noff"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_AMP,
+                bias_obj["current_amp"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_ON,
+                bias_obj["current_on"],
+            )
+            self.set_config(
+                libcaer.DVX_DVS_CHIP_BIAS,
+                libcaer.DVX_DVS_CHIP_BIAS_CURRENT_OFF,
+                bias_obj["current_off"],
+            )
 
     def get_bias(self):
         """Get bias settings.
@@ -308,108 +368,115 @@ class DVXPLORER(USBDevice):
         bias_obj = {}
 
         # DVX MUX
-        bias_obj["mux_timestamp_reset"] = \
-            self.get_config(libcaer.DVX_MUX, libcaer.DVX_MUX_TIMESTAMP_RESET)
-        bias_obj["drop_extinput_on_transfer_stall"] = \
-            self.get_config(libcaer.DVX_MUX,
-                            libcaer.DVX_MUX_DROP_EXTINPUT_ON_TRANSFER_STALL)
-        bias_obj["mux_drop_dvs_on_transfer_stall"] = \
-            self.get_config(libcaer.DVX_MUX,
-                            libcaer.DVX_MUX_DROP_DVS_ON_TRANSFER_STALL)
+        bias_obj["mux_timestamp_reset"] = self.get_config(
+            libcaer.DVX_MUX, libcaer.DVX_MUX_TIMESTAMP_RESET
+        )
+        bias_obj["drop_extinput_on_transfer_stall"] = self.get_config(
+            libcaer.DVX_MUX, libcaer.DVX_MUX_DROP_EXTINPUT_ON_TRANSFER_STALL
+        )
+        bias_obj["mux_drop_dvs_on_transfer_stall"] = self.get_config(
+            libcaer.DVX_MUX, libcaer.DVX_MUX_DROP_DVS_ON_TRANSFER_STALL
+        )
 
         # DVX IMU
-        bias_obj["imu_accel_data_rate"] = \
-            self.get_config(libcaer.DVX_IMU, libcaer.DVX_IMU_ACCEL_DATA_RATE)
-        bias_obj["imu_accel_filter"] = \
-            self.get_config(libcaer.DVX_IMU, libcaer.DVX_IMU_ACCEL_FILTER)
-        bias_obj["imu_accel_range"] = \
-            self.get_config(libcaer.DVX_IMU, libcaer.DVX_IMU_ACCEL_RANGE)
-        bias_obj["imu_gyro_data_rate"] = \
-            self.get_config(libcaer.DVX_IMU, libcaer.DVX_IMU_GYRO_DATA_RATE)
-        bias_obj["imu_gyro_filter"] = \
-            self.get_config(libcaer.DVX_IMU, libcaer.DVX_IMU_GYRO_FILTER)
-        bias_obj["imu_gyro_range"] = \
-            self.get_config(libcaer.DVX_IMU, libcaer.DVX_IMU_GYRO_RANGE)
+        bias_obj["imu_accel_data_rate"] = self.get_config(
+            libcaer.DVX_IMU, libcaer.DVX_IMU_ACCEL_DATA_RATE
+        )
+        bias_obj["imu_accel_filter"] = self.get_config(
+            libcaer.DVX_IMU, libcaer.DVX_IMU_ACCEL_FILTER
+        )
+        bias_obj["imu_accel_range"] = self.get_config(
+            libcaer.DVX_IMU, libcaer.DVX_IMU_ACCEL_RANGE
+        )
+        bias_obj["imu_gyro_data_rate"] = self.get_config(
+            libcaer.DVX_IMU, libcaer.DVX_IMU_GYRO_DATA_RATE
+        )
+        bias_obj["imu_gyro_filter"] = self.get_config(
+            libcaer.DVX_IMU, libcaer.DVX_IMU_GYRO_FILTER
+        )
+        bias_obj["imu_gyro_range"] = self.get_config(
+            libcaer.DVX_IMU, libcaer.DVX_IMU_GYRO_RANGE
+        )
 
         # DVX EXTINPUT
-        bias_obj["extinput_detect_rising_edges"] = \
-            self.get_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_DETECT_RISING_EDGES)
-        bias_obj["extinput_detect_falling_edges"] = \
-            self.get_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_DETECT_FALLING_EDGES)
-        bias_obj["extinput_detect_pulses"] = \
-            self.get_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_DETECT_PULSES)
-        bias_obj["extinput_detect_pulse_polarity"] = \
-            self.get_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_DETECT_PULSE_POLARITY)
-        bias_obj["extinput_detect_pulse_length"] = \
-            self.get_config(libcaer.DVX_EXTINPUT,
-                            libcaer.DVX_EXTINPUT_DETECT_PULSE_LENGTH)
+        bias_obj["extinput_detect_rising_edges"] = self.get_config(
+            libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_DETECT_RISING_EDGES
+        )
+        bias_obj["extinput_detect_falling_edges"] = self.get_config(
+            libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_DETECT_FALLING_EDGES
+        )
+        bias_obj["extinput_detect_pulses"] = self.get_config(
+            libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_DETECT_PULSES
+        )
+        bias_obj["extinput_detect_pulse_polarity"] = self.get_config(
+            libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_DETECT_PULSE_POLARITY
+        )
+        bias_obj["extinput_detect_pulse_length"] = self.get_config(
+            libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_DETECT_PULSE_LENGTH
+        )
 
         # setting for noise filter
         if self.ext_input_has_generator is True:
-            bias_obj["extinput_ran_generator"] = \
-                self.get_config(libcaer.DVX_EXTINPUT,
-                                libcaer.DVX_EXTINPUT_RUN_GENERATOR)
-            bias_obj["extinput_generate_pulse_polarity"] = \
-                self.get_config(libcaer.DVX_EXTINPUT,
-                                libcaer.DVX_EXTINPUT_GENERATE_PULSE_POLARITY)
-            bias_obj["extinput_generate_pulse_interval"] = \
-                self.get_config(libcaer.DVX_EXTINPUT,
-                                libcaer.DVX_EXTINPUT_GENERATE_PULSE_INTERVAL)
-            bias_obj["extinput_generate_pulse_length"] = \
-                self.get_config(libcaer.DVX_EXTINPUT,
-                                libcaer.DVX_EXTINPUT_GENERATE_PULSE_LENGTH)
-            bias_obj["extinput_generate_inject_on_rising_edge"] = \
-                self.get_config(
-                    libcaer.DVX_EXTINPUT,
-                    libcaer.DVX_EXTINPUT_GENERATE_INJECT_ON_RISING_EDGE)
-            bias_obj["extinput_generate_inject_on_falling_edge"] = \
-                self.get_config(
-                    libcaer.DVX_EXTINPUT,
-                    libcaer.DVX_EXTINPUT_GENERATE_INJECT_ON_FALLING_EDGE)
+            bias_obj["extinput_ran_generator"] = self.get_config(
+                libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_RUN_GENERATOR
+            )
+            bias_obj["extinput_generate_pulse_polarity"] = self.get_config(
+                libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_GENERATE_PULSE_POLARITY
+            )
+            bias_obj["extinput_generate_pulse_interval"] = self.get_config(
+                libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_GENERATE_PULSE_INTERVAL
+            )
+            bias_obj["extinput_generate_pulse_length"] = self.get_config(
+                libcaer.DVX_EXTINPUT, libcaer.DVX_EXTINPUT_GENERATE_PULSE_LENGTH
+            )
+            bias_obj["extinput_generate_inject_on_rising_edge"] = self.get_config(
+                libcaer.DVX_EXTINPUT,
+                libcaer.DVX_EXTINPUT_GENERATE_INJECT_ON_RISING_EDGE,
+            )
+            bias_obj["extinput_generate_inject_on_falling_edge"] = self.get_config(
+                libcaer.DVX_EXTINPUT,
+                libcaer.DVX_EXTINPUT_GENERATE_INJECT_ON_FALLING_EDGE,
+            )
 
         # DVX USB
-        bias_obj["usb_early_packet_delay"] = \
-            self.get_config(libcaer.DVX_USB,
-                            libcaer.DVX_USB_EARLY_PACKET_DELAY)
+        bias_obj["usb_early_packet_delay"] = self.get_config(
+            libcaer.DVX_USB, libcaer.DVX_USB_EARLY_PACKET_DELAY
+        )
 
         # Set biases
-        bias_obj["current_range_log"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOG)
-        bias_obj["current_range_sf"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_SF)
-        bias_obj["current_range_on"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_ON)
-        bias_obj["current_range_nrst"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_nRST)
-        bias_obj["current_range_loga"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGA)
-        bias_obj["current_range_logd"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGD)
-        bias_obj["current_level_sf"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_SF)
-        bias_obj["current_level_noff"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_nOFF)
-        bias_obj["current_amp"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_AMP)
-        bias_obj["current_on"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_ON)
-        bias_obj["current_off"] = \
-            self.get_config(libcaer.DVX_DVS_CHIP_BIAS,
-                            libcaer.DVX_DVS_CHIP_BIAS_CURRENT_OFF)
+        bias_obj["current_range_log"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOG
+        )
+        bias_obj["current_range_sf"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_SF
+        )
+        bias_obj["current_range_on"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_ON
+        )
+        bias_obj["current_range_nrst"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_nRST
+        )
+        bias_obj["current_range_loga"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGA
+        )
+        bias_obj["current_range_logd"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_RANGE_LOGD
+        )
+        bias_obj["current_level_sf"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_SF
+        )
+        bias_obj["current_level_noff"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_LEVEL_nOFF
+        )
+        bias_obj["current_amp"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_AMP
+        )
+        bias_obj["current_on"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_ON
+        )
+        bias_obj["current_off"] = self.get_config(
+            libcaer.DVX_DVS_CHIP_BIAS, libcaer.DVX_DVS_CHIP_BIAS_CURRENT_OFF
+        )
 
         return bias_obj
 
@@ -427,9 +494,9 @@ class DVXPLORER(USBDevice):
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
-    def start_data_stream(self, send_default_config=True,
-                          max_packet_size=None,
-                          max_packet_interval=None):
+    def start_data_stream(
+        self, send_default_config=True, max_packet_size=None, max_packet_interval=None
+    ):
         """Start streaming data.
 
         # Arguments
@@ -488,16 +555,19 @@ class DVXPLORER(USBDevice):
 
         """
         num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT)
+            packet_header, libcaer.POLARITY_EVENT
+        )
 
         if noise_filter is True:
             polarity = self.noise_filter.apply(polarity)
 
             events = libcaer.get_filtered_polarity_event(
-                polarity, num_events*5).reshape(num_events, 5)
+                polarity, num_events * 5
+            ).reshape(num_events, 5)
         else:
-            events = libcaer.get_polarity_event(
-                polarity, num_events*4).reshape(num_events, 4)
+            events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
+                num_events, 4
+            )
 
         return events, num_events
 
@@ -550,43 +620,55 @@ class DVXPLORER(USBDevice):
             imu_events = None
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
-                    packet_container, packet_id)
+                    packet_container, packet_id
+                )
                 if packet_type == libcaer.POLARITY_EVENT:
                     if mode == "events":
                         events, num_events = self.get_polarity_event(
-                            packet_header, self.filter_noise)
-                        pol_events = np.hstack((pol_events, events)) \
-                            if pol_events is not None else events
+                            packet_header, self.filter_noise
+                        )
+                        pol_events = (
+                            np.hstack((pol_events, events))
+                            if pol_events is not None
+                            else events
+                        )
                     elif mode == "events_hist":
-                        hist, num_events = \
-                            self.get_polarity_hist(
-                                packet_header, device_type=self.chip_id)
-                        pol_events = hist if pol_events is None else \
-                            pol_events+hist
+                        hist, num_events = self.get_polarity_hist(
+                            packet_header, device_type=self.chip_id
+                        )
+                        pol_events = hist if pol_events is None else pol_events + hist
                     elif mode == "counter_neuron":
-                        hist, num_events = \
-                            self.get_counter_neuron_event(
-                                packet_header, device_type=self.chip_id)
-                        pol_events = hist if pol_events is None else \
-                            pol_events+hist
+                        hist, num_events = self.get_counter_neuron_event(
+                            packet_header, device_type=self.chip_id
+                        )
+                        pol_events = hist if pol_events is None else pol_events + hist
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
-                    events, num_events = self.get_special_event(
-                        packet_header)
-                    special_events = np.hstack((special_events, events)) \
-                        if special_events is not None else events
+                    events, num_events = self.get_special_event(packet_header)
+                    special_events = (
+                        np.hstack((special_events, events))
+                        if special_events is not None
+                        else events
+                    )
                     num_special_event += num_events
                 elif packet_type == libcaer.IMU6_EVENT:
-                    events, num_events = self.get_imu6_event(
-                        packet_header)
-                    imu_events = np.hstack((imu_events, events)) \
-                        if imu_events is not None else events
+                    events, num_events = self.get_imu6_event(packet_header)
+                    imu_events = (
+                        np.hstack((imu_events, events))
+                        if imu_events is not None
+                        else events
+                    )
                     num_imu_event += num_events
 
             libcaer.caerEventPacketContainerFree(packet_container)
 
-            return (pol_events, num_pol_event,
-                    special_events, num_special_event,
-                    imu_events, num_imu_event)
+            return (
+                pol_events,
+                num_pol_event,
+                special_events,
+                num_special_event,
+                imu_events,
+                num_imu_event,
+            )
         else:
             return None

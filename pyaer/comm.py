@@ -26,6 +26,7 @@ from datetime import datetime
 import numpy as np
 import zmq
 import h5py
+
 try:
     import zarr
 except Exception:
@@ -96,15 +97,18 @@ def create_timestamp_group_name(topic_name, timestamp):
     topic_names = decode_topic_names(topic_name)
 
     return encode_topic_name(
-        [topic_names[0], timestamp.decode("utf-8"),
-         topic_names[1]], to_byte=False)
+        [topic_names[0], timestamp.decode("utf-8"), topic_names[1]], to_byte=False
+    )
 
 
 class AERHub(object):
-    def __init__(self, url="tcp://127.0.0.1",
-                 hub_pub_port=5099,
-                 hub_sub_port=5100,
-                 aer_hub_name="PyAER Message Hub"):
+    def __init__(
+        self,
+        url="tcp://127.0.0.1",
+        hub_pub_port=5099,
+        hub_sub_port=5100,
+        aer_hub_name="PyAER Message Hub",
+    ):
         """AER Hub.
 
         A central relay that allows multiple publisher and
@@ -114,12 +118,11 @@ class AERHub(object):
         self.aer_hub_name = aer_hub_name
         self.hub_pub_port = hub_pub_port
         self.hub_sub_port = hub_pub_port
-        self.hub_pub_url = url+":{}".format(hub_pub_port)
-        self.hub_sub_url = url+":{}".format(hub_sub_port)
+        self.hub_pub_url = url + ":{}".format(hub_pub_port)
+        self.hub_sub_url = url + ":{}".format(hub_sub_port)
 
         # logger
-        self.logger = log.get_logger(
-            aer_hub_name, log.INFO, stream=sys.stdout)
+        self.logger = log.get_logger(aer_hub_name, log.INFO, stream=sys.stdout)
 
         # Initialize sockets
         self.init_socket()
@@ -138,9 +141,9 @@ class AERHub(object):
         self.poller.register(self.hub_pub, zmq.POLLIN)
         self.poller.register(self.hub_sub, zmq.POLLIN)
 
-        self.logger.info("="*50)
+        self.logger.info("=" * 50)
         self.logger.info("{} Initialized.".format(self.aer_hub_name))
-        self.logger.info("="*50)
+        self.logger.info("=" * 50)
         self.logger.info("Subscribe message at {}".format(self.hub_pub_url))
         self.logger.info("Publish message at {}".format(self.hub_sub_url))
 
@@ -161,9 +164,9 @@ class AERHub(object):
 
 
 class Publisher(object):
-    def __init__(self, url="tcp://127.0.0.1",
-                 port=5100, master_topic="",
-                 name="", **kwargs):
+    def __init__(
+        self, url="tcp://127.0.0.1", port=5100, master_topic="", name="", **kwargs
+    ):
         """Publisher.
 
         A abstract publisher implementation.
@@ -185,13 +188,13 @@ class Publisher(object):
 
         self.url = url
         self.port = port
-        self.pub_url = url+":{}".format(port)
+        self.pub_url = url + ":{}".format(port)
         self.master_topic = master_topic
         self.name = name
 
         self.logger = log.get_logger(
-            "Publisher-{}".format(self.name),
-            log.INFO, stream=sys.stdout)
+            "Publisher-{}".format(self.name), log.INFO, stream=sys.stdout
+        )
 
         # initialize socket for publisher
         self.init_socket()
@@ -216,11 +219,9 @@ class Publisher(object):
                 The array and its data type, shape information.
         """
         if data_array is None:
-            return [b'None', b'None']
+            return [b"None", b"None"]
 
-        md = dict(
-            dtype=str(data_array.dtype),
-            shape=data_array.shape)
+        md = dict(dtype=str(data_array.dtype), shape=data_array.shape)
 
         return [data_array, json.dumps(md).encode("utf-8")]
 
@@ -240,8 +241,10 @@ class Publisher(object):
             packed_data: byte list
                 a list of packed data ready to be sent.
         """
-        return [encode_topic_name([self.master_topic, data_topic_name]),
-                timestamp]+packed_data_list
+        return [
+            encode_topic_name([self.master_topic, data_topic_name]),
+            timestamp,
+        ] + packed_data_list
 
     def run_once(self, verbose=False):
         """One iteration of processing."""
@@ -254,20 +257,24 @@ class Publisher(object):
                 self.run_once(verbose=verbose)
             except NotImplementedError:
                 self.logger.error(
-                    "Please implement run_once method for {}".format(
-                        self.name))
+                    "Please implement run_once method for {}".format(self.name)
+                )
                 break
             except Exception:
-                self.logger.info(
-                    "{} Exiting...".format(self.name))
+                self.logger.info("{} Exiting...".format(self.name))
                 break
 
 
 class AERPublisher(Publisher):
-    def __init__(self, device=None,
-                 url="tcp://127.0.0.1",
-                 port=5100, master_topic='',
-                 name="", **kwargs):
+    def __init__(
+        self,
+        device=None,
+        url="tcp://127.0.0.1",
+        port=5100,
+        master_topic="",
+        name="",
+        **kwargs
+    ):
         """AERPublisher.
 
         Topics are organized in the following way:
@@ -299,19 +306,20 @@ class AERPublisher(Publisher):
                 the name of the publisher
         """
         super(AERPublisher, self).__init__(
-            url=url, port=port, master_topic=master_topic,
-            name=name, **kwargs)
+            url=url, port=port, master_topic=master_topic, name=name, **kwargs
+        )
         # AER device
         self.device = device
 
-    def pack_polarity_events(self, timestamp, packed_event,
-                             data_topic_name="polarity_events"):
+    def pack_polarity_events(
+        self, timestamp, packed_event, data_topic_name="polarity_events"
+    ):
         """Pack polarity events."""
-        return self.pack_data_by_topic(
-            data_topic_name, timestamp, packed_event)
+        return self.pack_data_by_topic(data_topic_name, timestamp, packed_event)
 
-    def pack_frame_events(self, timestamp, packed_event, frame_timestamp,
-                          data_topic_name="frame_events"):
+    def pack_frame_events(
+        self, timestamp, packed_event, frame_timestamp, data_topic_name="frame_events"
+    ):
         """Pack frame events.
 
         timestamp is the packet level nano second resolution tag.
@@ -319,17 +327,16 @@ class AERPublisher(Publisher):
             by the device.
         """
         return self.pack_data_by_topic(
-            data_topic_name, timestamp, packed_event+frame_timestamp)
+            data_topic_name, timestamp, packed_event + frame_timestamp
+        )
 
-    def pack_imu_events(self, timestamp, packed_event,
-                        data_topic_name="imu_events"):
-        return self.pack_data_by_topic(
-            data_topic_name, timestamp, packed_event)
+    def pack_imu_events(self, timestamp, packed_event, data_topic_name="imu_events"):
+        return self.pack_data_by_topic(data_topic_name, timestamp, packed_event)
 
-    def pack_special_events(self, timestamp, packed_event,
-                            data_topic_name="special_events"):
-        return self.pack_data_by_topic(
-            data_topic_name, timestamp, packed_event)
+    def pack_special_events(
+        self, timestamp, packed_event, data_topic_name="special_events"
+    ):
+        return self.pack_data_by_topic(data_topic_name, timestamp, packed_event)
 
     def run_once(self, verbose=False):
         data = self.device.get_event()
@@ -341,24 +348,25 @@ class AERPublisher(Publisher):
 
             # send polarity events
             polarity_data = self.pack_polarity_events(
-                timestamp,
-                self.pack_np_array(data[0]))
+                timestamp, self.pack_np_array(data[0])
+            )
             self.socket.send_multipart(polarity_data)
 
             if verbose:
-                self.logger.debug("{} {}".format(
-                    polarity_data[0].decode("utf-8"),
-                    timestamp.decode("utf-8")))
+                self.logger.debug(
+                    "{} {}".format(
+                        polarity_data[0].decode("utf-8"), timestamp.decode("utf-8")
+                    )
+                )
 
             # send special events
             special_data = self.pack_special_events(
-                timestamp,
-                self.pack_np_array(data[2]))
+                timestamp, self.pack_np_array(data[2])
+            )
             self.socket.send_multipart(special_data)
 
             if verbose:
-                self.logger.debug(
-                    "{}".format(special_data[0].decode("utf-8")))
+                self.logger.debug("{}".format(special_data[0].decode("utf-8")))
 
             if len(data) > 4:
                 # DAVIS related device
@@ -368,22 +376,19 @@ class AERPublisher(Publisher):
                     frame_data = self.pack_frame_events(
                         timestamp,
                         self.pack_np_array(data[5]),
-                        self.pack_np_array(data[4]))
+                        self.pack_np_array(data[4]),
+                    )
                     self.socket.send_multipart(frame_data)
 
                 if verbose:
-                    self.logger.debug("{}".format(
-                        frame_data[0].decode("utf-8")))
+                    self.logger.debug("{}".format(frame_data[0].decode("utf-8")))
 
                 # send IMU events
-                imu_data = self.pack_imu_events(
-                    timestamp,
-                    self.pack_np_array(data[6]))
+                imu_data = self.pack_imu_events(timestamp, self.pack_np_array(data[6]))
                 self.socket.send_multipart(imu_data)
 
                 if verbose:
-                    self.logger.debug("{}".format(
-                        imu_data[0].decode("utf-8")))
+                    self.logger.debug("{}".format(imu_data[0].decode("utf-8")))
 
     def run(self, verbose=False):
         """Publish data main loop.
@@ -424,13 +429,13 @@ class Subscriber(object):
 
         self.url = url
         self.port = port
-        self.sub_url = url+":{}".format(port)
+        self.sub_url = url + ":{}".format(port)
         self.topic = topic
         self.name = name
 
         self.logger = log.get_logger(
-            "Subscriber-{}".format(self.name),
-            log.INFO, stream=sys.stdout)
+            "Subscriber-{}".format(self.name), log.INFO, stream=sys.stdout
+        )
 
         # initialize socket for subscriber
         self.init_socket()
@@ -460,8 +465,7 @@ class Subscriber(object):
             md = json.loads(packed_data_array[1])
 
             buf_array = memoryview(packed_data_array[0])
-            return np.frombuffer(
-                buf_array, dtype=md['dtype']).reshape(md['shape'])
+            return np.frombuffer(buf_array, dtype=md["dtype"]).reshape(md["shape"])
         except Exception:
             return None
 
@@ -470,8 +474,7 @@ class Subscriber(object):
         if topic_name_only is True:
             return data_id_infos[0].decode("utf-8")
 
-        return create_timestamp_group_name(
-            data_id_infos[0], data_id_infos[1])
+        return create_timestamp_group_name(data_id_infos[0], data_id_infos[1])
 
     def unpack_array_data_by_name(self, packed_data):
         """Unpack a data packet.
@@ -502,18 +505,16 @@ class Subscriber(object):
                 self.run_once(verbose=verbose)
             except NotImplementedError:
                 self.logger.error(
-                    "Please implement run_once method for {}".format(
-                        self.name))
+                    "Please implement run_once method for {}".format(self.name)
+                )
                 break
             except Exception:
-                self.logger.info(
-                    "{} Exiting...".format(self.name))
+                self.logger.info("{} Exiting...".format(self.name))
                 break
 
 
 class AERSubscriber(Subscriber):
-    def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic='', name="", **kwargs):
+    def __init__(self, url="tcp://127.0.0.1", port=5099, topic="", name="", **kwargs):
         """AERSubscriber.
 
         A subscriber can subscribe to a specific topic or all
@@ -535,7 +536,8 @@ class AERSubscriber(Subscriber):
                 the name of the subscriber
         """
         super(AERSubscriber, self).__init__(
-            url=url, port=port, topic=topic, name=name, **kwargs)
+            url=url, port=port, topic=topic, name=name, **kwargs
+        )
 
     def process_data(self, data):
         """Process data object.
@@ -568,8 +570,7 @@ class AERSubscriber(Subscriber):
     def run_once(self, verbose=False):
         data = self.socket.recv_multipart()
 
-        topic_name = self.unpack_array_data_by_name(
-            data[:2], topic_name_only=True)
+        topic_name = self.unpack_array_data_by_name(data[:2], topic_name_only=True)
 
         # you can select some of these functions to use
         if "polarity" in topic_name:
@@ -577,8 +578,7 @@ class AERSubscriber(Subscriber):
         elif "special" in topic_name:
             data_id, special_events = self.unpack_special_events(data)
         elif "frame" in topic_name:
-            data_id, frame_events, frame_ts = \
-                self.unpack_frame_events(data)
+            data_id, frame_events, frame_ts = self.unpack_frame_events(data)
         elif "imu" in topic_name:
             data_id, imu_events = self.unpack_imu_events(data)
 
@@ -599,12 +599,17 @@ class AERSubscriber(Subscriber):
 
 
 class PubSuber(object):
-    def __init__(self, url="tcp://127.0.0.1",
-                 pub_port=5100,
-                 pub_topic="", pub_name="",
-                 sub_port=5099,
-                 sub_topic="", sub_name="",
-                 **kwargs):
+    def __init__(
+        self,
+        url="tcp://127.0.0.1",
+        pub_port=5100,
+        pub_topic="",
+        pub_name="",
+        sub_port=5099,
+        sub_topic="",
+        sub_name="",
+        **kwargs
+    ):
         """Publisher-Subscriber.
 
         This is a shell implementation.
@@ -626,7 +631,9 @@ class PubSuber(object):
 
         self.logger = log.get_logger(
             "PubSuber-{}-{}".format(self.pub_name, self.sub_name),
-            log.INFO, stream=sys.stdout)
+            log.INFO,
+            stream=sys.stdout,
+        )
 
     def run_once(self, verbose=False):
         raise NotImplementedError
@@ -637,12 +644,11 @@ class PubSuber(object):
                 self.run_once(verbose=verbose)
             except NotImplementedError:
                 self.logger.error(
-                    "Please implement run_once method for {}".format(
-                        self.name))
+                    "Please implement run_once method for {}".format(self.name)
+                )
                 break
             except Exception:
-                self.logger.info(
-                    "{} Exiting...".format(self.name))
+                self.logger.info("{} Exiting...".format(self.name))
                 break
 
 
@@ -676,10 +682,12 @@ class AERHDF5Saver(object):
         self.libver = libver
 
         self.aer_file = h5py.File(
-            name=filename, mode=mode, libver=libver,
-            rdcc_nbytes=50*1024**2,  # 50MB Cache
-            track_order=True  # Follow the order of the message
-            )
+            name=filename,
+            mode=mode,
+            libver=libver,
+            rdcc_nbytes=50 * 1024**2,  # 50MB Cache
+            track_order=True,  # Follow the order of the message
+        )
 
     def save(self, data_name, data):
         """Save data to a dataset.
@@ -692,16 +700,14 @@ class AERHDF5Saver(object):
             the dataset's content.
         """
         # save data
-        self.aer_file.create_dataset(
-            data_name, data=data)
+        self.aer_file.create_dataset(data_name, data=data)
 
     def close(self):
         self.aer_file.close()
 
 
 class AERHDF5Reader(object):
-    def __init__(self, filename, mode="r", libver="latest",
-                 use_wall_clock=True):
+    def __init__(self, filename, mode="r", libver="latest", use_wall_clock=True):
         """AERHDF5Reader.
 
         A high performance AER HDF5 Reader for events.
@@ -732,13 +738,14 @@ class AERHDF5Reader(object):
         self.libver = libver
 
         self.aer_file = h5py.File(
-            name=filename, mode=mode, libver=libver,
-            rdcc_nbytes=50*1024**2,  # 50MB Cache
-            track_order=True  # Follow the order of the message
-            )
+            name=filename,
+            mode=mode,
+            libver=libver,
+            rdcc_nbytes=50 * 1024**2,  # 50MB Cache
+            track_order=True,  # Follow the order of the message
+        )
 
-        self.logger = log.get_logger(
-            "HDFReader", log.INFO, stream=sys.stdout)
+        self.logger = log.get_logger("HDFReader", log.INFO, stream=sys.stdout)
 
         self.logger.info("Getting Device Keys")
         self.device_keys = self.aer_file.keys()
@@ -759,8 +766,7 @@ class AERHDF5Reader(object):
         """Get frame events at this packet."""
 
         try:
-            frame_events = \
-                self.aer_file[device_name][group_name]["frame_events"][()]
+            frame_events = self.aer_file[device_name][group_name]["frame_events"][()]
 
             if frame_events.size == 0:
                 return None
@@ -775,8 +781,9 @@ class AERHDF5Reader(object):
         Note that the time is converted to nanosecs.
         """
         try:
-            polarity_events = \
-                self.aer_file[device_name][group_name]["polarity_events"][()]
+            polarity_events = self.aer_file[device_name][group_name]["polarity_events"][
+                ()
+            ]
 
             # modify time
             polarity_events[:, 0] -= polarity_events[0, 0]
@@ -790,8 +797,7 @@ class AERHDF5Reader(object):
     def get_imu_events(self, device_name, group_name):
         """Get IMU events."""
         try:
-            imu_events = \
-                self.aer_file[device_name][group_name]["imu_events"][()]
+            imu_events = self.aer_file[device_name][group_name]["imu_events"][()]
 
             # modify time
             imu_events[:, 0] -= imu_events[0, 0]
@@ -805,8 +811,9 @@ class AERHDF5Reader(object):
     def get_special_events(self, device_name, group_name):
         """Get spcial events."""
         try:
-            special_events = \
-                self.aer_file[device_name][group_name]["special_events"][()]
+            special_events = self.aer_file[device_name][group_name]["special_events"][
+                ()
+            ]
 
             # modify time
             special_events[:, 0] -= special_events[0, 0]
@@ -821,8 +828,8 @@ class AERHDF5Reader(object):
         return int(group_name)
 
     def get_wall_time(self, nanosecs):
-        dt = datetime.fromtimestamp(float(nanosecs)/1e9)
-        return dt.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        dt = datetime.fromtimestamp(float(nanosecs) / 1e9)
+        return dt.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     def close(self):
         self.aer_file.close()
@@ -837,8 +844,7 @@ class AERZarrSaver(object):
         """
         self.filename = filename
 
-        self.aer_file = zarr.open_group(
-            store=filename, mode=mode)
+        self.aer_file = zarr.open_group(store=filename, mode=mode)
 
     def save(self, data_name, data):
         """Save data to a dataset.
@@ -851,8 +857,7 @@ class AERZarrSaver(object):
             the dataset's content.
         """
         # save data
-        self.aer_file.create_dataset(
-            data_name, data=data)
+        self.aer_file.create_dataset(data_name, data=data)
 
     def close(self):
         self.aer_file.close()
@@ -874,8 +879,7 @@ class AERProcess(object):
     def create_process(self):
         pid = subprocess.Popen(self.cmd)
         time.sleep(0.5)
-        assert pid.poll() is None, 'Process {} launch failed'.format(
-            self.program_name)
+        assert pid.poll() is None, "Process {} launch failed".format(self.program_name)
 
         return pid
 

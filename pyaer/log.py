@@ -41,8 +41,9 @@ def get_logger(logger_name, logger_level, stream=None):
     ch.setLevel(level=logger_level)
 
     formatter = logging.Formatter(
-        fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y/%m/%d %I:%M:%S %p')
+        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y/%m/%d %I:%M:%S %p",
+    )
     ch.setFormatter(formatter)
 
     logger.addHandler(ch)

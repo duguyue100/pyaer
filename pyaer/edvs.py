@@ -29,12 +29,14 @@ class eDVS(SerialDevice):
             baud-rate for serial port communication.<br/>
             `default is 12M`
     """
+
     def __init__(
-            self,
-            device_id=1,
-            serial_port_name="/dev/ttyUSB0",
-            serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
-            noise_filter=False):
+        self,
+        device_id=1,
+        serial_port_name="/dev/ttyUSB0",
+        serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
+        noise_filter=False,
+    ):
         """eDVS."""
         super(eDVS, self).__init__()
         # open device
@@ -111,10 +113,12 @@ class eDVS(SerialDevice):
             self.serial_port_name = info.serialPortName
             self.serial_baud_rate = info.serialBaudRate
 
-    def open(self,
-             device_id=1,
-             serial_port_name="/dev/ttyUSB0",
-             serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M):
+    def open(
+        self,
+        device_id=1,
+        serial_port_name="/dev/ttyUSB0",
+        serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
+    ):
         """Open device.
 
         # Arguments
@@ -131,8 +135,8 @@ class eDVS(SerialDevice):
                 `default is 12M`
         """
         super(eDVS, self).open(
-            libcaer.CAER_DEVICE_EDVS,
-            device_id, serial_port_name, serial_baud_rate)
+            libcaer.CAER_DEVICE_EDVS, device_id, serial_port_name, serial_baud_rate
+        )
 
     def set_bias_from_json(self, file_path, verbose=False):
         """Set bias from loading JSON configuration file.
@@ -157,42 +161,48 @@ class eDVS(SerialDevice):
             flag: `bool`<br/>
                 True if set successful, False otherwise.
         """
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_CAS,
-                        bias_obj["cas"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_INJGND,
-                        bias_obj["injGnd"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_REQPD,
-                        bias_obj["reqPd"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_PUX,
-                        bias_obj["puX"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_DIFFOFF,
-                        bias_obj["diffOff"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_REQ,
-                        bias_obj["req"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_REFR,
-                        bias_obj["refr"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_PUY,
-                        bias_obj["puY"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_DIFFON,
-                        bias_obj["diffOn"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_DIFF,
-                        bias_obj["diff"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_FOLL,
-                        bias_obj["foll"])
-        self.set_config(libcaer.EDVS_CONFIG_BIAS,
-                        libcaer.EDVS_CONFIG_BIAS_PR,
-                        bias_obj["Pr"])
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_CAS, bias_obj["cas"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS,
+            libcaer.EDVS_CONFIG_BIAS_INJGND,
+            bias_obj["injGnd"],
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_REQPD, bias_obj["reqPd"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PUX, bias_obj["puX"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS,
+            libcaer.EDVS_CONFIG_BIAS_DIFFOFF,
+            bias_obj["diffOff"],
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_REQ, bias_obj["req"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_REFR, bias_obj["refr"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PUY, bias_obj["puY"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS,
+            libcaer.EDVS_CONFIG_BIAS_DIFFON,
+            bias_obj["diffOn"],
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_DIFF, bias_obj["diff"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_FOLL, bias_obj["foll"]
+        )
+        self.set_config(
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PR, bias_obj["Pr"]
+        )
 
     def get_bias(self):
         """Get bias settings.
@@ -203,41 +213,41 @@ class eDVS(SerialDevice):
         """
         bias_obj = {}
         bias_obj["cas"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_CAS)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_CAS
+        )
         bias_obj["injGnd"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_INJGND)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_INJGND
+        )
         bias_obj["reqPd"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_REQPD)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_REQPD
+        )
         bias_obj["puX"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_PUX)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PUX
+        )
         bias_obj["diffOff"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_DIFFOFF)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_DIFFOFF
+        )
         bias_obj["req"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_REQ)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_REQ
+        )
         bias_obj["refr"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_REFR)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_REFR
+        )
         bias_obj["puY"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_PUY)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PUY
+        )
         bias_obj["diffOn"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_DIFFON)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_DIFFON
+        )
         bias_obj["diff"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_DIFF)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_DIFF
+        )
         bias_obj["foll"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_FOLL)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_FOLL
+        )
         bias_obj["Pr"] = self.get_config(
-            libcaer.EDVS_CONFIG_BIAS,
-            libcaer.EDVS_CONFIG_BIAS_PR)
+            libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PR
+        )
 
         return bias_obj
 
@@ -295,16 +305,19 @@ class eDVS(SerialDevice):
 
         """
         num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT)
+            packet_header, libcaer.POLARITY_EVENT
+        )
 
         if noise_filter is True:
             polarity = self.noise_filter.apply(polarity)
 
             events = libcaer.get_filtered_polarity_event(
-                polarity, num_events*5).reshape(num_events, 5)
+                polarity, num_events * 5
+            ).reshape(num_events, 5)
         else:
-            events = libcaer.get_polarity_event(
-                polarity, num_events*4).reshape(num_events, 4)
+            events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
+                num_events, 4
+            )
 
         return events, num_events
 
@@ -344,22 +357,26 @@ class eDVS(SerialDevice):
             special_events = None
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
-                    packet_container, packet_id)
+                    packet_container, packet_id
+                )
                 if packet_type == libcaer.POLARITY_EVENT:
-                    events, num_events = self.get_polarity_event(
-                        packet_header)
-                    pol_events = np.hstack((pol_events, events)) \
-                        if pol_events is not None else events
+                    events, num_events = self.get_polarity_event(packet_header)
+                    pol_events = (
+                        np.hstack((pol_events, events))
+                        if pol_events is not None
+                        else events
+                    )
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
-                    events, num_events = self.get_special_event(
-                        packet_header)
-                    special_events = np.hstack((special_events, events)) \
-                        if special_events is not None else events
+                    events, num_events = self.get_special_event(packet_header)
+                    special_events = (
+                        np.hstack((special_events, events))
+                        if special_events is not None
+                        else events
+                    )
                     num_special_event += num_events
             libcaer.caerEventPacketContainerFree(packet_container)
 
-            return (pol_events, num_pol_event, special_events,
-                    num_special_event)
+            return (pol_events, num_pol_event, special_events, num_special_event)
         else:
             return None

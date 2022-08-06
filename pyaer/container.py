@@ -13,10 +13,14 @@ Email : duguyue100@gmail.com
 class EventContainer(object):
     """Event container that packs everything."""
 
-    def __init__(self, pol_events,
-                 special_events=None,
-                 frames=None, frames_ts=None,
-                 imu_events=None):
+    def __init__(
+        self,
+        pol_events,
+        special_events=None,
+        frames=None,
+        frames_ts=None,
+        imu_events=None,
+    ):
         """Event Container.
 
         # Arguments
@@ -33,20 +37,19 @@ class EventContainer(object):
         """
 
         self.pol_events = pol_events
-        self.num_pol_events = 0 if pol_events is None else \
-            pol_events.shape[0]
+        self.num_pol_events = 0 if pol_events is None else pol_events.shape[0]
         self.compute_event_stats()
 
         self.special_events = special_events
-        self.num_special_events = None if special_events is None else \
-            special_events.shape[0]
+        self.num_special_events = (
+            None if special_events is None else special_events.shape[0]
+        )
 
         self.frames = frames
         self.frames_ts = frames_ts
 
         self.imu_events = imu_events
-        self.num_imu_events = None if imu_events is None else \
-            imu_events.shape[0]
+        self.num_imu_events = None if imu_events is None else imu_events.shape[0]
 
     def compute_event_stats(self):
         """Calculate event stats."""
@@ -60,18 +63,22 @@ class EventContainer(object):
 
         if self.num_pol_events > 1:
             # in seconds
-            self.pol_event_duration = \
-                (self.pol_events[-1, 0]-self.pol_events[0, 0])/1e6
+            self.pol_event_duration = (
+                self.pol_events[-1, 0] - self.pol_events[0, 0]
+            ) / 1e6
 
-            self.pol_event_rate = self.num_pol_events/self.pol_event_duration
+            self.pol_event_rate = self.num_pol_events / self.pol_event_duration
 
             # additional stats if has background filter
             if self.pol_events.shape[1] == 5:
                 self.num_valid_pol_events = self.pol_events[:, -1].sum()
-                self.num_invalid_pol_events = \
-                    self.num_pol_events-self.num_valid_pol_events
+                self.num_invalid_pol_events = (
+                    self.num_pol_events - self.num_valid_pol_events
+                )
 
-                self.valid_pol_events_rate = \
-                    self.num_valid_pol_events/self.pol_event_duration
-                self.invalid_pol_events_rate = \
-                    self.num_invalid_pol_events/self.pol_event_duration
+                self.valid_pol_events_rate = (
+                    self.num_valid_pol_events / self.pol_event_duration
+                )
+                self.invalid_pol_events_rate = (
+                    self.num_invalid_pol_events / self.pol_event_duration
+                )

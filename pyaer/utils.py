@@ -20,7 +20,7 @@ logger = log.get_logger("utils", pyaer.LOG_LEVEL)
 
 
 def get_nanotime():
-    return str(int(time.time()*1e9)).encode("utf-8")
+    return str(int(time.time() * 1e9)).encode("utf-8")
 
 
 def import_custom_module(custom_file, custom_class):
@@ -82,15 +82,18 @@ def parse_custom_args(custom_args):
         return {}
 
     custom_args_dict = dict(
-        zip([opt.replace("-", "") for opt in custom_args[::2]],
-            [parse_type(val) for val in custom_args[1::2]]))
+        zip(
+            [opt.replace("-", "") for opt in custom_args[::2]],
+            [parse_type(val) for val in custom_args[1::2]],
+        )
+    )
 
     return custom_args_dict
 
 
-def ordered_yml_load(stream, Loader=yaml.SafeLoader,
-                     object_pairs_hook=OrderedDict):
+def ordered_yml_load(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
     """Load YAML configs in order."""
+
     class OrderedLoader(Loader):
         pass
 
@@ -99,21 +102,22 @@ def ordered_yml_load(stream, Loader=yaml.SafeLoader,
         return object_pairs_hook(loader.construct_pairs(node))
 
     OrderedLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        construct_mapping)
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping
+    )
 
     return yaml.load(stream, OrderedLoader)
 
 
 def ordered_yml_dump(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
     """Dump YAML configs in order."""
+
     class OrderedDumper(Dumper):
         pass
 
     def _dict_representer(dumper, data):
         return dumper.represent_mapping(
-            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            data.items())
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, data.items()
+        )
 
     OrderedDumper.add_representer(OrderedDict, _dict_representer)
     return yaml.dump(data, stream, OrderedDumper, **kwds)
@@ -310,10 +314,9 @@ def discover_devices(device_type, max_devices=100):
         num_devices: `int`<br/>
             number of available devices
     """
-    discovered_devices = libcaer.device_discover(
-        device_type, (max_devices+1)*3)
+    discovered_devices = libcaer.device_discover(device_type, (max_devices + 1) * 3)
 
-    discovered_devices = discovered_devices.reshape((max_devices+1), 3)
+    discovered_devices = discovered_devices.reshape((max_devices + 1), 3)
     num_devices = np.argwhere(discovered_devices == 42)[0][0]
 
     return discovered_devices[:num_devices], num_devices

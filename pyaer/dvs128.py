@@ -39,17 +39,19 @@ class DVS128(USBDevice):
             if enable noise filter,<br/>
             `default is False`.
     """
-    def __init__(self,
-                 device_id=1,
-                 bus_number_restrict=0,
-                 dev_address_restrict=0,
-                 serial_number="",
-                 noise_filter=False):
+
+    def __init__(
+        self,
+        device_id=1,
+        bus_number_restrict=0,
+        dev_address_restrict=0,
+        serial_number="",
+        noise_filter=False,
+    ):
         """DVS128."""
         super(DVS128, self).__init__()
         # open device
-        self.open(device_id, bus_number_restrict,
-                  dev_address_restrict, serial_number)
+        self.open(device_id, bus_number_restrict, dev_address_restrict, serial_number)
         # get camera information
         self.obtain_device_info(self.handle)
 
@@ -127,11 +129,13 @@ class DVS128(USBDevice):
             self.dvs_size_X = info.dvsSizeX
             self.dvs_size_Y = info.dvsSizeY
 
-    def open(self,
-             device_id=1,
-             bus_number_restrict=0,
-             dev_address_restrict=0,
-             serial_number=""):
+    def open(
+        self,
+        device_id=1,
+        bus_number_restrict=0,
+        dev_address_restrict=0,
+        serial_number="",
+    ):
         """Open device.
 
 
@@ -156,9 +160,12 @@ class DVS128(USBDevice):
                 `default is ""`
         """
         super(DVS128, self).open(
-            libcaer.CAER_DEVICE_DVS128, device_id,
-            bus_number_restrict, dev_address_restrict,
-            serial_number)
+            libcaer.CAER_DEVICE_DVS128,
+            device_id,
+            bus_number_restrict,
+            dev_address_restrict,
+            serial_number,
+        )
 
     def set_bias_from_json(self, file_path, verbose=False):
         """Set bias from loading JSON configuration file.
@@ -183,42 +190,56 @@ class DVS128(USBDevice):
             flag: `bool`<br/>
                 True if set successful, False otherwise.
         """
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_CAS,
-                        bias_obj["cas"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_INJGND,
-                        bias_obj["injGnd"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_REQPD,
-                        bias_obj["reqPd"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_PUX,
-                        bias_obj["puX"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_DIFFOFF,
-                        bias_obj["diffOff"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_REQ,
-                        bias_obj["req"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_REFR,
-                        bias_obj["refr"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_PUY,
-                        bias_obj["puY"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_DIFFON,
-                        bias_obj["diffOn"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_DIFF,
-                        bias_obj["diff"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_FOLL,
-                        bias_obj["foll"])
-        self.set_config(libcaer.DVS128_CONFIG_BIAS,
-                        libcaer.DVS128_CONFIG_BIAS_PR,
-                        bias_obj["Pr"])
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_CAS, bias_obj["cas"]
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_INJGND,
+            bias_obj["injGnd"],
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_REQPD,
+            bias_obj["reqPd"],
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUX, bias_obj["puX"]
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_DIFFOFF,
+            bias_obj["diffOff"],
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQ, bias_obj["req"]
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_REFR,
+            bias_obj["refr"],
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUY, bias_obj["puY"]
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_DIFFON,
+            bias_obj["diffOn"],
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_DIFF,
+            bias_obj["diff"],
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS,
+            libcaer.DVS128_CONFIG_BIAS_FOLL,
+            bias_obj["foll"],
+        )
+        self.set_config(
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PR, bias_obj["Pr"]
+        )
         # setting for noise filter
         if self.filter_noise is True:
             self.noise_filter.set_bias(bias_obj["noise_filter_configs"])
@@ -232,41 +253,41 @@ class DVS128(USBDevice):
         """
         bias_obj = {}
         bias_obj["cas"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_CAS)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_CAS
+        )
         bias_obj["injGnd"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_INJGND)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_INJGND
+        )
         bias_obj["reqPd"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_REQPD)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQPD
+        )
         bias_obj["puX"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_PUX)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUX
+        )
         bias_obj["diffOff"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_DIFFOFF)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFFOFF
+        )
         bias_obj["req"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_REQ)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQ
+        )
         bias_obj["refr"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_REFR)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REFR
+        )
         bias_obj["puY"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_PUY)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUY
+        )
         bias_obj["diffOn"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_DIFFON)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFFON
+        )
         bias_obj["diff"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_DIFF)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFF
+        )
         bias_obj["foll"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_FOLL)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_FOLL
+        )
         bias_obj["Pr"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_PR)
+            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PR
+        )
 
         # get noise filter configs
         if self.noise_filter is not None:
@@ -288,9 +309,9 @@ class DVS128(USBDevice):
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
-    def start_data_stream(self, send_default_config=True,
-                          max_packet_size=None,
-                          max_packet_interval=None):
+    def start_data_stream(
+        self, send_default_config=True, max_packet_size=None, max_packet_interval=None
+    ):
         """Start streaming data.
 
         # Arguments
@@ -349,16 +370,19 @@ class DVS128(USBDevice):
 
         """
         num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT)
+            packet_header, libcaer.POLARITY_EVENT
+        )
 
         if noise_filter is True:
             polarity = self.noise_filter.apply(polarity)
 
             events = libcaer.get_filtered_polarity_event(
-                polarity, num_events*5).reshape(num_events, 5)
+                polarity, num_events * 5
+            ).reshape(num_events, 5)
         else:
-            events = libcaer.get_polarity_event(
-                polarity, num_events*4).reshape(num_events, 4)
+            events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
+                num_events, 4
+            )
 
         return events, num_events
 
@@ -398,29 +422,35 @@ class DVS128(USBDevice):
             special_events = None
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
-                    packet_container, packet_id)
+                    packet_container, packet_id
+                )
                 if packet_type == libcaer.POLARITY_EVENT:
                     if mode == "events":
                         events, num_events = self.get_polarity_event(
-                            packet_header, self.filter_noise)
-                        pol_events = np.hstack((pol_events, events)) \
-                            if pol_events is not None else events
+                            packet_header, self.filter_noise
+                        )
+                        pol_events = (
+                            np.hstack((pol_events, events))
+                            if pol_events is not None
+                            else events
+                        )
                     elif mode == "events_hist":
                         hist, num_events = self.get_polarity_hist(
-                            packet_header, device_type="DVS128")
-                        pol_events = hist if pol_events is None \
-                            else pol_events+hist
+                            packet_header, device_type="DVS128"
+                        )
+                        pol_events = hist if pol_events is None else pol_events + hist
 
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
-                    events, num_events = self.get_special_event(
-                        packet_header)
-                    special_events = np.hstack((special_events, events)) \
-                        if special_events is not None else events
+                    events, num_events = self.get_special_event(packet_header)
+                    special_events = (
+                        np.hstack((special_events, events))
+                        if special_events is not None
+                        else events
+                    )
                     num_special_event += num_events
             libcaer.caerEventPacketContainerFree(packet_container)
 
-            return (pol_events, num_pol_event, special_events,
-                    num_special_event)
+            return (pol_events, num_pol_event, special_events, num_special_event)
         else:
             return None
