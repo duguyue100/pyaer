@@ -9,33 +9,30 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 
+from typing import Optional
+
+import numpy as np
+
 
 class EventContainer(object):
-    """Event container that packs everything."""
+    """Event container that packs everything.
+
+    Args:
+        pol_events: polarity events array.
+        special_events: special events.
+        frames: APS frame events.
+        frames_ts: APS frame time stamp.
+        imu_events: IMU events.
+    """
 
     def __init__(
         self,
-        pol_events,
-        special_events=None,
-        frames=None,
-        frames_ts=None,
-        imu_events=None,
-    ):
-        """Event Container.
-
-        # Arguments
-            pol_events: numpy.ndarray
-                polarity events array
-            special_events: numpy.ndarray
-                special events
-            frames: numpy.ndarray
-                APS frame events
-            frames_ts: numpy.ndarray
-                APS frame time stamp
-            imu_events: numpy.ndarray
-                IMU events
-        """
-
+        pol_events: np.ndarray,
+        special_events: Optional[np.ndarray] = None,
+        frames: Optional[np.ndarray] = None,
+        frames_ts: Optional[np.ndarray] = None,
+        imu_events: Optional[np.ndarray] = None,
+    ) -> None:
         self.pol_events = pol_events
         self.num_pol_events = 0 if pol_events is None else pol_events.shape[0]
         self.compute_event_stats()
@@ -51,7 +48,7 @@ class EventContainer(object):
         self.imu_events = imu_events
         self.num_imu_events = None if imu_events is None else imu_events.shape[0]
 
-    def compute_event_stats(self):
+    def compute_event_stats(self) -> None:
         """Calculate event stats."""
         self.pol_event_duration = None
         self.pol_event_rate = None
