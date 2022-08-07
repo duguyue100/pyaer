@@ -44,12 +44,11 @@ jobs:
           cd swig
           ./autogen.sh
           ./configure --without-alllang --with-python=$(command -v python) --without-pcre
-          make
+          make -j4
           sudo make install
           cd ..
           pip install pip -U
-          pip install numpy==1.18.0
-          pip install future -U
+          pip install numpy>=1.22.0
           pip install wheel
       - name: Build PyAER
         run: |

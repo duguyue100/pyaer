@@ -74,7 +74,7 @@ setup(
     author=about["__author__"],
     author_email=about["__author_email__"],
     url=about["__url__"],
-    install_requires=["numpy >= 1.18.0"],
+    install_requires=["numpy >= 1.22.0"],
     packages=find_packages(),
     ext_modules=[libcaer_wrap],
     scripts=[
