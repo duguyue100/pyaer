@@ -39,6 +39,7 @@
 %feature("autodoc", "1");
 
 %ignore caerDeviceClose;
+%ignore caerFrameUtilsPixelColor;
 
 %include "stdint.i"
 %include <libcaer/libcaer.h>
