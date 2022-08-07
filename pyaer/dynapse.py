@@ -3,10 +3,10 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
-from builtins import range
 import time
+
 import numpy as np
+
 from pyaer import libcaer
 from pyaer import utils
 from pyaer.device import USBDevice
@@ -1117,8 +1117,7 @@ class DYNAPSE(USBDevice):
         self.set_data_exchange_blocking()
 
     def core_xy_to_neuron_id(self, core_id, column_x, row_y):
-        """Map core ID and column/row address
-        to the correct chip global neuron address.
+        """Map core ID and column/row address to the correct chip global neuron address.
 
         # Arguments
             core_id: `uint8`<br/>
@@ -1137,8 +1136,8 @@ class DYNAPSE(USBDevice):
         )
 
     def core_id_to_neuron_id(self, core_id, neuron_id_core):
-        """Map core ID and per-core neuron address
-        to the correct chip global neuron address.
+        """Map core ID and per-core neuron address to the correct chip global neuron
+        address.
 
         # Arguments
             core_id: `uint8`<br/>

@@ -3,14 +3,12 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
-from builtins import range
 import numpy as np
 
 from pyaer import libcaer
+from pyaer import utils
 from pyaer.device import SerialDevice
 from pyaer.filters import DVSNoise
-from pyaer import utils
 
 
 class eDVS(SerialDevice):
@@ -65,9 +63,8 @@ class eDVS(SerialDevice):
     def enable_noise_filter(self):
         """Enalbe DVS noise filter.
 
-        This function enables the DVS noise filter.
-        Note that this function will initialize a `DVSNoise` filter
-        if there is None.
+        This function enables the DVS noise filter. Note that this function will
+        initialize a `DVSNoise` filter if there is None.
         """
         if self.filter_noise is False:
             self.filter_noise = True
@@ -78,9 +75,8 @@ class eDVS(SerialDevice):
     def disable_noise_filter(self):
         """Disable noise filter.
 
-        This method disable the noise filter. Note that this function
-        doesn't destroy the existed noise filter. It simply switches off
-        the function.
+        This method disable the noise filter. Note that this function doesn't destroy
+        the existed noise filter. It simply switches off the function.
         """
         if self.filter_noise is True:
             self.filter_noise = False
@@ -302,7 +298,6 @@ class eDVS(SerialDevice):
                 event. Filtered events will be marked as 0.
             num_events: `int`<br/>
                 number of the polarity events available in the packet.
-
         """
         num_events, polarity = self.get_event_packet(
             packet_header, libcaer.POLARITY_EVENT

@@ -13,19 +13,17 @@ a group of subscribers to get/process data.
 Author: Yuhuang Hu
 Email : yuhuang.hu@ini.uzh.ch
 """
-
-from __future__ import print_function, absolute_import
-
+import json
+import signal
+import subprocess
 import sys
 import time
-import json
-import subprocess
-import signal
 from collections import OrderedDict
 from datetime import datetime
+
+import h5py
 import numpy as np
 import zmq
-import h5py
 
 try:
     import zarr
@@ -111,8 +109,8 @@ class AERHub(object):
     ):
         """AER Hub.
 
-        A central relay that allows multiple publisher and
-        subscriber to use a common port.
+        A central relay that allows multiple publisher and subscriber to use a common
+        port.
         """
         self.url = url
         self.aer_hub_name = aer_hub_name
@@ -322,9 +320,8 @@ class AERPublisher(Publisher):
     ):
         """Pack frame events.
 
-        timestamp is the packet level nano second resolution tag.
-        frame_timestamp is the list of timestamps for frames supplied
-            by the device.
+        timestamp is the packet level nano second resolution tag. frame_timestamp is the
+        list of timestamps for frames supplied     by the device.
         """
         return self.pack_data_by_topic(
             data_topic_name, timestamp, packed_event + frame_timestamp
@@ -617,7 +614,6 @@ class PubSuber(object):
         Intend to use as a processing unit.
         First subscribe on a topic, process it, and then publish to
         a topic
-
         """
         self.__dict__.update(kwargs)
 
@@ -840,7 +836,6 @@ class AERZarrSaver(object):
         """AERZarrSaver.
 
         A high performance AER Zarr saver for events.
-
         """
         self.filename = filename
 

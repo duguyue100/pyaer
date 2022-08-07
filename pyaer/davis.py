@@ -3,14 +3,13 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
-from builtins import range
 import numpy as np
+
 from pyaer import libcaer
-from pyaer.device import USBDevice
-from pyaer.filters import DVSNoise
 from pyaer import utils
 from pyaer.container import EventContainer
+from pyaer.device import USBDevice
+from pyaer.filters import DVSNoise
 
 
 class DAVIS(USBDevice):
@@ -93,9 +92,8 @@ class DAVIS(USBDevice):
     def enable_noise_filter(self):
         """Enalbe DVS noise filter.
 
-        This function enables the DVS noise filter.
-        Note that this function will initialize a `DVSNoise` filter
-        if there is None.
+        This function enables the DVS noise filter. Note that this function will
+        initialize a `DVSNoise` filter if there is None.
         """
         if self.filter_noise is False:
             self.filter_noise = True
@@ -106,9 +104,8 @@ class DAVIS(USBDevice):
     def disable_noise_filter(self):
         """Disable noise filter.
 
-        This method disable the noise filter. Note that this function
-        doesn't destroy the existed noise filter. It simply switches off
-        the function.
+        This method disable the noise filter. Note that this function doesn't destroy
+        the existed noise filter. It simply switches off the function.
         """
         if self.filter_noise is True:
             self.filter_noise = False
@@ -186,7 +183,6 @@ class DAVIS(USBDevice):
         serial_number="",
     ):
         """Open DAVIS device.
-
 
         # Arguments
             device_id: `int`<br/>
@@ -1277,7 +1273,6 @@ class DAVIS(USBDevice):
                 event. Filtered events will be marked as 0.
             num_events: `int`<br/>
                 number of the polarity events available in the packet.
-
         """
         num_events, polarity = self.get_event_packet(
             packet_header, libcaer.POLARITY_EVENT
@@ -1313,8 +1308,7 @@ class DAVIS(USBDevice):
     def get_event_container(self):
         """Get Event Container.
 
-        Instead of returning different variables,
-        return an event container.
+        Instead of returning different variables, return an event container.
         """
 
         data = self.get_event()

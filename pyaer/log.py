@@ -5,10 +5,12 @@ NOTE: this is different from libcaer's logger.
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
 import logging
+from logging import Logger
+from typing import Optional
+from typing import TextIO
 
-# remap logging levels for easy access
+# Remaps logging levels for easy access.
 NOTSET = logging.NOTSET
 DEBUG = logging.DEBUG
 INFO = logging.INFO
@@ -17,22 +19,18 @@ ERROR = logging.ERROR
 CRITICAL = logging.CRITICAL
 
 
-def get_logger(logger_name, logger_level, stream=None):
-    """Get a logger for the script.
+def get_logger(
+    logger_name: Optional[str], logger_level: int, stream: Optional[TextIO] = None
+) -> Logger:
+    """Gets a logger for the script.
 
-    Using stream handler.
+    Args:
+        logger_name: the name of the logger.
+        logger_level: the minimal level that trigger the logger.
+        stream: If None, sys.stderr will be used.
 
-    # Arguments
-        logger_name: `str`<br/>
-            the name of the logger
-        logger_level: `int`<br/>
-            the minimial level that trigger the logger.
-        stream: `data stream`<br/>
-            if None, sys.stderr will be used.
-
-    # Returns
-        logger: `logging.Logger`<br/>
-            return a logger to handel the logging in the script.
+    Returns:
+        A logger to handel the logging in the script.
     """
     logger = logging.getLogger(name=logger_name)
     logger.setLevel(level=logger_level)

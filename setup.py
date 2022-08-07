@@ -3,16 +3,17 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
-from setuptools import setup
-from setuptools import find_packages
-from setuptools.extension import Extension
+from __future__ import absolute_import
+from __future__ import print_function
 
 import os
-from sysconfig import get_paths
 from sys import platform
+from sysconfig import get_paths
 
 import numpy
+from setuptools import find_packages
+from setuptools import setup
+from setuptools.extension import Extension
 
 classifiers = """
 Development Status :: 4 - Beta
@@ -22,6 +23,8 @@ Operating System :: OS Independent
 Programming Language :: Python :: 3.6
 Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
+Programming Language :: Python :: 3.9
+Programming Language :: Python :: 3.10
 Topic :: Utilities
 Topic :: Scientific/Engineering
 Topic :: Scientific/Engineering :: Artificial Intelligence
@@ -42,7 +45,7 @@ python_paths = get_paths()
 try:
     numpy_include = numpy.get_include()
 except AttributeError:
-    numpy_include = numpy.get_numpy_include()
+    numpy_include = numpy.get_numpy_include()  # type: ignore
 
 if platform in ["linux", "linux2"]:
     libcaer_include = "/usr/include"

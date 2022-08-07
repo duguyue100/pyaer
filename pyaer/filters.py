@@ -3,8 +3,6 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
-
 from pyaer import libcaer
 from pyaer import utils
 

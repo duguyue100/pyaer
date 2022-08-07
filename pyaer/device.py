@@ -3,8 +3,8 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
 import abc
+
 from pyaer import libcaer
 
 
@@ -55,9 +55,8 @@ class USBDevice(object):
     def get_event(self):
         """Get Event.
 
-        This abstract method should be implemented in all derived classes.
-        This method returns a packet of events according to the type of
-        the sensor.
+        This abstract method should be implemented in all derived classes. This method
+        returns a packet of events according to the type of the sensor.
         """
         return
 
@@ -113,8 +112,7 @@ class USBDevice(object):
     def close(self):
         """Close USB device.
 
-        This method closes an opened USB device if the respective
-        handle is not None.
+        This method closes an opened USB device if the respective handle is not None.
         """
         if self.handle is not None:
             libcaer.caerDeviceClose(self.handle)
@@ -122,8 +120,8 @@ class USBDevice(object):
     def shutdown(self):
         """Shutdown device.
 
-        This method is a combination of `data_stop` and `close`.
-        This is a preferred way of shutting down a device.
+        This method is a combination of `data_stop` and `close`. This is a preferred way
+        of shutting down a device.
         """
         self.data_stop()
         self.close()
@@ -148,9 +146,8 @@ class USBDevice(object):
     def data_stop(self):
         """Stop data transmission.
 
-        This method stops the data transmission only.
-        Note that this method does not destroy the respective
-        device `handle`.
+        This method stops the data transmission only. Note that this method does not
+        destroy the respective device `handle`.
         """
         libcaer.caerDeviceDataStop(self.handle)
 
@@ -587,8 +584,8 @@ class USBDevice(object):
 class SerialDevice(object):
     """Base class for serial devices.
 
-    The base class for devices that use the serial port.
-    eDVS is the only current supported device in this family.
+    The base class for devices that use the serial port. eDVS is the only current
+    supported device in this family.
     """
 
     def __init__(self):
@@ -615,9 +612,8 @@ class SerialDevice(object):
     def get_event(self):
         """Get Event.
 
-        This abstract method should be implemented in all derived classes.
-        This method returns a packet of events according to the type of
-        the sensor.
+        This abstract method should be implemented in all derived classes. This method
+        returns a packet of events according to the type of the sensor.
         """
         return
 
@@ -661,8 +657,7 @@ class SerialDevice(object):
     def close(self):
         """Close USB device.
 
-        This method closes an opened USB device if the respective
-        handle is not None.
+        This method closes an opened USB device if the respective handle is not None.
         """
         if self.handle is not None:
             libcaer.caerDeviceClose(self.handle)
@@ -670,8 +665,8 @@ class SerialDevice(object):
     def shutdown(self):
         """Shutdown device.
 
-        This method is a combination of `data_stop` and `close`.
-        This is a preferred way of shutting down a device.
+        This method is a combination of `data_stop` and `close`. This is a preferred way
+        of shutting down a device.
         """
         self.data_stop()
         self.close()
@@ -696,9 +691,8 @@ class SerialDevice(object):
     def data_stop(self):
         """Stop data transmission.
 
-        This method stops the data transmission only.
-        Note that this method does not destroy the respective
-        device `handle`.
+        This method stops the data transmission only. Note that this method does not
+        destroy the respective device `handle`.
         """
         libcaer.caerDeviceDataStop(self.handle)
 

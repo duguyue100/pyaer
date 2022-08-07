@@ -3,18 +3,18 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
-import os
-from collections import OrderedDict
-import json
-import yaml
-import time
 import importlib.util as imutil
+import json
+import os
+import time
+from collections import OrderedDict
+
 import numpy as np
+import yaml
 
 import pyaer
-from pyaer import log
 from pyaer import libcaer
+from pyaer import log
 
 logger = log.get_logger("utils", pyaer.LOG_LEVEL)
 

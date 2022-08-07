@@ -3,12 +3,14 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import
+from __future__ import print_function
+
 import os
 
 from pyaer import log
-from pyaer.__about__ import __version__
-from pyaer.__about__ import __author__
+from pyaer.__about__ import __author__  # noqa
+from pyaer.__about__ import __version__  # noqa
 
 FILE_PATH = os.path.realpath(__file__)
 CURR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -18,7 +20,7 @@ PKG_PATH = os.path.dirname(CURR_PATH)
 LOG_LEVEL = log.DEBUG
 
 try:
-    from pyaer import libcaer_wrap as libcaer
+    from pyaer import libcaer_wrap as libcaer  # noqa
 except ImportError:
     raise ImportError(
         "libcaer might not be in the LD_LIBRARY_PATH "
