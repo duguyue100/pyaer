@@ -60,6 +60,22 @@ class DVS128(USBDevice):
         else:
             self.noise_filter = None
 
+        # Bias configuration list
+        self.configs_list = [
+            ("cas", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_CAS),
+            ("injGnd", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_INJGND),
+            ("reqPd", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQPD),
+            ("puX", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUX),
+            ("diffOff", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFFOFF),
+            ("req", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQ),
+            ("refr", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REFR),
+            ("puY", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUY),
+            ("diffOn", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFFON),
+            ("diff", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFF),
+            ("foll", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_FOLL),
+            ("Pr", libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PR),
+        ]
+
     def set_noise_filter(self, noise_filter):
         """Set noise filter.
 
@@ -185,56 +201,9 @@ class DVS128(USBDevice):
             flag: `bool`<br/>
                 True if set successful, False otherwise.
         """
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_CAS, bias_obj["cas"]
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_INJGND,
-            bias_obj["injGnd"],
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_REQPD,
-            bias_obj["reqPd"],
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUX, bias_obj["puX"]
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_DIFFOFF,
-            bias_obj["diffOff"],
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQ, bias_obj["req"]
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_REFR,
-            bias_obj["refr"],
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUY, bias_obj["puY"]
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_DIFFON,
-            bias_obj["diffOn"],
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_DIFF,
-            bias_obj["diff"],
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS,
-            libcaer.DVS128_CONFIG_BIAS_FOLL,
-            bias_obj["foll"],
-        )
-        self.set_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PR, bias_obj["Pr"]
-        )
+        for bias_name, module_address, parameter_address in self.configs_list:
+            self.set_config(module_address, parameter_address, bias_obj[bias_name])
+
         # setting for noise filter
         if self.filter_noise is True:
             self.noise_filter.set_bias(bias_obj["noise_filter_configs"])
@@ -247,42 +216,9 @@ class DVS128(USBDevice):
                 dictionary that contains DVS128 current bias settings.
         """
         bias_obj = {}
-        bias_obj["cas"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_CAS
-        )
-        bias_obj["injGnd"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_INJGND
-        )
-        bias_obj["reqPd"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQPD
-        )
-        bias_obj["puX"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUX
-        )
-        bias_obj["diffOff"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFFOFF
-        )
-        bias_obj["req"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REQ
-        )
-        bias_obj["refr"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_REFR
-        )
-        bias_obj["puY"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PUY
-        )
-        bias_obj["diffOn"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFFON
-        )
-        bias_obj["diff"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_DIFF
-        )
-        bias_obj["foll"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_FOLL
-        )
-        bias_obj["Pr"] = self.get_config(
-            libcaer.DVS128_CONFIG_BIAS, libcaer.DVS128_CONFIG_BIAS_PR
-        )
+
+        for bias_name, module_address, parameter_address in self.configs_list:
+            bias_obj[bias_name] = self.get_config(module_address, parameter_address)
 
         # get noise filter configs
         if self.noise_filter is not None:
