@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
 
     steps:
       - uses: actions/checkout@v2
@@ -48,7 +48,7 @@ jobs:
           sudo make install
           cd ..
           pip install pip -U
-          pip install numpy>=1.22.0
+          pip install numpy
           pip install wheel
       - name: Build PyAER
         run: |
