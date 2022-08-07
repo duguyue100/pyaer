@@ -4,7 +4,6 @@
 # Author: Yuhuang Hu
 # Email : duguyue100@gmail.com
 
-HOST = 127.0.0.1
 PYTHONPATH="$(shell printenv PYTHONPATH):$(PWD)"
 PYTHONLIBPATH="$(shell python -c 'from sysconfig import get_paths; print(get_paths()["stdlib"]+"/..")')"
 PYTHONLIBPATHWIN="$(shell python -c 'from sysconfig import get_paths; print(get_paths()["stdlib"]+"\..")')"
@@ -13,11 +12,6 @@ clean:
 	find . -name '*.pyc' -exec rm --force {} +
 	find . -name '*.pyo' -exec rm --force {} +
 	find . -name '*~' -exec rm --force  {} +
-
-run:
-
-test:
-	PYTHONPATH=$(PYTHONPATH) python
 
 dvs128-test:
 	python ./scripts/dvs128_test.py

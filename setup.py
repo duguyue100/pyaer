@@ -87,5 +87,5 @@ setup(
         "scripts/aer_comm/aer_saver",
     ],
     classifiers=list(filter(None, classifiers.split("\n"))),
-    description="PyAER: Low-level Python APIs for " "Accessing Neuromorphic Devices.",
+    description="PyAER: Low-level Python APIs for Accessing Neuromorphic Devices.",
 )
