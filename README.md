@@ -21,21 +21,31 @@
 ![DVX](https://img.shields.io/badge/DEVICE-DVXplorer-blueviolet.svg)
 ![EVK](https://img.shields.io/badge/DEVICE-Samsung%20EVK-blueviolet.svg)
 
+__WARNING__: This repository is under major refactor. There is no specific timeline.
+You are advised to build from scratch from the master branch.
+
 Special thanks to [iniVation](https://inivation.com/) for making this possible!
 
-The project is in its Beta development stage, please submit an [issue](https://github.com/duguyue100/pyaer/issues) if you encountered a problem.
+The project is in its Beta development stage, please submit an
+[issue](https://github.com/duguyue100/pyaer/issues) if you encountered a problem.
 
-__NEWS__ As from 0.2.5, we switched CI/CD from Travis CI to Github Actions because the building on travis-ci.org is ceased. We are looking for solutions to produce ARM64 build.
+__NEWS__ As from 0.2.5, we switched CI/CD from Travis CI to Github Actions because the
+building on travis-ci.org is ceased. We are looking for solutions to produce ARM64 build.
 
 ## Why PyAER?
 
-iniVation has released [DV](https://gitlab.com/inivation/dv), a new platform and an SDK for accessing and developing with event cameras.
+iniVation has released [DV](https://gitlab.com/inivation/dv), a new platform and an SDK 
+for accessing and developing with event cameras.
 
-For robotics projects, you may find [rpg_dvs_ros](https://github.com/uzh-rpg/rpg_dvs_ros) when you use ROS.
+For robotics projects, you may find [rpg_dvs_ros](https://github.com/uzh-rpg/rpg_dvs_ros)
+when you use ROS.
 
 So the natural question is: why PyAER?
 
-In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight "ROS". PyAER serves as an agile package that focus on fast development and extensibility. In fact, in some scenario, e.g., edge devices, PyAER is more user friendly than other alternatives.
+In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight "ROS".
+PyAER serves as an agile package that focus on fast development and extensibility.
+In fact, in some scenario, e.g., edge devices, PyAER is more user friendly than other
+alternatives.
 
 ### Design Principle
 
@@ -75,7 +85,8 @@ In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight
     $ pip install h5py
     ```
 
-    __NOTE:__ `pyzmq` is not available on ARM-based computer, you will need to build yourself.
+    __NOTE:__ `pyzmq` is not available on ARM-based computer, you will need to build 
+    yourself.
 
 ### Development
 
