@@ -14,40 +14,34 @@ from pyaer.filters import DVSNoise
 class eDVS(SerialDevice):
     """eDVS.
 
-    # Arguments
-        device_id: `int`<br/>
-            a unique ID to identify the device from others.
-            Will be used as the source for EventPackets being
-            generate from its data.<br/>
-            `default is 1`.
-        serial_port_name: `str`<br/>
-            name of the serial port device to open.<br/>
-            `default is /dev/ttyUSB0`
-        serial_baud_rate: `uint32_t`
-            baud-rate for serial port communication.<br/>
-            `default is 12M`
+    # Args:
+        device_id: A unique ID to identify the device from others. Will be used as the
+            source for EventPackets being generate from its data. Default is 1.
+        serial_port_name: name of the serial port device to open. Default is
+            "/dev/ttyUSB0".
+        serial_baud_rate: Baud-rate for serial port communication. Default is 12M
+        noise_filter: If True, software noise filter will be enabled.
     """
 
     def __init__(
         self,
-        device_id=1,
-        serial_port_name="/dev/ttyUSB0",
-        serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
-        noise_filter=False,
-    ):
+        device_id: int = 1,
+        serial_port_name: str = "/dev/ttyUSB0",
+        serial_baud_rate: int = libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
+        noise_filter: bool = False,
+    ) -> None:
         """eDVS."""
         super(eDVS, self).__init__()
-        # open device
+        # Opens device
         self.open(device_id, serial_port_name, serial_baud_rate)
-        # get camera information
+        # Gets camera information
         self.obtain_device_info(self.handle)
 
-        # noise filter
+        # Sets noise filter
         self.filter_noise = noise_filter
-        if noise_filter is True:
-            self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
-        else:
-            self.noise_filter = None
+        self.noise_filter = (
+            DVSNoise(self.dvs_size_X, self.dvs_size_Y) if noise_filter else None
+        )
 
         self.configs_list = [
             ("cas", libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_CAS),
@@ -64,39 +58,7 @@ class eDVS(SerialDevice):
             ("Pr", libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PR),
         ]
 
-    def set_noise_filter(self, noise_filter):
-        """Set noise filter.
-
-        # Arguments
-            noise_filter: `filters.DVSNoise`<br/>
-                A valid `DVSNoise` object. This filter implements
-                software-level background activity filter.
-        """
-        if noise_filter is not None:
-            self.noise_filter = noise_filter
-
-    def enable_noise_filter(self):
-        """Enalbe DVS noise filter.
-
-        This function enables the DVS noise filter. Note that this function will
-        initialize a `DVSNoise` filter if there is None.
-        """
-        if self.filter_noise is False:
-            self.filter_noise = True
-
-        if self.noise_filter is None:
-            self.noise_filter = DVSNoise(self.dvs_size_X, self.dvs_size_Y)
-
-    def disable_noise_filter(self):
-        """Disable noise filter.
-
-        This method disable the noise filter. Note that this function doesn't destroy
-        the existed noise filter. It simply switches off the function.
-        """
-        if self.filter_noise is True:
-            self.filter_noise = False
-
-    def obtain_device_info(self, handle):
+    def obtain_device_info(self, handle) -> None:
         """Obtain eDVS info.
 
         This function collects the following information from the device:
@@ -126,13 +88,13 @@ class eDVS(SerialDevice):
 
     def open(
         self,
-        device_id=1,
-        serial_port_name="/dev/ttyUSB0",
-        serial_baud_rate=libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
-    ):
+        device_id: int = 1,
+        serial_port_name: str = "/dev/ttyUSB0",
+        serial_baud_rate: int = libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
+    ) -> None:
         """Open device.
 
-        # Arguments
+        # Args:
             device_id: `int`<br/>
                 a unique ID to identify the device from others.
                 Will be used as the source for EventPackets being

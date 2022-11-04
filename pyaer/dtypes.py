@@ -1,0 +1,2 @@
+EventType = int
+DeviceType = int
