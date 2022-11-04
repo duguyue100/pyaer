@@ -168,123 +168,6 @@ def write_json(file_path, json_obj):
         return False
 
 
-def load_dvs_bias(file_path, verbose=False):
-    """Load bias for DVS128.
-
-    # Arguments
-        file_path : `str`<br/>`
-            the absolute path to the JSON string.
-
-    # Returns
-        bias_obj: `dict`<br/>
-            A dictionary that contains valid DVS128 bias.
-    """
-    bias_obj = load_json(file_path)
-
-    if bias_obj is not None:
-        if verbose:
-            for key, value in bias_obj.iteritems():
-                logger.debug("%s: %d" % (key, value))
-        # TODO: to check validity of the bias file
-        return bias_obj
-    else:
-        return None
-
-
-def load_davis_bias(file_path, verbose=False):
-    """Load DAVIS bias.
-
-    TODO: to investigate bias differences between 240C and 346.
-
-    # Arguments
-        file_path : `str`<br/>`
-            the absolute path to the JSON string.
-
-    # Returns
-        bias_obj: `dict`<br/>
-            A dictionary that contains valid DAVIS bias.
-    """
-    bias_obj = load_json(file_path)
-
-    if bias_obj is not None:
-        if verbose:
-            for key, value in bias_obj.iteritems():
-                logger.debug("%s: %d" % (key, value))
-        # TODO: to check validity of the bias file
-        return bias_obj
-    else:
-        return None
-
-
-def load_dvxplorer_bias(file_path, verbose=False):
-    """Load DVXPLORER bias.
-
-    # Arguments
-        file_path : `str`<br/>`
-            the absolute path to the JSON string.
-
-    # Returns
-        bias_obj: `dict`<br/>
-            A dictionary that contains valid DVXPLORER bias.
-    """
-    bias_obj = load_json(file_path)
-
-    if bias_obj is not None:
-        if verbose:
-            for key, value in bias_obj.iteritems():
-                logger.debug("%s: %d" % (key, value))
-        # TODO: to check validity of the bias file
-        return bias_obj
-    else:
-        return None
-
-
-def load_evk_bias(file_path, verbose=False):
-    """Load EVK bias.
-
-    # Arguments
-        file_path : `str`<br/>`
-            the absolute path to the JSON string.
-
-    # Returns
-        bias_obj: `dict`<br/>
-            A dictionary that contains valid EVK bias.
-    """
-    bias_obj = load_json(file_path)
-
-    if bias_obj is not None:
-        if verbose:
-            for key, value in bias_obj.iteritems():
-                logger.debug("%s: %d" % (key, value))
-        # TODO: to check validity of the bias file
-        return bias_obj
-    else:
-        return None
-
-
-def load_dynapse_bias(file_path, verbose=False):
-    """Load DYNAPSE bias.
-
-    # Arguments
-        file_path: `str`<br/>`
-            the absolute path to the JSON string.
-
-    # Returns
-        bias_obj: `dict`<br/>
-            A dictionary that contains valid DYNAPSE bias.
-    """
-    bias_obj = load_json(file_path)
-
-    if bias_obj is not None:
-        if verbose:
-            for key, value in bias_obj.iteritems():
-                logger.debug("%s: %d" % (key, value))
-        # TODO: to check validity of the bias file
-        return bias_obj
-    else:
-        return None
-
-
 def discover_devices(device_type, max_devices=100):
     """Automatic discover devices.
 
@@ -314,7 +197,7 @@ def discover_devices(device_type, max_devices=100):
         num_devices: `int`<br/>
             number of available devices
     """
-    discovered_devices = libcaer.device_discover(device_type, (max_devices + 1) * 3)
+    discovered_devices = libcaer.device_discover(device_type)
 
     discovered_devices = discovered_devices.reshape((max_devices + 1), 3)
     num_devices = np.argwhere(discovered_devices == 42)[0][0]

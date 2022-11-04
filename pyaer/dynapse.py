@@ -159,7 +159,6 @@ class DYNAPSE(USBDevice):
         clear_sram=False,
         setup_sram=False,
         scope="all",
-        verbose=False,
     ):
         """Set bias from loading JSON configuration file.
 
@@ -189,7 +188,7 @@ class DYNAPSE(USBDevice):
                     }
                 ```
         """
-        bias_obj = utils.load_dynapse_bias(file_path, verbose)
+        bias_obj = utils.load_json(file_path)
         self.set_bias(
             bias_obj,
             fpga_bias=fpga_bias,

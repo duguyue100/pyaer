@@ -3,10 +3,12 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+from typing import Any
+from typing import Tuple
+
 import numpy as np
 
 from pyaer import libcaer
-from pyaer import utils
 from pyaer.device import SerialDevice
 from pyaer.filters import DVSNoise
 
@@ -20,7 +22,7 @@ class eDVS(SerialDevice):
         serial_port_name: name of the serial port device to open. Default is
             "/dev/ttyUSB0".
         serial_baud_rate: Baud-rate for serial port communication. Default is 12M
-        noise_filter: If True, software noise filter will be enabled.
+        filter_noise: If True, software noise filter will be enabled.
     """
 
     def __init__(
@@ -28,19 +30,20 @@ class eDVS(SerialDevice):
         device_id: int = 1,
         serial_port_name: str = "/dev/ttyUSB0",
         serial_baud_rate: int = libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
-        noise_filter: bool = False,
+        filter_noise: bool = False,
     ) -> None:
-        """eDVS."""
-        super(eDVS, self).__init__()
+        super().__init__()
         # Opens device
-        self.open(device_id, serial_port_name, serial_baud_rate)
+        self.open(
+            libcaer.CAER_DEVICE_EDVS, device_id, serial_port_name, serial_baud_rate
+        )
         # Gets camera information
         self.obtain_device_info(self.handle)
 
         # Sets noise filter
-        self.filter_noise = noise_filter
+        self.filter_noise = filter_noise
         self.noise_filter = (
-            DVSNoise(self.dvs_size_X, self.dvs_size_Y) if noise_filter else None
+            DVSNoise(self.dvs_size_X, self.dvs_size_Y) if self.filter_noise else None
         )
 
         self.configs_list = [
@@ -58,7 +61,7 @@ class eDVS(SerialDevice):
             ("Pr", libcaer.EDVS_CONFIG_BIAS, libcaer.EDVS_CONFIG_BIAS_PR),
         ]
 
-    def obtain_device_info(self, handle) -> None:
+    def obtain_device_info(self, handle: Any) -> None:
         """Obtain eDVS info.
 
         This function collects the following information from the device:
@@ -69,9 +72,8 @@ class eDVS(SerialDevice):
         - Camera width
         - Camera height
 
-        # Arguments
-            handle: `caerDeviceHandle`<br/>
-                a valid device handle that can be used with the other
+        # Args:
+            handle: a valid device handle that can be used with the other
                 `libcaer` functions, or `None` on error.
         """
         if handle is not None:
@@ -86,193 +88,44 @@ class eDVS(SerialDevice):
             self.serial_port_name = info.serialPortName
             self.serial_baud_rate = info.serialBaudRate
 
-    def open(
-        self,
-        device_id: int = 1,
-        serial_port_name: str = "/dev/ttyUSB0",
-        serial_baud_rate: int = libcaer.CAER_HOST_CONFIG_SERIAL_BAUD_RATE_12M,
-    ) -> None:
-        """Open device.
-
-        # Args:
-            device_id: `int`<br/>
-                a unique ID to identify the device from others.
-                Will be used as the source for EventPackets being
-                generate from its data.<br/>
-                `default is 1`.
-            serial_port_name: `str`<br/>
-                name of the serial port device to open.<br/>
-                `default is /dev/ttyUSB0`
-            serial_baud_rate: `uint32_t`
-                baud-rate for serial port communication.<br/>
-                `default is 12M`
-        """
-        super(eDVS, self).open(
-            libcaer.CAER_DEVICE_EDVS, device_id, serial_port_name, serial_baud_rate
-        )
-
-    def set_bias_from_json(self, file_path, verbose=False):
-        """Set bias from loading JSON configuration file.
-
-        # Arguments
-            file_path: `str`<br/>
-                absolute path of the JSON bias file.
-            verbose: `bool`<br/>
-                optional debugging message.
-        """
-        bias_obj = utils.load_dvs_bias(file_path, verbose)
-        self.set_bias(bias_obj)
-
-    def set_bias(self, bias_obj):
-        """Set bias from bias dictionary.
-
-        # Arguments
-            bias_obj: `dict`<br/>
-                dictionary that contains eDVS biases.
-
-        # Returns
-            flag: `bool`<br/>
-                True if set successful, False otherwise.
-        """
-        for bias_name, module_address, parameter_address in self.configs_list:
-            self.set_config(module_address, parameter_address, bias_obj[bias_name])
-
-    def get_bias(self):
-        """Get bias settings.
-
-        # Returns
-            bias_obj: `dict`<br/>
-                dictionary that contains eDVS current bias settings.
-        """
-        bias_obj = {}
-
-        for bias_name, module_address, parameter_address in self.configs_list:
-            bias_obj[bias_name] = self.get_config(module_address, parameter_address)
-
-        return bias_obj
-
-    def save_bias_to_json(self, file_path):
-        """Save bias to JSON.
-
-        # Arguments
-            file_path: `str`<br/>
-                the absolute path to the destiation.
-
-        # Returns
-            flag: `bool`<br/>
-                returns True if success in writing, False otherwise.
-        """
-        bias_obj = self.get_bias()
-        return utils.write_json(file_path, bias_obj)
-
-    def start_data_stream(self):
-        """Start streaming data.
-
-        # Arguments
-            send_default_config: `bool`<br/>
-                send default config to the device before starting
-                the data streaming.<br/>
-                `default is True`
-        """
-        self.data_start()
-        self.set_data_exchange_blocking()
-
-    def get_polarity_event(self, packet_header, noise_filter=False):
-        """Get a packet of polarity event.
-
-        # Arguments
-            packet_header: `caerEventPacketHeader`<br/>
-                the header that represents a event packet
-            noise_filter: `bool`<br/>
-                the background activity filter is applied if True.
-
-        # Returns
-            events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 4) where N
-                is the number of events in the event packet.
-                Each row in the array represents a single polarity event.
-                The first number is the timestamp.
-                The second number is the X position of the event.
-                The third number is the Y position of the event.
-                The fourth number represents the polarity of the event
-                (positive or negative).<br/>
-                If the `noise_filter` option is set to `True`,
-                this array has an additional column at the end.
-                The last column represents the validity of the corresponding
-                event. Filtered events will be marked as 0.
-            num_events: `int`<br/>
-                number of the polarity events available in the packet.
-        """
-        num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT
-        )
-
-        if noise_filter is True:
-            polarity = self.noise_filter.apply(polarity)
-
-            events = libcaer.get_filtered_polarity_event(
-                polarity, num_events * 5
-            ).reshape(num_events, 5)
-        else:
-            events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
-                num_events, 4
-            )
-
-        return events, num_events
-
     def get_event(self):
         """Get event.
 
         # Returns
-            pol_events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 4) where N
-                is the number of events in the event packet.
-                Each row in the array represents a single polarity event.
-                The first number is the timestamp.
-                The second number is the X position of the event.
-                The third number is the Y position of the event.
-                The fourth number represents the polarity of the event
-                (positive or negative).<br/>
-                If the `noise_filter` option is set to `True`,
-                this array has an additional column at the end.
-                The last column represents the validity of the corresponding
-                event. Filtered events will be marked as 0.
-            num_pol_events: `int`<br/>
-                number of the polarity events available in the packet.
-            special_events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 2) where N
-                is the number of events in the event packet.
-                Each row in the array represents a single special event.
-                The first value is the timestamp of the event.
+            pol_events: a 2-D array of shape (N, 4) where N is the number of events in
+                the event packet. Each row in the array represents a single polarity
+                event. The first number is the timestamp. The second number is the X
+                position of the event. The third number is the Y position of the event.
+                The fourth number represents the polarity of the event (positive or
+                negative). If the `noise_filter` option is set to `True`, this array
+                has an additional column at the end. The last column represents the
+                validity of the corresponding event. Filtered events are marked as 0.
+            num_pol_events: number of the polarity events available in the packet.
+            special_events: a 2-D array that has the shape of (N, 2) where N is the
+                number of events in the event packet. Each row in the array represents
+                a single special event. The first value is the timestamp of the event.
                 The second value is the special event data.
-            num_special_events: `int`<br/>
-                number of the special events in the packet.
+            num_special_events: number of the special events in the packet.
         """
         packet_container, packet_number = self.get_packet_container()
-        if packet_container is not None:
+        if packet_container is not None and packet_number is not None:
             num_pol_event = 0
             num_special_event = 0
-            pol_events = None
-            special_events = None
+            pol_events = np.zeros(
+                (0, 4) if self.filter_noise else (0, 5), dtype=np.uint64
+            )
+            special_events = np.zeros((0, 2), dtype=np.uint64)
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
                     packet_container, packet_id
                 )
                 if packet_type == libcaer.POLARITY_EVENT:
                     events, num_events = self.get_polarity_event(packet_header)
-                    pol_events = (
-                        np.hstack((pol_events, events))
-                        if pol_events is not None
-                        else events
-                    )
+                    pol_events = np.hstack((pol_events, events))
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
                     events, num_events = self.get_special_event(packet_header)
-                    special_events = (
-                        np.hstack((special_events, events))
-                        if special_events is not None
-                        else events
-                    )
+                    special_events = np.hstack((special_events, events))
                     num_special_event += num_events
             libcaer.caerEventPacketContainerFree(packet_container)
 

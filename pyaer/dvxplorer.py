@@ -3,6 +3,9 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+import Tuple
+import Optional
+
 import numpy as np
 
 from pyaer import libcaer
@@ -49,7 +52,13 @@ class DVXPLORER(USBDevice):
         """DVXPLORER."""
         super(DVXPLORER, self).__init__()
         # open device
-        self.open(device_id, bus_number_restrict, dev_address_restrict, serial_number)
+        self.open(
+            libcaer.CAER_DEVICE_DVXPLORER,
+            device_id,
+            bus_number_restrict,
+            dev_address_restrict,
+            serial_number,
+        )
         # get camera information
         self.obtain_device_info(self.handle)
 
@@ -144,55 +153,6 @@ class DVXPLORER(USBDevice):
         self.dvs_has_statistics = info.dvsHasStatistics
         self.imu_type = info.imuType
         self.ext_input_has_generator = info.extInputHasGenerator
-
-    def open(
-        self,
-        device_id=1,
-        bus_number_restrict=0,
-        dev_address_restrict=0,
-        serial_number="",
-    ):
-        """Open DVXPLORER device.
-
-        # Arguments
-            device_id: `int`<br/>
-                a unique ID to identify the device from others.
-                Will be used as the source for EventPackets being
-                generate from its data.<br/>
-                `default is 1`
-            bus_number_restrict: `int`<br/>
-                restrict the search for viable devices to only this USB
-                bus number.<br/>
-                `default is 0`
-            dev_address_restrict: `int`<br/>
-                restrict the search for viable devices to only this USB
-                device address.<br/>
-                `default is 0`
-            serial_number: `str`<br/>
-                restrict the search for viable devices to only devices which do
-                possess the given Serial Number in their USB
-                SerialNumber descriptor.<br/>
-                `default is ""`
-        """
-        super(DVXPLORER, self).open(
-            libcaer.CAER_DEVICE_DVXPLORER,
-            device_id,
-            bus_number_restrict,
-            dev_address_restrict,
-            serial_number,
-        )
-
-    def set_bias_from_json(self, file_path, verbose=False):
-        """Set bias from loading JSON configuration file.
-
-        # Arguments
-            file_path: `str`<br/>
-                absolute path of the JSON bias file.
-            verbose: `bool`<br/>
-                optional debugging message.
-        """
-        bias_obj = utils.load_dvxplorer_bias(file_path, verbose)
-        self.set_bias(bias_obj)
 
     def setup_configs_list(
         self, ext_input_has_generator, use_bias_simple, bias_simple_key="default"
@@ -411,97 +371,9 @@ class DVXPLORER(USBDevice):
 
         return bias_obj
 
-    def save_bias_to_json(self, file_path):
-        """Save bias to JSON.
-
-        # Arguments
-            file_path: `str`<br/>
-                the absolute path to the destiation.
-
-        # Returns
-            flag: `bool`<br/>
-                returns True if success in writing, False otherwise.
-        """
-        bias_obj = self.get_bias()
-        return utils.write_json(file_path, bias_obj)
-
-    def start_data_stream(
-        self, send_default_config=True, max_packet_size=None, max_packet_interval=None
-    ):
-        """Start streaming data.
-
-        # Arguments
-            send_default_config: `bool`<br/>
-                send default config to the device before starting
-                the data streaming.<br/>
-                `default is True`
-            max_packet_size: `int`<br/>
-                set the maximum number of events any of a packet container's
-                packets may hold before it's made available to the user.
-                Set to zero to disable.<br/>
-                The default is `None` (use default setting: 0).
-            max_packet_interval: `int`<br/>
-                set the time interval between subsequent packet containers.
-                Must be at least 1 microsecond.
-                The value is in microseconds, and is checked across all
-                types of events contained in the EventPacketContainer.<br/>
-                The default is `None` (use default setting: 10ms)
-        """
-        if send_default_config is True:
-            self.send_default_config()
-
-        if max_packet_size is not None:
-            self.set_max_container_packet_size(max_packet_size)
-        if max_packet_interval is not None:
-            self.set_max_container_interval(max_packet_interval)
-
-        self.data_start()
-        self.set_data_exchange_blocking()
-
-    def get_polarity_event(self, packet_header, noise_filter=False):
-        """Get a packet of polarity event.
-
-        # Arguments
-            packet_header: `caerEventPacketHeader`<br/>
-                the header that represents a event packet
-            noise_filter: `bool`<br/>
-                the background activity filter is applied if True.
-
-        # Returns
-            events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 4) where N
-                is the number of events in the event packet.
-                Each row in the array represents a single polarity event.
-                The first number is the timestamp.
-                The second number is the X position of the event.
-                The third number is the Y position of the event.
-                The fourth number represents the polarity of the event
-                (positive or negative).<br/>
-                If the `noise_filter` option is set to `True`,
-                this array has an additional column at the end.
-                The last column represents the validity of the corresponding
-                event. Filtered events will be marked as 0.
-            num_events: `int`<br/>
-                number of the polarity events available in the packet.
-        """
-        num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT
-        )
-
-        if noise_filter is True:
-            polarity = self.noise_filter.apply(polarity)
-
-            events = libcaer.get_filtered_polarity_event(
-                polarity, num_events * 5
-            ).reshape(num_events, 5)
-        else:
-            events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
-                num_events, 4
-            )
-
-        return events, num_events
-
-    def get_event(self, mode="events"):
+    def get_event(
+        self, mode: str = "events"
+    ) -> Optional[Tuple[np.ndarray, int, np.ndarray, int, np.ndarray, int]]:
         """Get Event.
 
         # Returns
@@ -541,53 +413,34 @@ class DVXPLORER(USBDevice):
                 number of the IMU6 events.
         """
         packet_container, packet_number = self.get_packet_container()
-        if packet_container is not None:
+        if packet_container is not None and packet_number is not None:
             num_pol_event = 0
             num_special_event = 0
             num_imu_event = 0
-            pol_events = None
-            special_events = None
-            imu_events = None
+            pol_events = np.zeros((0, int(4 + self.filter_noise)), dtype=np.uint64)
+            special_events = np.zeros((0, 2), dtype=np.uint64)
+            imu_events = np.zeros((0, 8), dtype=np.float32)
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(
                     packet_container, packet_id
                 )
                 if packet_type == libcaer.POLARITY_EVENT:
                     if mode == "events":
-                        events, num_events = self.get_polarity_event(
-                            packet_header, self.filter_noise
-                        )
-                        pol_events = (
-                            np.hstack((pol_events, events))
-                            if pol_events is not None
-                            else events
-                        )
+                        events, num_events = self.get_polarity_event(packet_header)
+                        pol_events = np.hstack((pol_events, events))
                     elif mode == "events_hist":
                         hist, num_events = self.get_polarity_hist(
-                            packet_header, device_type=self.chip_id
-                        )
-                        pol_events = hist if pol_events is None else pol_events + hist
-                    elif mode == "counter_neuron":
-                        hist, num_events = self.get_counter_neuron_event(
                             packet_header, device_type=self.chip_id
                         )
                         pol_events = hist if pol_events is None else pol_events + hist
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:
                     events, num_events = self.get_special_event(packet_header)
-                    special_events = (
-                        np.hstack((special_events, events))
-                        if special_events is not None
-                        else events
-                    )
+                    special_events = np.hstack((special_events, events))
                     num_special_event += num_events
                 elif packet_type == libcaer.IMU6_EVENT:
                     events, num_events = self.get_imu6_event(packet_header)
-                    imu_events = (
-                        np.hstack((imu_events, events))
-                        if imu_events is not None
-                        else events
-                    )
+                    imu_events = np.hstack((imu_events, events))
                     num_imu_event += num_events
 
             libcaer.caerEventPacketContainerFree(packet_container)

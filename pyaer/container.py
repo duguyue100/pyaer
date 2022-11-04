@@ -1,8 +1,7 @@
 """Event Container.
 
-Motivation: After the events are read from the event packet,
-it's difficult to use and less informative to return them
-as single variables, therefore, I decide to introduce a
+Motivation: After the events are read from the event packet, it's difficult to use and
+less informative to return them as single variables, therefore, I decide to introduce a
 container that can manage all the returned Python variables.
 
 Author: Yuhuang Hu
@@ -14,7 +13,7 @@ from typing import Optional
 import numpy as np
 
 
-class EventContainer(object):
+class EventContainer:
     """Event container that packs everything.
 
     Args:

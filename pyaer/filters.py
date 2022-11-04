@@ -8,9 +8,10 @@ from typing import Dict
 
 from pyaer import libcaer
 from pyaer import utils
+from pyaer.dtypes import BiasObjectType
 
 
-class DVSNoise(object):
+class DVSNoise:
     """Software DVS background activity filter.
 
     # Args:
@@ -42,17 +43,17 @@ class DVSNoise(object):
         """Destroys DVS noise filter to free up memory."""
         libcaer.caerFilterDVSNoiseDestroy(self.handle)
 
-    def set_bias_from_json(self, file_path: str, verbose: bool = False) -> None:
+    def set_bias_from_json(self, file_path: str) -> None:
         """Sets bias from loading JSON configuration file.
 
         # Args:
             file_path: absolute path of the JSON bias file.
             verbose: print verbosely if True.
         """
-        bias_obj = utils.load_dvs_bias(file_path, verbose)
+        bias_obj = utils.load_json(file_path)
         self.set_bias(bias_obj)
 
-    def set_bias(self, bias_obj: Dict[str, Any]) -> None:
+    def set_bias(self, bias_obj: BiasObjectType) -> None:
         """Configures filter.
 
         # Args:
@@ -107,7 +108,7 @@ class DVSNoise(object):
             #      libcaer.CAER_FILTER_DVS_HOTPIXEL_COUNT,
             #      bias_obj["sw_hotpixel_count"])
 
-    def get_bias(self) -> Dict[str, Any]:
+    def get_bias(self) -> BiasObjectType:
         """Exports configuration.
 
         # Returns:

@@ -176,18 +176,6 @@ class EVK(USBDevice):
             serial_number,
         )
 
-    def set_bias_from_json(self, file_path, verbose=False):
-        """Set bias from loading JSON configuration file.
-
-        # Arguments
-            file_path: `str`<br/>
-                absolute path of the JSON bias file.
-            verbose: `bool`<br/>
-                optional debugging message.
-        """
-        bias_obj = utils.load_evk_bias(file_path, verbose)
-        self.set_bias(bias_obj)
-
     def setup_configs_list(self, use_bias_simple, bias_simple_key="default"):
         return [
             (

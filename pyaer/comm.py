@@ -11,8 +11,13 @@ central scheduling, a group of publishers for sending data, and
 a group of subscribers to get/process data.
 
 Author: Yuhuang Hu
-Email : yuhuang.hu@ini.uzh.ch
+Email : duguyue100@gmail.com
 """
+import typing
+from typing import Any
+from typing import List
+from typing import Union
+from typing import Optional
 import json
 import signal
 import subprocess
@@ -31,20 +36,22 @@ except Exception:
     pass
 
 from pyaer import log
+from pyaer.device import Device
 from pyaer.utils import get_nanotime
 
 
-def encode_topic_name(topic_names, to_byte=True):
-    """Create topic name.
+def encode_topic_name(
+    topic_names: List[str], to_byte: bool = True
+) -> Union[bytes, str]:
+    """Creates topic name.
 
     Mainly used for creating a topic name for publisher.
 
-    # Arguments
-        topic_names: list
-            a list of strings
+    # Args
+        topic_names: a list of strings
+
     # Returns
-        topic_name: byte string
-            the topic name separated by "/"
+        topic_name: the topic name separated by "/"
     """
     topic_name = "/".join(topic_names)
     if to_byte is True:
@@ -53,12 +60,11 @@ def encode_topic_name(topic_names, to_byte=True):
         return topic_name
 
 
-def decode_topic_names(topic_name):
-    """Separate topic names.
+def decode_topic_names(topic_name: bytes) -> List[str]:
+    """Separates topic names.
 
     # Arguments
-        topic_name: byte string
-            subscribed topic name
+        topic_name: subscribed topic name
 
     # Returns
         topic_names: list
@@ -69,7 +75,7 @@ def decode_topic_names(topic_name):
     return tmp_topic_name.split("/")
 
 
-def create_timestamp_group_name(topic_name, timestamp):
+def create_timestamp_group_name(topic_name: bytes, timestamp: bytes) -> str:
     """Create timestamp group name.
 
     This is a preferred way to create timestamped group name
@@ -94,24 +100,27 @@ def create_timestamp_group_name(topic_name, timestamp):
     """
     topic_names = decode_topic_names(topic_name)
 
-    return encode_topic_name(
-        [topic_names[0], timestamp.decode("utf-8"), topic_names[1]], to_byte=False
+    return typing.cast(
+        str,
+        encode_topic_name(
+            [topic_names[0], timestamp.decode("utf-8"), topic_names[1]], to_byte=False
+        ),
     )
 
 
-class AERHub(object):
+class AERHub:
+    """AER Hub.
+
+    A central relay that allows multiple publisher and subscriber to use a common port.
+    """
+
     def __init__(
         self,
-        url="tcp://127.0.0.1",
-        hub_pub_port=5099,
-        hub_sub_port=5100,
-        aer_hub_name="PyAER Message Hub",
-    ):
-        """AER Hub.
-
-        A central relay that allows multiple publisher and subscriber to use a common
-        port.
-        """
+        url: str = "tcp://127.0.0.1",
+        hub_pub_port: int = 5099,
+        hub_sub_port: int = 5100,
+        aer_hub_name: str = "PyAER Message Hub",
+    ) -> None:
         self.url = url
         self.aer_hub_name = aer_hub_name
         self.hub_pub_port = hub_pub_port
@@ -125,8 +134,8 @@ class AERHub(object):
         # Initialize sockets
         self.init_socket()
 
-    def init_socket(self):
-        """Initialize zmq socket, override for your own use."""
+    def init_socket(self) -> None:
+        """Initializes zmq socket, override for your own use."""
         self.context = zmq.Context.instance()
 
         self.hub_pub = self.context.socket(zmq.XPUB)
@@ -145,7 +154,7 @@ class AERHub(object):
         self.logger.info("Subscribe message at {}".format(self.hub_pub_url))
         self.logger.info("Publish message at {}".format(self.hub_sub_url))
 
-    def run(self):
+    def run(self) -> None:
         while True:
             try:
                 events = dict(self.poller.poll())
@@ -161,27 +170,27 @@ class AERHub(object):
                 break
 
 
-class Publisher(object):
+class Publisher:
+    """Publisher.
+
+    A abstract publisher implementation.
+
+    # Args
+        url: tcp address.
+        port: port number connected by publisher.
+        master_topic: the master topic name, such as davis-1. This is usually a
+            device level identifier. There can be sub-topics under this identifier
+        name: the name of the publisher.
+    """
+
     def __init__(
-        self, url="tcp://127.0.0.1", port=5100, master_topic="", name="", **kwargs
-    ):
-        """Publisher.
-
-        A abstract publisher implementation.
-
-        # Arguments
-            url: str
-                tcp address
-            port : int
-                port number connected by publisher
-            master_topic : str
-                the master topic name, such as davis-1
-                This is usually a device level identifier.
-                There can be sub-topics under this identifier
-            name : str
-                the name of the publisher
-        """
-
+        self,
+        url: str = "tcp://127.0.0.1",
+        port: int = 5100,
+        master_topic: str = "",
+        name: str = "",
+        **kwargs
+    ) -> None:
         self.__dict__.update(kwargs)
 
         self.url = url
@@ -197,7 +206,7 @@ class Publisher(object):
         # initialize socket for publisher
         self.init_socket()
 
-    def init_socket(self):
+    def init_socket(self) -> None:
         """Initialize zmq socket, override for your own use."""
         self.context = zmq.Context.instance()
         self.socket = self.context.socket(zmq.PUB)
@@ -205,7 +214,7 @@ class Publisher(object):
         self.socket.connect(self.pub_url)
         time.sleep(1)
 
-    def pack_np_array(self, data_array):
+    def pack_np_array(self, data_array: np.ndarray) -> List[Union[np.ndarray, bytes]]:
         """Pack numpy array for sending.
 
         # Arguments
@@ -223,7 +232,9 @@ class Publisher(object):
 
         return [data_array, json.dumps(md).encode("utf-8")]
 
-    def pack_data_by_topic(self, data_topic_name, timestamp, packed_data_list):
+    def pack_data_by_topic(
+        self, data_topic_name: str, timestamp: bytes, packed_data_list: List[Any]
+    ) -> List[Any]:
         """Packing data by its topic name.
 
         # Arguments
@@ -244,11 +255,11 @@ class Publisher(object):
             timestamp,
         ] + packed_data_list
 
-    def run_once(self, verbose=False):
+    def run_once(self, verbose: bool = False) -> None:
         """One iteration of processing."""
-        raise NotImplementedError
+        raise NotImplementedError()
 
-    def run(self, verbose):
+    def run(self, verbose=False) -> None:
         """Implement your publishing method."""
         while True:
             try:
@@ -264,45 +275,43 @@ class Publisher(object):
 
 
 class AERPublisher(Publisher):
+    """AERPublisher.
+
+    Topics are organized in the following way:
+    1. There is a master topic name, e.g., davis-1
+    2. Each type of data has its own topic, displayed as "master topic name/data type",
+        e.g., "davis-1/polarity_events", "davis-1/frame_events", etc.
+    3. Each data packet is tagged with timestamps in nanosecs (wall clock). To limit
+        number of topics, this is a part of data instead of a topic name.
+    4. On the receiving end. For hierarchical data structure such as HDF5 and Zarr, the
+        grouping strategy is: "master topic name/timestamp/data type"
+    5. When saving, ensure ordering.
+    6. "/" is a defined separator, do not use in topic name.
+
+    # Arguments
+        device: A DVS/DAVIS/DYNAP-SE device.
+            This is a valid device that has been opened.
+        url: str
+            tcp address
+        port : int
+            port number connected by publisher
+        master_topic : str
+            the master topic name, such as davis-1
+            This is usually a device level identifier.
+            There can be sub-topics under this identifier
+        name : str
+            the name of the publisher
+    """
+
     def __init__(
         self,
-        device=None,
-        url="tcp://127.0.0.1",
-        port=5100,
-        master_topic="",
-        name="",
+        device: Optional[Device] = None,
+        url: str = "tcp://127.0.0.1",
+        port: int = 5100,
+        master_topic: str = "",
+        name: str = "",
         **kwargs
-    ):
-        """AERPublisher.
-
-        Topics are organized in the following way:
-        1. There is a master topic name, e.g., davis-1
-        2. Each type of data has its own topic, displayed as
-            "master topic name/data type", e.g.,
-            "davis-1/polarity_events", "davis-1/frame_events", etc.
-        3. Each data packet is tagged with timestamps in nanosecs (wall clock).
-           To limit number of topics, this is a part of data instead of
-           a topic name.
-        4. On the receiving end. For hierarchical data structure such
-           as HDF5 and Zarr, the grouping strategy is:
-            "master topic name/timestamp/data type"
-        5. When saving, ensure ordering.
-        6. "/" is a defined separator, do not use in topic name.
-
-        # Arguments
-            device: A DVS/DAVIS/DYNAP-SE device.
-                This is a valid device that has been opened.
-            url: str
-                tcp address
-            port : int
-                port number connected by publisher
-            master_topic : str
-                the master topic name, such as davis-1
-                This is usually a device level identifier.
-                There can be sub-topics under this identifier
-            name : str
-                the name of the publisher
-        """
+    ) -> None:
         super(AERPublisher, self).__init__(
             url=url, port=port, master_topic=master_topic, name=name, **kwargs
         )
@@ -336,7 +345,8 @@ class AERPublisher(Publisher):
         return self.pack_data_by_topic(data_topic_name, timestamp, packed_event)
 
     def run_once(self, verbose=False):
-        data = self.device.get_event()
+        data = self.device.get_event() if self.device is not None else None
+
         timestamp = get_nanotime()
         if data is not None:
             # You can manipulate data here before sending,
@@ -402,11 +412,12 @@ class AERPublisher(Publisher):
 
     def close(self):
         """Properly close the socket."""
-        self.device.shutdown()
+        if self.device is not None:
+            self.device.shutdown()
 
 
 class Subscriber(object):
-    def __init__(self, url, port, topic, name, **kwargs):
+    def __init__(self, url: str, port: int, topic: str, name: str, **kwargs):
         """Subscriber.
 
         A general implementation of subscriber.

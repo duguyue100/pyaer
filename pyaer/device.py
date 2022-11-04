@@ -7,13 +7,25 @@ from abc import abstractmethod
 from typing import Any
 from typing import Callable
 from typing import Dict
+from typing import List
 from typing import Union
 from typing import Optional
 from typing import Tuple
+from typing import TYPE_CHECKING
+
+import numpy as np
 
 from pyaer import libcaer
 from pyaer.dtypes import DeviceType
 from pyaer.dtypes import EventType
+from pyaer.dtypes import ModuleAddressType
+from pyaer.dtypes import ParameterAddressType
+from pyaer.dtypes import BiasObjectType
+from pyaer.utils import load_json
+from pyaer.utils import write_json
+
+if TYPE_CHECKING:
+    from pyaer.filters import DVSNoise
 
 
 class Device(object):
@@ -21,6 +33,13 @@ class Device(object):
 
     def __init__(self):
         self.handle = None
+
+        self.filter_noise = False
+        self.noise_filter: Optional["DVSNoise"] = None
+
+        self.configs_list: List[
+            Tuple[str, ModuleAddressType, ParameterAddressType]
+        ] = []
 
         # Functions for get events number and packet functions
         self.get_event_number_funcs: Dict[EventType, Callable] = {
@@ -196,6 +215,36 @@ class Device(object):
             exchange_blocking,
         )
 
+    def start_data_stream(
+        self,
+        send_default_config: bool = True,
+        max_packet_size: Optional[int] = None,
+        max_packet_interval: Optional[int] = None,
+    ) -> None:
+        """Starts streaming data.
+
+        # Arguments
+            send_default_config: Send default config to the device before starting
+                the data streaming. `default is True`
+            max_packet_size: Set the maximum number of events any of a packet
+                container's packets may hold before it's made available to the user.
+                Set to zero to disable. The default is `None` (use default setting: 0).
+            max_packet_interval: Set the time interval between subsequent packet
+                containers. Must be at least 1 microsecond. The value is in
+                microseconds, and is checked across all types of events contained in the
+                EventPacketContainer. The default is `None` (use default setting: 10ms)
+        """
+        if send_default_config:
+            self.send_default_config()
+
+        if max_packet_size is not None:
+            self.set_max_container_packet_size(max_packet_size)
+        if max_packet_interval is not None:
+            self.set_max_container_interval(max_packet_interval)
+
+        self.data_start()
+        self.set_data_exchange_blocking()
+
     def get_config(self, mod_addr: int, param_addr: int) -> Optional[Union[int, bool]]:
         """Gets Configuration.
 
@@ -283,6 +332,99 @@ class Device(object):
 
         return num_events, event_packet
 
+    def set_bias(self, bias_obj: BiasObjectType) -> None:
+        """Sets bias from bias dictionary.
+
+        # Args:
+            bias_obj: Dictionary that contains biases.
+
+        # Returns
+            True if set successful, False otherwise.
+        """
+        for bias_name, module_address, parameter_address in self.configs_list:
+            self.set_config(module_address, parameter_address, bias_obj[bias_name])
+
+        # setting for noise filter
+        if self.noise_filter is not None and self.filter_noise is True:
+            self.noise_filter.set_bias(bias_obj["noise_filter_configs"])
+
+    def get_bias(self) -> BiasObjectType:
+        """Gets bias settings.
+
+        # Returns     Dictionary that contains DVS128 current bias settings.
+        """
+        bias_obj: BiasObjectType = {}
+
+        for bias_name, module_address, parameter_address in self.configs_list:
+            bias_obj[bias_name] = self.get_config(module_address, parameter_address)
+
+        # get noise filter configs
+        if self.noise_filter is not None:
+            bias_obj["noise_filter_configs"] = self.noise_filter.get_bias()
+
+        return bias_obj
+
+    def set_bias_from_json(self, file_path: str) -> None:
+        """Set bias from loading JSON configuration file.
+
+        # Args:
+            file_path: absolute path of the JSON bias file.
+        """
+        bias_obj = load_json(file_path)
+        self.set_bias(bias_obj)
+
+    def save_bias_to_json(self, file_path: str) -> bool:
+        """Save bias to JSON.
+
+        # Args:
+            file_path: the absolute path to the destiation.
+
+        # Returns
+            returns True if success in writing, False otherwise.
+        """
+        bias_obj = self.get_bias()
+        return write_json(file_path, bias_obj)
+
+    def get_polarity_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
+        """Gets a packet of polarity event.
+
+        # Args:
+            packet_header: the header that represents a event packet
+            noise_filter: the background activity filter is applied if True.
+        """
+        num_events, polarity = self.get_event_packet(
+            packet_header, libcaer.POLARITY_EVENT
+        )
+
+        if self.filter_noise is True and self.noise_filter is not None:
+            polarity = self.noise_filter.apply(polarity)
+
+            events = libcaer.get_filtered_polarity_event(
+                polarity, num_events * 5
+            ).reshape(num_events, 5)
+        else:
+            events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
+                num_events, 4
+            )
+
+        return events, num_events
+
+    def get_special_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
+        """Get a packet of special event.
+
+        # Arguments
+            packet_header: the header that represents a event packet.
+        """
+        num_events, special = self.get_event_packet(
+            packet_header, libcaer.SPECIAL_EVENT
+        )
+
+        events = libcaer.get_special_event(special, num_events * 2).reshape(
+            num_events, 2
+        )
+
+        return events, num_events
+
 
 class USBDevice(Device):
     """Base class for all USB devices.
@@ -332,39 +474,6 @@ class USBDevice(Device):
         if self.handle is None:
             raise ValueError("The device is failed to open.")
 
-    def get_polarity_event(self, packet_header):
-        """Get a packet of polarity event.
-
-        # Arguments
-            packet_header: `caerEventPacketHeader`<br/>
-                the header that represents a event packet
-
-        # Returns
-            events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 4) where N
-                is the number of events in the event packet.
-                Each row in the array represents a single polarity event.
-                The first number is the timestamp.
-                The second number is the X position of the event.
-                The third number is the Y position of the event.
-                The fourth number represents the polarity of the event
-                (positive or negative).
-            num_events: `int`<br/>
-                number of the polarity events available in the packet.
-        """
-        num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT
-        )
-
-        # TODO: to implement a noise filtering process
-        # or reimplement this function into specific classes
-
-        events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
-            num_events, 4
-        )
-
-        return events, num_events
-
     def get_polarity_hist(self, packet_header, device_type=None):
         """Get the positive and negative histogram for a packet."""
         num_events, polarity = self.get_event_packet(
@@ -387,50 +496,6 @@ class USBDevice(Device):
             return None, 0
 
         return hist, num_events
-
-    def get_counter_neuron_event(self, packet_header, device_type=None):
-        """Get the positive and negative histogram for a packet."""
-        num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT
-        )
-
-        if device_type == libcaer.DAVIS_CHIP_DAVIS240C:
-            hist = libcaer.get_counter_neuron_frame_240(polarity, num_events)
-        elif device_type == libcaer.DAVIS_CHIP_DAVIS346B:
-            hist = libcaer.get_polarity_event_histogram_346(polarity, num_events)
-        elif device_type == "DVS128":
-            hist = libcaer.get_polarity_event_histogram_128(polarity, num_events)
-        else:
-            return None, 0
-
-        return hist, num_events
-
-    def get_special_event(self, packet_header):
-        """Get a packet of special event.
-
-        # Arguments
-            packet_header: `caerEventPacketHeader`<br/>
-                the header that represents a event packet
-
-        # Returns
-            events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 2) where N
-                is the number of events in the event packet.
-                Each row in the array represents a single special event.
-                The first value is the timestamp of the event.
-                The second value is the special event data.
-            num_events: `int`<br/>
-                number of the special events in the packet.
-        """
-        num_events, special = self.get_event_packet(
-            packet_header, libcaer.SPECIAL_EVENT
-        )
-
-        events = libcaer.get_special_event(special, num_events * 2).reshape(
-            num_events, 2
-        )
-
-        return events, num_events
 
     def get_frame_event(
         self, packet_header, device_type=None, aps_filter_type=libcaer.MONO
@@ -551,7 +616,7 @@ class USBDevice(Device):
             num_events: `int`<br/>
                 the number of the spike events.
         """
-        num_events, spike = self.get_event_packet(packet_header, self.SPIKE_EVENT)
+        num_events, spike = self.get_event_packet(packet_header, libcaer.SPIKE_EVENT)
 
         events = libcaer.get_spike_event(spike, num_events * 4).reshape(num_events, 4)
 
