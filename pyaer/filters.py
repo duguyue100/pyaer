@@ -4,7 +4,8 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from typing import Any
-from typing import Dict
+from typing import List
+from typing import Tuple
 
 from pyaer import libcaer
 from pyaer import utils
@@ -32,6 +33,41 @@ class DVSNoise:
                 "Software background activity filter" "initialization failed."
             )
 
+        self.configs_list: List[Tuple[int, str]] = [
+            (
+                libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TWO_LEVELS,
+                "sw_background_activity_two_levels",
+            ),
+            (
+                libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_CHECK_POLARITY,
+                "sw_background_activity_check_polarity",
+            ),
+            (
+                libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MIN,
+                "sw_background_activity_support_min",
+            ),
+            (
+                libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MAX,
+                "sw_background_activity_support_max",
+            ),
+            (
+                libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TIME,
+                "sw_background_activity_time",
+            ),
+            (
+                libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_ENABLE,
+                "sw_background_activity_enable",
+            ),
+            (
+                libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_TIME,
+                "sw_refractory_period_time",
+            ),
+            (
+                libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_ENABLE,
+                "sw_refractory_period_enable",
+            ),
+        ]
+
     def initialize(self) -> None:
         """Initializes."""
         if self.handle is None:
@@ -51,7 +87,8 @@ class DVSNoise:
             verbose: print verbosely if True.
         """
         bias_obj = utils.load_json(file_path)
-        self.set_bias(bias_obj)
+        if bias_obj is not None:
+            self.set_bias(bias_obj)
 
     def set_bias(self, bias_obj: BiasObjectType) -> None:
         """Configures filter.
@@ -59,39 +96,8 @@ class DVSNoise:
         # Args:
             bias_obj: A dictionary that contains the configuration of the filter.
         """
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TWO_LEVELS,
-            bias_obj["sw_background_activity_two_levels"],
-        )
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_CHECK_POLARITY,
-            bias_obj["sw_background_activity_check_polarity"],
-        )
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MIN,
-            bias_obj["sw_background_activity_support_min"],
-        )
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MAX,
-            bias_obj["sw_background_activity_support_max"],
-        )
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TIME,
-            bias_obj["sw_background_activity_time"],
-        )
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_ENABLE,
-            bias_obj["sw_background_activity_enable"],
-        )
-
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_TIME,
-            bias_obj["sw_refractory_period_time"],
-        )
-        self.set_config(
-            libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_ENABLE,
-            bias_obj["sw_refractory_period_enable"],
-        )
+        for parameter_address, bias_name in self.configs_list:
+            self.set_config(parameter_address, bias_obj[bias_name])
 
         self.set_config(
             libcaer.CAER_FILTER_DVS_HOTPIXEL_ENABLE, bias_obj["sw_hotpixel_enable"]
@@ -114,33 +120,10 @@ class DVSNoise:
         # Returns:
             bias_obj: A dictionary that contains the configuration of the filter.
         """
-        bias_obj = {}
+        bias_obj: BiasObjectType = {}
 
-        bias_obj["sw_background_activity_two_levels"] = bool(
-            self.get_config(libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TWO_LEVELS)
-        )
-        bias_obj["sw_background_activity_check_polarity"] = bool(
-            self.get_config(libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_CHECK_POLARITY)
-        )
-        bias_obj["sw_background_activity_support_min"] = self.get_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MIN
-        )
-        bias_obj["sw_background_activity_support_max"] = self.get_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_SUPPORT_MAX
-        )
-        bias_obj["sw_background_activity_time"] = self.get_config(
-            libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_TIME
-        )
-        bias_obj["sw_background_activity_enable"] = bool(
-            self.get_config(libcaer.CAER_FILTER_DVS_BACKGROUND_ACTIVITY_ENABLE)
-        )
-
-        bias_obj["sw_refractory_period_time"] = self.get_config(
-            libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_TIME
-        )
-        bias_obj["sw_refractory_period_enable"] = bool(
-            self.get_config(libcaer.CAER_FILTER_DVS_REFRACTORY_PERIOD_ENABLE)
-        )
+        for parameter_address, bias_name in self.configs_list:
+            bias_obj[bias_name] = self.get_config(parameter_address)
 
         bias_obj["sw_hotpixel_enable"] = bool(
             self.get_config(libcaer.CAER_FILTER_DVS_HOTPIXEL_ENABLE)
@@ -171,7 +154,7 @@ class DVSNoise:
         bias_obj = self.get_bias()
         return utils.write_json(file_path, bias_obj)
 
-    def set_config(self, param_addr: str, param: Any) -> bool:
+    def set_config(self, param_addr: int, param: Any) -> bool:
         """Sets configuration.
 
         # Args:
@@ -190,7 +173,7 @@ class DVSNoise:
         else:
             return False
 
-    def get_config(self, param_addr: str) -> Any:
+    def get_config(self, param_addr: int) -> Any:
         """Gets configuration.
 
         # Args:

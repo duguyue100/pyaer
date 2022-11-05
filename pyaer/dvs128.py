@@ -131,7 +131,7 @@ class DVS128(USBDevice):
             num_pol_event = 0
             num_special_event = 0
             pol_events = (
-                np.zeros((0, 4) if self.filter_noise else (0, 5), dtype=np.uint64)
+                np.zeros((0, int(4 + self.filter_noise)), dtype=np.uint64)
                 if mode == "events"
                 else np.zeros((128, 128, 2), dtype=np.uint64)
             )
@@ -148,7 +148,7 @@ class DVS128(USBDevice):
                         hist, num_events = self.get_polarity_hist(
                             packet_header, device_type="DVS128"
                         )
-                        pol_events = hist if pol_events is None else pol_events + hist
+                        pol_events += hist
 
                     num_pol_event += num_events
                 elif packet_type == libcaer.SPECIAL_EVENT:

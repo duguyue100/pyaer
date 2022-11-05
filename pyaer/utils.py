@@ -3,17 +3,25 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-import importlib.util as imutil
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Union
+from typing import Optional
+import sys
+from importlib.abc import Loader
+from importlib.util import spec_from_file_location
+from importlib.util import module_from_spec
 import json
 import os
 import time
 from collections import OrderedDict
 
-import numpy as np
 import yaml
+from yaml import SafeLoader
+from yaml import SafeDumper
 
 import pyaer
-from pyaer import libcaer
 from pyaer import log
 
 logger = log.get_logger("utils", pyaer.LOG_LEVEL)
@@ -23,24 +31,25 @@ def get_nanotime():
     return str(int(time.time() * 1e9)).encode("utf-8")
 
 
-def import_custom_module(custom_file, custom_class):
+def import_custom_module(custom_file: str, custom_class: str) -> Any:
     """Load custom module by file path.
 
-    # Arguments
-        custom_file: str
-            absolute file path to the custom module file.
-        custom_class: str
-            the class name to import that is in the custom_file
+    # Args:
+        custom_file: absolute file path to the custom module file.
+        custom_class: the class name to import that is in the custom_file
     """
     module_name = os.path.basename(custom_file).split(".")[0]
-    spec = imutil.spec_from_file_location(module_name, custom_file)
-    custom_pub = imutil.module_from_spec(spec)
-    spec.loader.exec_module(custom_pub)
+    spec = spec_from_file_location(module_name, custom_file)
+    if spec is not None:
+        module = module_from_spec(spec)
+        sys.modules[module_name] = module
+        assert isinstance(spec.loader, Loader)
+        spec.loader.exec_module(module)
 
-    return getattr(custom_pub, custom_class)
+    return getattr(module, custom_class)
 
 
-def parse_type(custom_str):
+def parse_type(custom_str: str) -> Union[int, float, bool, str]:
     """Parse custom string to its corresponding type."""
 
     # check integer
@@ -63,7 +72,7 @@ def parse_type(custom_str):
     return custom_str
 
 
-def parse_custom_args(custom_args):
+def parse_custom_args(custom_args: List[str]) -> Dict[str, Any]:
     """Parse custom arguments.
 
     NOTE: DO NOT USE "-" IN YOUR CUSTOM ARGUMENTS
@@ -91,52 +100,41 @@ def parse_custom_args(custom_args):
     return custom_args_dict
 
 
-def ordered_yml_load(stream, Loader=yaml.SafeLoader, object_pairs_hook=OrderedDict):
+def ordered_yml_load(stream: str) -> Dict[str, Any]:
     """Load YAML configs in order."""
-
-    class OrderedLoader(Loader):
-        pass
 
     def construct_mapping(loader, node):
         loader.flatten_mapping(node)
-        return object_pairs_hook(loader.construct_pairs(node))
+        return OrderedDict(loader.construct_pairs(node))
 
-    OrderedLoader.add_constructor(
+    SafeLoader.add_constructor(
         yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping
     )
 
-    return yaml.load(stream, OrderedLoader)
+    return yaml.load(stream, SafeLoader)
 
 
-def ordered_yml_dump(data, stream=None, Dumper=yaml.SafeDumper, **kwds):
+def ordered_yml_dump(data, stream=None, **kwds):
     """Dump YAML configs in order."""
-
-    class OrderedDumper(Dumper):
-        pass
 
     def _dict_representer(dumper, data):
         return dumper.represent_mapping(
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, data.items()
         )
 
-    OrderedDumper.add_representer(OrderedDict, _dict_representer)
-    return yaml.dump(data, stream, OrderedDumper, **kwds)
+    SafeDumper.add_representer(OrderedDict, _dict_representer)
+    return yaml.dump(data, stream, SafeDumper, **kwds)
 
 
-def expandpath(path):
+def expandpath(path: str) -> str:
     return os.path.abspath(os.path.expandvars(os.path.expanduser(path)))
 
 
-def load_json(file_path):
-    """Load JSON string.
+def load_json(file_path: str) -> Optional[Dict[str, Any]]:
+    """Loads JSON string.
 
-    # Arguments
-        file_path: `str`<br/>
-            the absolute path to the JSON string.
-
-    # Returns
-        json_obj: `dict`<br/>
-            A JSON object
+    # Args:
+        file_path: the absolute path to the JSON string.
     """
     try:
         json_obj = json.load(open(file_path))
@@ -145,19 +143,12 @@ def load_json(file_path):
         return None
 
 
-def write_json(file_path, json_obj):
-    """Write JSON string.
+def write_json(file_path: str, json_obj: Dict[str, Any]) -> bool:
+    """Writes JSON string.
 
     # Arguments
-        file_path: `str`<br/>
-            the absolute path to the JSON string.
-        json_obj: `dict`<br/>
-            a dictionary
-
-    # Returns
-        flag : bool
-            True if saved successfully
-            False otherwise
+        file_path: the absolute path to the JSON string.
+        json_obj: a dictionary
     """
     try:
         with open(file_path, "w") as f:
@@ -166,40 +157,3 @@ def write_json(file_path, json_obj):
         return True
     except IOError:
         return False
-
-
-def discover_devices(device_type, max_devices=100):
-    """Automatic discover devices.
-
-    # Arguments
-        device_type: `int`<br/>
-            * -1 - CAER_DEVICE_DISCOVER_ALL<br/>
-            *  0 - CAER_DEVICE_DVS128<br/>
-            *  1 - CAER_DEVICE_DAVIS_FX2<br/>
-            *  2 - CAER_DEVICE_DAVIS_FX3<br/>
-            *  3 - CAER_DEVICE_DYNAPSE<br/>
-            *  4 - CAER_DEVICE_DAVIS<br/>
-            *  5 - CAER_DEVICE_EDVS<br/>
-            *  6 - CAER_DEVICE_DAVIS_RPI<br/>
-
-    # Returns
-        discovered_devices: `numpy.ndarray`<br/>
-            a (num_devices, 3) array<br/>
-            the first column is device type<br/>
-            the second column is device USB bus number or
-                                 serial port name for EDVS
-                                 (cannot detect string, set to 0)<br/>
-            the third column is device USB device address or
-                                serial Baud rate (if EDVS)<br/>
-            discovered devices type with the order
-            Note that the array has the data type uint64,
-            please reformat the number if necessary.
-        num_devices: `int`<br/>
-            number of available devices
-    """
-    discovered_devices = libcaer.device_discover(device_type)
-
-    discovered_devices = discovered_devices.reshape((max_devices + 1), 3)
-    num_devices = np.argwhere(discovered_devices == 42)[0][0]
-
-    return discovered_devices[:num_devices], num_devices

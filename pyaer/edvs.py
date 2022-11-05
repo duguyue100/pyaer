@@ -4,6 +4,7 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 from typing import Any
+from typing import Optional
 from typing import Tuple
 
 import numpy as np
@@ -88,7 +89,7 @@ class eDVS(SerialDevice):
             self.serial_port_name = info.serialPortName
             self.serial_baud_rate = info.serialBaudRate
 
-    def get_event(self):
+    def get_event(self) -> Optional[Tuple[np.ndarray, int, np.ndarray, int]]:  # type: ignore
         """Get event.
 
         # Returns
@@ -111,9 +112,7 @@ class eDVS(SerialDevice):
         if packet_container is not None and packet_number is not None:
             num_pol_event = 0
             num_special_event = 0
-            pol_events = np.zeros(
-                (0, 4) if self.filter_noise else (0, 5), dtype=np.uint64
-            )
+            pol_events = np.zeros((0, int(4 + self.filter_noise)), dtype=np.uint64)
             special_events = np.zeros((0, 2), dtype=np.uint64)
             for packet_id in range(packet_number):
                 packet_header, packet_type = self.get_packet_header(

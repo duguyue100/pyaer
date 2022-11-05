@@ -43,9 +43,6 @@ davis346-color-events:
 dvxplorer-test:
 	python ./scripts/dvxplorer_test.py
 
-dynapse-test:
-	python ./scripts/dynapse_test.py
-
 dvs-noise-filter-test:
 	python ./scripts/dvs_noise_filter_test.py
 

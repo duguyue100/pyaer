@@ -1,4 +1,4 @@
-"""Generic Device.
+"""Device.
 
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
@@ -28,10 +28,10 @@ if TYPE_CHECKING:
     from pyaer.filters import DVSNoise
 
 
-class Device(object):
+class Device:
     """Generic device."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.handle = None
 
         self.filter_noise = False
@@ -89,7 +89,7 @@ class Device(object):
         """
         raise NotImplementedError()
 
-    def close(self):
+    def close(self) -> None:
         """Closes USB device.
 
         This method closes an opened device if the respective handle is not None.
@@ -432,7 +432,7 @@ class USBDevice(Device):
     This class is the base of DVS128, DAVIS240, DAVIS346 and DYNAPSE.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     def open(  # type: ignore
@@ -474,7 +474,9 @@ class USBDevice(Device):
         if self.handle is None:
             raise ValueError("The device is failed to open.")
 
-    def get_polarity_hist(self, packet_header, device_type=None):
+    def get_polarity_hist(
+        self, packet_header: Any, device_type: Optional[Union[str, int]] = None
+    ) -> Tuple[np.ndarray, int]:
         """Get the positive and negative histogram for a packet."""
         num_events, polarity = self.get_event_packet(
             packet_header, libcaer.POLARITY_EVENT
@@ -492,30 +494,26 @@ class USBDevice(Device):
             hist = libcaer.get_polarity_event_histogram_dvxplorer_lite(
                 polarity, num_events
             )
-        else:
-            return None, 0
 
         return hist, num_events
 
     def get_frame_event(
-        self, packet_header, device_type=None, aps_filter_type=libcaer.MONO
-    ):
+        self,
+        packet_header: Any,
+        device_type: Optional[int] = None,
+        aps_filter_type: int = libcaer.MONO,
+    ) -> Tuple[np.ndarray, int]:
         """Get a packet of frame event.
 
-        # Arguments
-            packet_header: `caerEventPacketHeader`<br/>
-                the header that represents a event packet
+        # Args:
+            packet_header: the header that represents a event packet
 
         # Returns
-            frame_mat: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (height, width).
-                The height and width of the APS frame is determined by
-                the specific DAVIS device (e.g., DAVIS240 will have
-                a 180x240 APS frame.
-                For DAVIS346Red that has RGB outputs, the output array
-                has the shape of (height, width, 3)
-            frame_ts: `int`<br/>
-                the APS frame timestamp.
+            frame_mat: a 2-D array that has the shape of (height, width). The height and
+                width of the APS frame is determined by the specific DAVIS device (e.g.,
+                DAVIS240 will have a 180x240 APS frame. For DAVIS346Red that has RGB
+                outputs, the output array has the shape of (height, width, 3)
+            frame_ts: the APS frame timestamp.
         """
         _, frame = self.get_event_packet(packet_header, libcaer.FRAME_EVENT)
         first_event = libcaer.caerFrameEventPacketGetEventConst(frame, 0)
@@ -544,25 +542,20 @@ class USBDevice(Device):
 
         return frame_mat, frame_ts
 
-    def get_imu6_event(self, packet_header):
+    def get_imu6_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
         """Get IMU6 event.
 
-        # Arguments
-            packet_header: `caerEventPacketHeader`
-                the header that represents a event packet
+        # Args:
+            packet_header: the header that represents a event packet
 
-        # Returns
-            events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 8) where N
-                is the number of IMU6 events in the packet.
-                Each row of the array consists a single IMU6 event.
-                The first value is the timestamp of the event.
-                The next three values are accelerations on the X, Y, and Z
-                axes. The next three values are angular velocity
-                on the X, Y and Z axes.
-                The last value is the temperature in Celsius scale.
-            num_events: `int`<br/>
-                number of the IMU6 events.
+        # Returns:
+            events: a 2-D array that has the shape of (N, 8) where N is the number of
+                IMU6 events in the packet. Each row of the array consists a single IMU6
+                event. The first value is the timestamp of the event. The next three
+                values are accelerations on the X, Y, and Z axes. The next three values
+                are angular velocity on the X, Y and Z axes. The last value is the
+                temperature in Celsius scale.
+            num_events: number of the IMU6 events.
         """
         num_events, imu = self.get_event_packet(packet_header, libcaer.IMU6_EVENT)
 
@@ -570,26 +563,21 @@ class USBDevice(Device):
 
         return events, num_events
 
-    def get_imu9_event(self, packet_header):
+    def get_imu9_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
         """Get IMU9 event.
 
-        # Arguments
-            packet_header: `caerEventPacketHeader`
-                the header that represents a event packet
+        # Args:
+            packet_header: the header that represents a event packet
 
-        # Returns
-            events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 11) where N
-                is the number of IMU9 events in the packet.
-                Each row of the array consists a single IMU9 event.
-                The first value is the timestamp of the event.
-                The next three values are accelerations on the X, Y, and Z
-                axes. The next three values are angular velocity
-                on the X, Y and Z axes. The next three values are
-                X, Y, Z axis compass heading.
-                The last value is the temperature in Celsius scale.
-            num_events: `int`<br/>
-                number of the IMU9 events.
+        # Returns:
+            events: a 2-D array that has the shape of (N, 11) where N is the number of
+                IMU9 events in the packet. Each row of the array consists a single IMU9
+                event. The first value is the timestamp of the event. The next three
+                values are accelerations on the X, Y, and Z axes. The next three values
+                are angular velocity on the X, Y and Z axes. The next three values are
+                X, Y, Z axis compass heading. The last value is the temperature in
+                Celsius scale.
+            num_events: number of the IMU9 events.
         """
         num_events, imu = self.get_event_packet(packet_header, libcaer.IMU9_EVENT)
 
@@ -597,24 +585,19 @@ class USBDevice(Device):
 
         return events, num_events
 
-    def get_spike_event(self, packet_header):
+    def get_spike_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
         """Get Spike Event.
 
-        # Arguments
-            packet_header: `caerEventPacketHeader`
-                the header that represents a event packet
+        # Args:
+            packet_header: the header that represents a event packet
 
-        # Returns
-            events: `numpy.ndarray`<br/>
-                a 2-D array that has the shape of (N, 4) where N
-                is the number of spike events in the packet.
-                Each row of the array has a single spike event.
-                The first value is the timestamp of the event.
-                The second value is the neuron ID.
-                The third value is the chip ID.
-                The last value is the source core ID.
-            num_events: `int`<br/>
-                the number of the spike events.
+        # Returns:
+            events: a 2-D array that has the shape of (N, 4) where N is the number of
+                spike events in the packet. Each row of the array has a single spike
+                event. The first value is the timestamp of the event. The second value
+                is the neuron ID. The third value is the chip ID. The last value is the
+                source core ID.
+            num_events: the number of the spike events.
         """
         num_events, spike = self.get_event_packet(packet_header, libcaer.SPIKE_EVENT)
 
@@ -630,7 +613,7 @@ class SerialDevice(Device):
     supported device in this family.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
     def open(  # type: ignore
@@ -657,33 +640,3 @@ class SerialDevice(Device):
         )
         if self.handle is None:
             raise ValueError("The device is failed to open.")
-
-    def get_polarity_event(self, packet_header):
-        """Get a packet of polarity event.
-
-        # Arguments
-            packet_header: `caerEventPacketHeader`<br/>
-                the header that represents a event packet
-
-        # Returns
-            events: `numpy.ndarray`
-                a 2-D array that has the shape of (N, 4) where N
-                is the number of events in the event packet.
-                Each row in the array represents a single polarity event.
-                The first number is the timestamp.
-                The second number is the X position of the event.
-                The third number is the Y position of the event.
-                The fourth number represents the polarity of the event
-                (positive or negative).
-            num_events: `int`
-                number of the polarity events available in the packet.
-        """
-        num_events, polarity = self.get_event_packet(
-            packet_header, libcaer.POLARITY_EVENT
-        )
-
-        events = libcaer.get_polarity_event(polarity, num_events * 4).reshape(
-            num_events, 4
-        )
-
-        return events, num_events
