@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
-from sys import platform
+import platform
 from sysconfig import get_paths
 
 import numpy
@@ -47,17 +47,21 @@ try:
 except AttributeError:
     numpy_include = numpy.get_numpy_include()  # type: ignore
 
-if platform in ["linux", "linux2"]:
+if platform.system() == "Linux":
     libcaer_include = "/usr/include"
     libcaer_lib = "/usr/lib/x86_64-linux-gnu"
 
     # for Raspberry Pi support
     if os.uname()[1] == "raspberrypi":
         libcaer_lib = "/usr/lib/arm-linux-gnueabihf"
-elif platform == "darwin":
-    libcaer_include = "/usr/local/include"
-    libcaer_lib = "/usr/local/lib"
-elif "win" in platform:
+elif platform.system() == "Darwin":
+    if platform.processor() == "arm":
+        libcaer_include = "/opt/homebrew/include"
+        libcaer_lib = "/opt/homebrew/lib/"
+    else:
+        libcaer_include = "/usr/local/include"
+        libcaer_lib = "/usr/local/lib"
+elif platform.system() == "Windows":
     libcaer_include = "C:/msys64/mingw64/include"
     libcaer_lib = "C:/msys64/mingw64/lib"
 
