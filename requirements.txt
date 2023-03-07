@@ -1,3 +1,5 @@
 numpy>=1.18.0
 pyzmq
 h5py
+easygui
+pypref

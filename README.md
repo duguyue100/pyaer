@@ -60,13 +60,21 @@ In a nutshell, PyAER is a combination of a Pythonic `libcaer` and a light-weight
     __NOTE__: The `libcaer` installation has taken care of the `udev` update.
     However, if the problem persists, please try it.
 
-2. Install `pyaer` from pypi (RECOMMEND)
+2. Install `pyaer`
+  
+   from pypi (RECOMMENDED, but CURRENTLY BROKEN)
 
     ```bash
     $ pip install pyaer
     ```
 
-3. Install `pyzmq` and `h5py`
+   from local clone that you have built:
+```bash
+ python -m pip install -e .
+```
+This will install pyaer in developer mode, so that the virtual env paths point to your local copy of pyaer that you built.
+
+3. Install `pyzmq` and `h5py` (needed if you use these tools)
     ```
     $ pip install pyzmq
     $ pip install h5py
