@@ -1,5 +1,8 @@
 """
-Reads a jAER .xml biases file and produces the matching pyaer/libcaer .json file to load the jAER biases
+Reads a jAER .xml biases file and produces the matching pyaer/libcaer .json file to load the jAER biases.
+
+Copy the output to terminal to the pyaer config .json file.
+
 """
 import os
 import sys
@@ -83,6 +86,7 @@ def get_jaer_key(pyaer_key:str, jaer_line:str)->Optional[re.Match]:
         return None
 
 def __main__():
+    print('Reads a jAER .xml biases file and produces the matching\n pyaer/libcaer .json file to load the jAER biases.\n\n Copy the output to terminal to the pyaer config .json file.')
     prefs=MyPreferences()
     lastfile=prefs.get('last_pyaer_json_file',None)
     if lastfile is None:
