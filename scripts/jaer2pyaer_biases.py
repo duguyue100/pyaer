@@ -6,14 +6,15 @@ import sys
 
 from  pyaer.get_logger import get_logger
 log=get_logger()
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 import re
 from easygui import fileopenbox, filesavebox
 from pyaer.prefs import MyPreferences
 from pyaer.utils import load_json
 
-def get_jaer_key(pyaer_key:str, jaer_line:str)->re.Match:
+def get_jaer_key(pyaer_key:str, jaer_line:str)->Optional[re.Match]:
     jaer_key=None
+    flip_coarse_val=False
     if pyaer_key == 'exposure':
         jaer_key = 'APS\.Exposure'
     elif pyaer_key == 'autoexposure':
@@ -52,9 +53,9 @@ def get_jaer_key(pyaer_key:str, jaer_line:str)->re.Match:
             type=parts[2]
         else:
             raise ValueError(f'{pyaer_key} has too many underscores')
-
         if type=='coarse':
             jaer_key=bias+'.BitValueCoarse'
+            flip_coarse_val=True
         elif type=='fine':
             jaer_key=bias+'.BitValueFine'
         elif type=='volt':
@@ -72,6 +73,8 @@ def get_jaer_key(pyaer_key:str, jaer_line:str)->re.Match:
         m=p.search(jaer_line)
         if m is None: return None
         value=m.group(1) # now obtain it
+        if flip_coarse_val: # coarse val must be flipped because jaer sends the hardware value which is flipped on chip
+            value=str(7-int(value))
     # whole_key=re.compile(whole_key_pat,re.IGNORECASE| re.VERBOSE | re.ASCII)
     #     log.debug(f'for pyaer_key={pyaer_key} found jaer_key={jaer_key} with value={value}')
         return value
@@ -103,6 +106,7 @@ def __main__():
     file=open(fn,'r')
     jaer_lines=file.readlines()
     config_keys=pyaer_config.keys()
+
     for config_key in config_keys:
         if config_key=='dvs_enabled':
             pass
