@@ -1447,7 +1447,7 @@ class DAVIS(USBDevice):
                 num_imu_event,
             )
         else:
-            return None
+            return None,0,None,0,None,0,None,0
 
 
 class DAVISFX2(DAVIS):
