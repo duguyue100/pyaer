@@ -1336,7 +1336,7 @@ class DAVIS(USBDevice):
                 The second number is the X position of the event.
                 The third number is the Y position of the event.
                 The fourth number represents the polarity of the event
-                (positive or negative).<br/>
+                (OFF,ON) = (0,1) (Note these values are NOT (-1,+1).
                 If the `noise_filter` option is set to `True`,
                 this array has an additional column at the end.
                 The last column represents the validity of the corresponding
