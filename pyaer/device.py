@@ -3,14 +3,11 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+from __future__ import annotations
+
 from abc import abstractmethod
 from typing import Any
 from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Union
-from typing import Optional
-from typing import Tuple
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -35,21 +32,21 @@ class Device:
         self.handle = None
 
         self.filter_noise = False
-        self.noise_filter: Optional["DVSNoise"] = None
+        self.noise_filter: "DVSNoise" | None = None
 
-        self.configs_list: List[
-            Tuple[str, ModuleAddressType, ParameterAddressType]
+        self.configs_list: list[
+            tuple[str, ModuleAddressType, ParameterAddressType]
         ] = []
 
         # Functions for get events number and packet functions
-        self.get_event_number_funcs: Dict[EventType, Callable] = {
+        self.get_event_number_funcs: dict[EventType, Callable] = {
             libcaer.POLARITY_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
             libcaer.SPECIAL_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
             libcaer.IMU6_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
             libcaer.IMU9_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
             libcaer.SPIKE_EVENT: libcaer.caerEventPacketHeaderGetEventNumber,
         }
-        self.get_event_packet_funcs: Dict[EventType, Callable] = {
+        self.get_event_packet_funcs: dict[EventType, Callable] = {
             libcaer.POLARITY_EVENT: libcaer.caerPolarityEventPacketFromPacketHeader,
             libcaer.SPECIAL_EVENT: libcaer.caerSpecialEventPacketFromPacketHeader,
             libcaer.FRAME_EVENT: libcaer.caerFrameEventPacketFromPacketHeader,
@@ -144,9 +141,7 @@ class Device:
         else:
             return False
 
-    def set_config(
-        self, mod_addr: int, param_addr: int, param: Union[int, bool]
-    ) -> bool:
+    def set_config(self, mod_addr: int, param_addr: int, param: int | bool) -> bool:
         """Sets configuration.
 
         The main function of setting configurations (e.g., bias).
@@ -218,8 +213,8 @@ class Device:
     def start_data_stream(
         self,
         send_default_config: bool = True,
-        max_packet_size: Optional[int] = None,
-        max_packet_interval: Optional[int] = None,
+        max_packet_size: int | None = None,
+        max_packet_interval: int | None = None,
     ) -> None:
         """Starts streaming data.
 
@@ -245,7 +240,7 @@ class Device:
         self.data_start()
         self.set_data_exchange_blocking()
 
-    def get_config(self, mod_addr: int, param_addr: int) -> Optional[Union[int, bool]]:
+    def get_config(self, mod_addr: int, param_addr: int) -> int | bool | None:
         """Gets Configuration.
 
         # Args:
@@ -266,7 +261,7 @@ class Device:
         else:
             return None
 
-    def get_packet_container(self) -> Tuple[Optional[Any], Optional[int]]:
+    def get_packet_container(self) -> tuple[Any | None, int | None]:
         """Gets event packet container.
 
         # Returns:     A tuple of ``(packet_container, num_event_packets)``.
@@ -282,7 +277,7 @@ class Device:
 
     def get_packet_header(
         self, packet_container: Any, idx: int
-    ) -> Tuple[Optional[Any], Optional[Any]]:
+    ) -> tuple[Any | None, Any | None]:
         """Gets a single packet header.
 
         # Args:
@@ -303,7 +298,7 @@ class Device:
 
     def get_event_packet(
         self, packet_header: Any, packet_type: EventType
-    ) -> Tuple[int, Any]:
+    ) -> tuple[int, Any]:
         """Gets event packet from packet header.
 
         # Arguments
@@ -385,7 +380,7 @@ class Device:
         bias_obj = self.get_bias()
         return write_json(file_path, bias_obj)
 
-    def get_polarity_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
+    def get_polarity_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Gets a packet of polarity event.
 
         # Args:
@@ -409,7 +404,7 @@ class Device:
 
         return events, num_events
 
-    def get_special_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
+    def get_special_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Get a packet of special event.
 
         # Arguments
@@ -475,8 +470,8 @@ class USBDevice(Device):
             raise ValueError("The device is failed to open.")
 
     def get_polarity_hist(
-        self, packet_header: Any, device_type: Optional[Union[str, int]] = None
-    ) -> Tuple[np.ndarray, int]:
+        self, packet_header: Any, device_type: str | int | None = None
+    ) -> tuple[np.ndarray, int]:
         """Get the positive and negative histogram for a packet."""
         num_events, polarity = self.get_event_packet(
             packet_header, libcaer.POLARITY_EVENT
@@ -500,9 +495,9 @@ class USBDevice(Device):
     def get_frame_event(
         self,
         packet_header: Any,
-        device_type: Optional[int] = None,
+        device_type: int | None = None,
         aps_filter_type: int = libcaer.MONO,
-    ) -> Tuple[np.ndarray, int]:
+    ) -> tuple[np.ndarray, int]:
         """Get a packet of frame event.
 
         # Args:
@@ -542,7 +537,7 @@ class USBDevice(Device):
 
         return frame_mat, frame_ts
 
-    def get_imu6_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
+    def get_imu6_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Get IMU6 event.
 
         # Args:
@@ -563,7 +558,7 @@ class USBDevice(Device):
 
         return events, num_events
 
-    def get_imu9_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
+    def get_imu9_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Get IMU9 event.
 
         # Args:
@@ -585,7 +580,7 @@ class USBDevice(Device):
 
         return events, num_events
 
-    def get_spike_event(self, packet_header: Any) -> Tuple[np.ndarray, int]:
+    def get_spike_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Get Spike Event.
 
         # Args:

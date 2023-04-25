@@ -3,9 +3,9 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+from __future__ import annotations
+
 from typing import Any
-from typing import Tuple
-from typing import Optional
 
 import numpy as np
 
@@ -17,7 +17,7 @@ from pyaer.filters import DVSNoise
 class DVS128(USBDevice):
     """DVS128.
 
-    # Arguments
+    # Args
         device_id: a unique ID to identify the device from others. Will be used as the
             source for EventPackets being generate from its data. `default is 1`
         bus_number_restrict: restrict the search for viable devices to only this USB
@@ -107,7 +107,7 @@ class DVS128(USBDevice):
 
     def get_event(  # type: ignore
         self, mode: str = "events"
-    ) -> Optional[Tuple[np.ndarray, int, np.ndarray, int]]:
+    ) -> tuple[np.ndarray, int, np.ndarray, int] | None:
         """Get event.
 
         # Returns

@@ -1,8 +1,9 @@
-from typing import Dict
+from __future__ import annotations
+
 from typing import Any
 
 EventType = int
 DeviceType = int
 ModuleAddressType = int
 ParameterAddressType = int
-BiasObjectType = Dict[str, Any]
+BiasObjectType = dict[str, Any]

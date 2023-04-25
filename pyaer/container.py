@@ -7,8 +7,7 @@ container that can manage all the returned Python variables.
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-
-from typing import Optional
+from __future__ import annotations
 
 import numpy as np
 
@@ -27,10 +26,10 @@ class EventContainer:
     def __init__(
         self,
         pol_events: np.ndarray,
-        special_events: Optional[np.ndarray] = None,
-        frames: Optional[np.ndarray] = None,
-        frames_ts: Optional[np.ndarray] = None,
-        imu_events: Optional[np.ndarray] = None,
+        special_events: np.ndarray | None = None,
+        frames: np.ndarray | None = None,
+        frames_ts: np.ndarray | None = None,
+        imu_events: np.ndarray | None = None,
     ) -> None:
         self.pol_events = pol_events
         self.num_pol_events = 0 if pol_events is None else pol_events.shape[0]
