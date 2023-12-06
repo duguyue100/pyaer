@@ -55,8 +55,8 @@ if platform in ["linux", "linux2"]:
     if os.uname()[1] == "raspberrypi":
         libcaer_lib = "/usr/lib/arm-linux-gnueabihf"
 elif platform == "darwin":
-    libcaer_include = "/usr/local/include"
-    libcaer_lib = "/usr/local/lib"
+    libcaer_include = "/opt/homebrew/include"
+    libcaer_lib = "/opt/homebrew/lib"
 elif "win" in platform:
     libcaer_include = "C:/msys64/mingw64/include"
     libcaer_lib = "C:/msys64/mingw64/lib"
