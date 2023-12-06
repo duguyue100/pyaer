@@ -3,7 +3,7 @@
 ---
 
 [![GitHub release](https://img.shields.io/github/release/duguyue100/pyaer.svg?style=flat-square)](https://github.com/duguyue100/pyaer/releases/latest)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyaer.svg?style=flat-square)](https://pypi.org/project/pyaer/)
+[![PyPI - Version](https://img.shields.io/pypi/v/pyaer)]((https://pypi.org/project/pyaer/))
 [![build](https://github.com/duguyue100/pyaer/actions/workflows/main.yml/badge.svg)](https://github.com/duguyue100/pyaer/actions/workflows/main.yml)
 [![license](https://img.shields.io/github/license/duguyue100/pyaer.svg)](https://github.com/duguyue100/pyaer/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1346279.svg)](https://doi.org/10.5281/zenodo.1346279)
@@ -34,7 +34,7 @@ building on travis-ci.org is ceased. We are looking for solutions to produce ARM
 
 ## Why PyAER?
 
-iniVation has released [DV](https://gitlab.com/inivation/dv), a new platform and an SDK 
+iniVation has released [DV](https://gitlab.com/inivation/dv), a new platform and an SDK
 for accessing and developing with event cameras.
 
 For robotics projects, you may find [rpg_dvs_ros](https://github.com/uzh-rpg/rpg_dvs_ros)
@@ -61,7 +61,8 @@ alternatives.
     # for Ubuntu
     sudo apt-get install libcaer-dev
     # for macOS
-    brew install libcaer
+    brew tap inivation/inivation
+    brew install libcaer --with-libserialport --with-opencv
     ```
 
     Update `udev` rules if you use a Linux system:
@@ -85,7 +86,7 @@ alternatives.
     $ pip install h5py
     ```
 
-    __NOTE:__ `pyzmq` is not available on ARM-based computer, you will need to build 
+    __NOTE:__ `pyzmq` is not available on ARM-based computer, you will need to build
     yourself.
 
 ### Development
@@ -124,5 +125,5 @@ configuration.
 
 ## Contacts
 
-Yuhuang Hu  
+Yuhuang Hu
 Email: duguyue100@gmail.com
