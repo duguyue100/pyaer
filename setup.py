@@ -61,11 +61,17 @@ elif "win" in platform:
     libcaer_include = "C:/msys64/mingw64/include"
     libcaer_lib = "C:/msys64/mingw64/lib"
 
+include_dirs = [libcaer_include, python_paths["include"], numpy_include]
+library_dirs = [libcaer_lib, python_paths["stdlib"]]
+if platform == "darwin":
+    include_dirs += ["/usr/local/include"]
+    library_dirs += ["/usr/local/lib"]
+
 libcaer_wrap = Extension(
     name="pyaer._libcaer_wrap",
     sources=["./pyaer/pyflags.i"],
-    include_dirs=[libcaer_include, python_paths["include"], numpy_include],
-    library_dirs=[libcaer_lib, python_paths["stdlib"]],
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
     swig_opts=["-I" + libcaer_include],
     #  extra_compile_args=["-std=c11"],
     extra_link_args=["-lcaer"],
