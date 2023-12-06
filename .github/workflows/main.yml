@@ -15,9 +15,9 @@ jobs:
         python-version: ["3.8", "3.9", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Ubuntu dependencies
@@ -50,29 +50,31 @@ jobs:
           pip install pip -U
           pip install numpy
           pip install wheel
-      - name: Build PyAER
-        run: |
-          make build-wheel
-          make build-wheel
-          make install
-      - name: Find and manage file
-        run: |
-            cd $GITHUB_WORKSPACE/dist
-            ls -a
-            for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
-            rm *.egg;
-            ls -a
-            cd ..
-      - name: Publish package to Github releases
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        uses: svenstaro/upload-release-action@v2
+      - name: Build PyAER wheel
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          PYTHONLIBPATH: "$(shell python -c 'from sysconfig import get_paths; print(get_paths()["stdlib"]+"/..")')"
+      - uses: actions/upload-artifact@v3
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*.*
-          tag: ${{ github.ref }}
-          file_glob: true
-      - name: Publish package to PyPI
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        run: |
-          pip install twine;
-          twine upload -u __token__ -p ${{ secrets.PYPI_API_TOKEN }} dist/*.whl;
+          path: ./wheelhouse/*.whl
+      # - name: Find and manage file
+      #   run: |
+      #       cd $GITHUB_WORKSPACE/dist
+      #       ls -a
+      #       for file in *.whl ; do mv $file ${file//linux/manylinux1} ; done;
+      #       rm *.egg;
+      #       ls -a
+      #       cd ..
+      # - name: Publish package to Github releases
+      #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      #   uses: svenstaro/upload-release-action@v2
+      #   with:
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     file: dist/*.*
+      #     tag: ${{ github.ref }}
+      #     file_glob: true
+      # - name: Publish package to PyPI
+      #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      #   run: |
+      #     pip install twine;
+      #     twine upload -u __token__ -p ${{ secrets.PYPI_API_TOKEN }} dist/*.whl;
