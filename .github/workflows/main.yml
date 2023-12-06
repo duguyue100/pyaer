@@ -52,8 +52,6 @@ jobs:
           pip install wheel
       - name: Build PyAER wheel
         uses: pypa/cibuildwheel@v2.16.2
-        env:
-          PYTHONLIBPATH: "$(shell python -c 'from sysconfig import get_paths; print(get_paths()["stdlib"]+"/..")')"
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
