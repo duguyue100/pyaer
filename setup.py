@@ -20,8 +20,6 @@ Development Status :: 4 - Beta
 Intended Audience :: Science/Research
 Natural Language :: English
 Operating System :: OS Independent
-Programming Language :: Python :: 3.6
-Programming Language :: Python :: 3.7
 Programming Language :: Python :: 3.8
 Programming Language :: Python :: 3.9
 Programming Language :: Python :: 3.10
@@ -55,18 +53,26 @@ if platform in ["linux", "linux2"]:
     if os.uname()[1] == "raspberrypi":
         libcaer_lib = "/usr/lib/arm-linux-gnueabihf"
 elif platform == "darwin":
-    libcaer_include = "/usr/local/include"
-    libcaer_lib = "/usr/local/lib"
+    libcaer_include = "/opt/homebrew/include"
+    libcaer_lib = "/opt/homebrew/lib"
 elif "win" in platform:
     libcaer_include = "C:/msys64/mingw64/include"
     libcaer_lib = "C:/msys64/mingw64/lib"
 
+include_dirs = [libcaer_include, python_paths["include"], numpy_include]
+library_dirs = [libcaer_lib, python_paths["stdlib"]]
+swig_opts = ["-I" + libcaer_include]
+if platform == "darwin":
+    include_dirs += ["/usr/local/include"]
+    library_dirs += ["/usr/local/lib"]
+    swig_opts += ["-I/usr/local/include"]
+
 libcaer_wrap = Extension(
     name="pyaer._libcaer_wrap",
     sources=["./pyaer/pyflags.i"],
-    include_dirs=[libcaer_include, python_paths["include"], numpy_include],
-    library_dirs=[libcaer_lib, python_paths["stdlib"]],
-    swig_opts=["-I" + libcaer_include],
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    swig_opts=swig_opts,
     #  extra_compile_args=["-std=c11"],
     extra_link_args=["-lcaer"],
 )
