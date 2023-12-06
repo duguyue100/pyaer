@@ -52,6 +52,9 @@ jobs:
           pip install wheel
       - name: Build PyAER wheel
         uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_BUILD: "cp38-* cp39-* cp310-*"
+          CIBW_BEFORE_BUILD: "pip install numpy"
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
