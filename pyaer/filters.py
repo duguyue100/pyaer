@@ -1,8 +1,4 @@
-"""Implementation of software filters in libcaer.
-
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
+from __future__ import annotations
 
 from typing import Any
 from typing import Dict

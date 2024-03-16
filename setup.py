@@ -1,11 +1,4 @@
-"""Setup script for the pyaer package.
-
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
-
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import annotations
 
 import os
 from sys import platform

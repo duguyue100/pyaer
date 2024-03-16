@@ -1,10 +1,4 @@
-"""Logger for PyAER.
-
-NOTE: this is different from libcaer's logger.
-
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
+from __future__ import annotations
 
 import logging
 from logging import Logger

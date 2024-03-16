@@ -1,17 +1,12 @@
 """Communication Module.
 
-This script includes class definitions for communication
-between processes. Example usage is to have a process for
-fetching data from the event cameras and other processes for
-processing the data.
-The communication protocol is implemented through zeromq package.
+This script includes class definitions for communication between processes. Example
+usage is to have a process for fetching data from the event cameras and other processes
+for processing the data. The communication protocol is implemented through zeromq
+package.
 
-The design principle is similar to ROS where there is a hub for
-central scheduling, a group of publishers for sending data, and
-a group of subscribers to get/process data.
-
-Author: Yuhuang Hu
-Email : yuhuang.hu@ini.uzh.ch
+The design principle is similar to ROS where there is a hub for central scheduling, a
+group of publishers for sending data, and a group of subscribers to get/process data.
 """
 
 import json
@@ -612,9 +607,8 @@ class PubSuber(object):
 
         This is a shell implementation.
 
-        Intend to use as a processing unit.
-        First subscribe on a topic, process it, and then publish to
-        a topic
+        Intend to use as a processing unit. First subscribe on a topic, process it, and
+        then publish to a topic
         """
         self.__dict__.update(kwargs)
 

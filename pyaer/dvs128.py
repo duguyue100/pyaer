@@ -1,8 +1,4 @@
-"""DVS128.
-
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
+from __future__ import annotations
 
 import numpy as np
 
