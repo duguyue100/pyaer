@@ -61,7 +61,7 @@ class Device:
         collects the general information about the device such as the width and height
         of the camera or the serial number of the device.
 
-        # Args:
+        Args:
             handle: a valid device handle that can be used with the other `libcaer`
                 functions, or `None` on error.
         """
@@ -545,10 +545,10 @@ class USBDevice(Device):
     def get_imu6_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Get IMU6 event.
 
-        # Args:
+        Args:
             packet_header: the header that represents a event packet
 
-        # Returns:
+        Returns:
             events: a 2-D array that has the shape of (N, 8) where N is the number of
                 IMU6 events in the packet. Each row of the array consists a single IMU6
                 event. The first value is the timestamp of the event. The next three
@@ -566,10 +566,10 @@ class USBDevice(Device):
     def get_imu9_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Get IMU9 event.
 
-        # Args:
+        Args:
             packet_header: the header that represents a event packet
 
-        # Returns:
+        Returns:
             events: a 2-D array that has the shape of (N, 11) where N is the number of
                 IMU9 events in the packet. Each row of the array consists a single IMU9
                 event. The first value is the timestamp of the event. The next three
@@ -588,10 +588,10 @@ class USBDevice(Device):
     def get_spike_event(self, packet_header: Any) -> tuple[np.ndarray, int]:
         """Get Spike Event.
 
-        # Args:
+        Args:
             packet_header: the header that represents a event packet
 
-        # Returns:
+        Returns:
             events: a 2-D array that has the shape of (N, 4) where N is the number of
                 spike events in the packet. Each row of the array has a single spike
                 event. The first value is the timestamp of the event. The second value
@@ -625,7 +625,7 @@ class SerialDevice(Device):
     ) -> None:
         """Open a serial deivce.
 
-        # Args:
+        Args:
             device_type: `libcaer.CAER_DEVICE_EDVS`,
             device_id: a unique ID to identify the device from others. Will be used as
                 the source for EventPackets being generate from its data.
