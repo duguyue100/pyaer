@@ -1,18 +1,8 @@
-from __future__ import absolute_import
-from __future__ import print_function
-
-import os
-
 from pyaer import log
-from pyaer.__about__ import __author__  # noqa
-from pyaer.__about__ import __version__  # noqa
 
-
-FILE_PATH = os.path.realpath(__file__)
-CURR_PATH = os.path.dirname(os.path.realpath(__file__))
-PKG_PATH = os.path.dirname(CURR_PATH)
 
 # System logging level
+
 LOG_LEVEL = log.DEBUG
 
 try:
