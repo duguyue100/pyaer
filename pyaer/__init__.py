@@ -6,7 +6,7 @@ from pyaer import log
 LOG_LEVEL = log.DEBUG
 
 try:
-    from pyaer import libcaer_wrap as libcaer  # noqa
+    from pyaer import libcaer_wrap as libcaer
 except ImportError:
     raise ImportError(
         "libcaer might not be in the LD_LIBRARY_PATH "
@@ -14,3 +14,8 @@ except ImportError:
         "Try to load _libcaer_wrap.so from the package "
         "directory, this will provide more information."
     )
+
+from pyaer.event_camera import EventCamera  # noqa # noreorder
+
+
+__all__ = ["libcaer", "EventCamera"]
