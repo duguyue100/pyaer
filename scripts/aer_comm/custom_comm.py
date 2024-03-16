@@ -4,20 +4,22 @@ Author: Yuhuang Hu
 Email : yuhuang.hu@ini.uzh.ch
 """
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import
+from __future__ import print_function
 
 import time
+
 import cv2
 
-from pyaer.comm import AERPublisher, AERSubscriber
+from pyaer.comm import AERPublisher
+from pyaer.comm import AERSubscriber
 
 
 class CustomPublisher(AERPublisher):
-
     def __init__(self, device, url, port, master_topic, name, **kwargs):
         super().__init__(
-            device=device, url=url, port=port, master_topic=master_topic,
-            **kwargs)
+            device=device, url=url, port=port, master_topic=master_topic, **kwargs
+        )
 
     def run_once(self, verbose=False):
         data = self.device.get_event()
@@ -35,7 +37,6 @@ class CustomPublisher(AERPublisher):
 
 
 class CustomSubscriber(AERSubscriber):
-
     def __init__(self, url, port, topic, name, **kwargs):
         super().__init__(url, port, topic, name, **kwargs)
 
@@ -45,28 +46,23 @@ class CustomSubscriber(AERSubscriber):
     def run_once(self, verbose=False):
         data = self.socket.recv_multipart()
 
-        topic_name = self.unpack_data_name(
-            data[:2], topic_name_only=True)
+        topic_name = self.unpack_data_name(data[:2], topic_name_only=True)
 
         if "frame" in topic_name:
-            data_id, frame_events, frame_ts = \
-                self.unpack_frame_events(data)
+            data_id, frame_events, frame_ts = self.unpack_frame_events(data)
 
             if frame_events is not None:
                 try:
-                    frame = cv2.cvtColor(
-                            frame_events[0],
-                            cv2.COLOR_BGR2RGB)
+                    frame = cv2.cvtColor(frame_events[0], cv2.COLOR_BGR2RGB)
                     frame = cv2.resize(frame, (1384, 1040))
                     cv2.imshow("frame", frame)
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                    if cv2.waitKey(1) & 0xFF == ord("q"):
                         return
                 except Exception:
                     pass
 
 
 class DVViewerSubscriber(AERSubscriber):
-
     def __init__(self, url, port, topic, name, **kwargs):
         super().__init__(url, port, topic, name, **kwargs)
 
@@ -76,21 +72,17 @@ class DVViewerSubscriber(AERSubscriber):
     def run_once(self, verbose=False):
         data = self.socket.recv_multipart()
 
-        topic_name = self.unpack_data_name(
-            data[:2], topic_name_only=True)
+        topic_name = self.unpack_data_name(data[:2], topic_name_only=True)
 
         if "frame" in topic_name:
-            data_id, frame_events, frame_ts = \
-                self.unpack_frame_events(data)
+            data_id, frame_events, frame_ts = self.unpack_frame_events(data)
 
             if frame_events is not None:
                 try:
                     cv2.imshow(
-                        "frame",
-                        cv2.cvtColor(
-                            frame_events[0],
-                            cv2.COLOR_BGR2RGB))
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        "frame", cv2.cvtColor(frame_events[0], cv2.COLOR_BGR2RGB)
+                    )
+                    if cv2.waitKey(1) & 0xFF == ord("q"):
                         return
                 except Exception:
                     pass

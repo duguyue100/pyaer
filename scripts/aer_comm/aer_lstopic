@@ -6,16 +6,17 @@ Author: Yuhuang Hu
 Email : yuhuang.hu@ini.uzh.ch
 """
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import
+from __future__ import print_function
 
-import os
 import argparse
+import os
+
 from pyaer.comm import AERSubscriber
 
 
 class ListSubscriber(AERSubscriber):
-    def __init__(self, url="tcp://127.0.0.1",
-                 port=5099, topic='', name="Topic List"):
+    def __init__(self, url="tcp://127.0.0.1", port=5099, topic="", name="Topic List"):
         """ListSubscriber.
 
         Used for list all the topics.
@@ -27,36 +28,35 @@ class ListSubscriber(AERSubscriber):
         while True:
             data = self.socket.recv_multipart()
 
-            topic_name = self.unpack_data_name(
-                data[:2], topic_name_only=True)
+            topic_name = self.unpack_data_name(data[:2], topic_name_only=True)
 
             if topic_name not in topic_list:
                 topic_list.append(topic_name)
                 topic_list.sort()
 
                 # Clear screen and write
-                os.system('cls' if os.name == 'nt' else 'clear')
-                print("="*50)
+                os.system("cls" if os.name == "nt" else "clear")
+                print("=" * 50)
                 print("List of topic names")
-                print("="*50)
+                print("=" * 50)
                 for tn in topic_list:
                     print(tn)
-                print("="*50)
+                print("=" * 50)
 
 
 parser = argparse.ArgumentParser("AER List Topics")
 
-parser.add_argument("--url", type=str,
-                    default="tcp://127.0.0.1",
-                    help="AER list topic URL")
+parser.add_argument(
+    "--url", type=str, default="tcp://127.0.0.1", help="AER list topic URL"
+)
 
 # Note that the publisher port and subscriber port are
 # hub_sub_port and hub_pub_port respectively.
 # This reversed order is intentional.
 # User doesn't need to know.
-parser.add_argument("--port", type=int,
-                    default=5099,
-                    help="the port that connects all subscribers")
+parser.add_argument(
+    "--port", type=int, default=5099, help="the port that connects all subscribers"
+)
 
 args = parser.parse_args()
 

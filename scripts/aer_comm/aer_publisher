@@ -6,60 +6,69 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import
+from __future__ import print_function
 
 import argparse
 import json
 
+from pyaer.comm import AERPublisher
 from pyaer.davis import DAVIS
 from pyaer.dvs128 import DVS128
 from pyaer.dvxplorer import DVXPLORER
-from pyaer.utils import expandpath, import_custom_module
+from pyaer.utils import expandpath
+from pyaer.utils import import_custom_module
 from pyaer.utils import parse_custom_args
-from pyaer.comm import AERPublisher
+
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--url", type=str,
-                    default="tcp://127.0.0.1",
-                    help="AER Publisher URL")
-parser.add_argument("--port", type=int,
-                    default=5100,
-                    help="the port that connects this publisher")
-parser.add_argument("--master_topic", type=str,
-                    default="device",
-                    help="Master topic name for the publisher")
-parser.add_argument("--name", type=str,
-                    default="",
-                    help="Name of the publisher")
+parser.add_argument(
+    "--url", type=str, default="tcp://127.0.0.1", help="AER Publisher URL"
+)
+parser.add_argument(
+    "--port", type=int, default=5100, help="the port that connects this publisher"
+)
+parser.add_argument(
+    "--master_topic",
+    type=str,
+    default="device",
+    help="Master topic name for the publisher",
+)
+parser.add_argument("--name", type=str, default="", help="Name of the publisher")
 
-parser.add_argument("--device", type=str,
-                    default="DAVIS",
-                    help="Currently supported options: DAVIS, DVS, DVXPLORER")
-parser.add_argument("--noise_filter", action="store_true",
-                    help="Add option to enable noise filter.")
-parser.add_argument("--bias_file", type=expandpath,
-                    default=None,
-                    help="Optional bias file")
+parser.add_argument(
+    "--device",
+    type=str,
+    default="DAVIS",
+    help="Currently supported options: DAVIS, DVS, DVXPLORER",
+)
+parser.add_argument(
+    "--noise_filter", action="store_true", help="Add option to enable noise filter."
+)
+parser.add_argument(
+    "--bias_file", type=expandpath, default=None, help="Optional bias file"
+)
 
 parser.add_argument("--use_default_pub", action="store_true")
 
-parser.add_argument("--custom_pub", type=expandpath,
-                    default="",
-                    help="path to the custom publisher class")
-parser.add_argument("--custom_class", type=str,
-                    default="",
-                    help="custom publisher class name")
+parser.add_argument(
+    "--custom_pub",
+    type=expandpath,
+    default="",
+    help="path to the custom publisher class",
+)
+parser.add_argument(
+    "--custom_class", type=str, default="", help="custom publisher class name"
+)
 
 args, custom_args = parser.parse_known_args()
 
 custom_args_dict = parse_custom_args(custom_args)
 
 # print all options
-print("="*50)
-print(json.dumps(
-    {**args.__dict__, **custom_args_dict},
-    indent=4, sort_keys=True))
-print("="*50)
+print("=" * 50)
+print(json.dumps({**args.__dict__, **custom_args_dict}, indent=4, sort_keys=True))
+print("=" * 50)
 
 # open the device
 if args.device == "None":
@@ -79,20 +88,25 @@ else:
 # define publisher
 if args.use_default_pub:
     # fall back to the default publisher
-    publisher = AERPublisher(device=device,
-                             url=args.url,
-                             port=args.port,
-                             master_topic=args.master_topic,
-                             name=args.name)
+    publisher = AERPublisher(
+        device=device,
+        url=args.url,
+        port=args.port,
+        master_topic=args.master_topic,
+        name=args.name,
+    )
     publisher.logger.info("Use default publisher")
 else:
     # use custom publisher
     CustomPublisher = import_custom_module(args.custom_pub, args.custom_class)
     publisher = CustomPublisher(
         device=device,
-        url=args.url, port=args.port, master_topic=args.master_topic,
+        url=args.url,
+        port=args.port,
+        master_topic=args.master_topic,
         name=args.name,
-        **custom_args_dict)
+        **custom_args_dict,
+    )
     publisher.logger.info("Use custom publisher {}".format(args.custom_class))
 
 # Start sending data

@@ -13,6 +13,7 @@ a group of subscribers to get/process data.
 Author: Yuhuang Hu
 Email : yuhuang.hu@ini.uzh.ch
 """
+
 import json
 import signal
 import subprocess
@@ -24,6 +25,7 @@ from datetime import datetime
 import h5py
 import numpy as np
 import zmq
+
 
 try:
     import zarr
@@ -181,7 +183,6 @@ class Publisher(object):
             name : str
                 the name of the publisher
         """
-
         self.__dict__.update(kwargs)
 
         self.url = url
@@ -271,7 +272,7 @@ class AERPublisher(Publisher):
         port=5100,
         master_topic="",
         name="",
-        **kwargs
+        **kwargs,
     ):
         """AERPublisher.
 
@@ -605,7 +606,7 @@ class PubSuber(object):
         sub_port=5099,
         sub_topic="",
         sub_name="",
-        **kwargs
+        **kwargs,
     ):
         """Publisher-Subscriber.
 
@@ -760,7 +761,6 @@ class AERHDF5Reader(object):
 
     def get_frame(self, device_name, group_name):
         """Get frame events at this packet."""
-
         try:
             frame_events = self.aer_file[device_name][group_name]["frame_events"][()]
 

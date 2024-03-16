@@ -3,15 +3,13 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+
 from __future__ import print_function
 
-import cv2
-import numpy as np
+from timer import Timer
 
-from pyaer import libcaer
 from pyaer.davis import DAVIS
 
-from timer import Timer
 
 device = DAVIS(noise_filter=True)
 
@@ -27,8 +25,7 @@ print("Device USB device address:", device.device_usb_device_address)
 print("Device size X:", device.dvs_size_X)
 print("Device size Y:", device.dvs_size_Y)
 print("Logic Version:", device.logic_version)
-print("Background Activity Filter:",
-      device.dvs_has_background_activity_filter)
+print("Background Activity Filter:", device.dvs_has_background_activity_filter)
 print("Color Filter", device.aps_color_filter, type(device.aps_color_filter))
 print(device.aps_color_filter == 1)
 
@@ -54,15 +51,19 @@ while True:
             event_container = device.get_event_container()
 
         if event_container is not None:
-            print("Duration (s): {}, Num Events: {}, Event Rate (ev/s): {}"
-                  .format(
+            print(
+                "Duration (s): {}, Num Events: {}, Event Rate (ev/s): {}".format(
                     event_container.pol_event_duration,
                     event_container.num_pol_events,
-                    event_container.pol_event_rate))
-            print("Signal Rate (ev/s): {}, Noise Rate (ev/s): {}"
-                  .format(
+                    event_container.pol_event_rate,
+                )
+            )
+            print(
+                "Signal Rate (ev/s): {}, Noise Rate (ev/s): {}".format(
                     event_container.valid_pol_events_rate,
-                    event_container.invalid_pol_events_rate))
+                    event_container.invalid_pol_events_rate,
+                )
+            )
 
             #  print("Number of events:", num_pol_event, "Number of Frames:",
             #        frames.shape, "Exposure:",

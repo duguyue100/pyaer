@@ -1,0 +1,77 @@
+line-length = 88
+
+exclude = [
+    ".git/",
+    "__pycache__/",
+    "build/",
+    "dist/",
+    "venv*/",
+    "docs/",
+    "docs/*",
+    "res/",
+    "res/*",
+]
+
+[lint]
+
+extend-select = [
+    # Enable the isort rules.
+    "I",
+    # Enable all `pydocstyle` rules, limiting to those that adhere to the
+    # Google convention via `convention = "google"`, below.
+    "D",
+    # Doc line length.
+    "W505"
+]
+
+ignore = [
+    "E203",
+    "E501",
+    # On top of the Google convention, disable `D417`, which requires
+    # documentation for every function parameter.
+    "D417",
+    # Missing docstring in public module
+    "D100",
+    # Missing docstring in public class
+    "D101",
+    # Missing docstring in public method
+    "D102",
+    # Missing docstring in public function
+    "D103",
+    # Missing docstring in public package
+    "D104",
+    # Missing docstring in magic method
+    "D105",
+    # Missing docstring in `__init__`
+    "D107",
+    # 1 blank line required between summary line and description.
+    # This is needed because sometimes our summaries span multiple lines.
+    "D205",
+    # Multi-line docstring closing quotes should be on a separate line
+    # This is a result of summary lines spanning more than one line.
+    "D209",
+    # Multi-line docstring summary should start at the first line.
+    "D212",
+    # Use `r"""` if any backslashes in a docstring.
+    "D301",
+    # Doc line too long
+    # This is needed because we have ~400 errors otherwise.
+    "W505",
+]
+
+
+[lint.isort]
+order-by-type = false
+case-sensitive = false
+split-on-trailing-comma = true
+force-single-line = true
+lines-after-imports = 2
+
+[lint.pydocstyle]
+convention = "google"
+
+[lint.pycodestyle]
+max-doc-length = 88
+
+[format]
+docstring-code-format = true

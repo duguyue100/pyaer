@@ -3,6 +3,7 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+
 import numpy as np
 
 from pyaer import libcaer
@@ -855,7 +856,6 @@ class DAVIS(USBDevice):
             bias_obj: `dict`<br/>
                 dictionary that contains DAVIS current bias settings.
         """
-
         bias_obj = {}
         # output sources
         bias_obj["aps_enabled"] = self.get_config(
@@ -1310,7 +1310,6 @@ class DAVIS(USBDevice):
 
         Instead of returning different variables, return an event container.
         """
-
         data = self.get_event()
 
         if data is None:
@@ -1447,7 +1446,7 @@ class DAVIS(USBDevice):
                 num_imu_event,
             )
         else:
-            return None,0,None,0,None,0,None,0
+            return None, 0, None, 0, None, 0, None, 0
 
 
 class DAVISFX2(DAVIS):

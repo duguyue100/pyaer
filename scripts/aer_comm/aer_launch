@@ -6,17 +6,19 @@ Author: Yuhuang Hu
 Email : yuhuang.hu@ini.uzh.ch
 """
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import
+from __future__ import print_function
 
+import argparse
 import os
 import sys
-import argparse
 import time
 
+from pyaer import log
+from pyaer.comm import AERProcess
 from pyaer.utils import expandpath
 from pyaer.utils import ordered_yml_load
-from pyaer.comm import AERProcess
-from pyaer import log
+
 
 HUB = "Hub"
 PUB = "Publisher"
@@ -40,9 +42,7 @@ DEFAULT_LIBVER_VERSION = "earliest"
 
 PROGRAM_KEY = "program"
 
-launch_logger = log.get_logger(
-    "AER Launcher",
-    log.INFO, stream=sys.stdout)
+launch_logger = log.get_logger("AER Launcher", log.INFO, stream=sys.stdout)
 
 
 def parse_hub(hub_desc):
@@ -75,11 +75,12 @@ def parse_publisher(pub_desc):
 
     parsed_cmd += [
         "--url",
-        DEFAULT_URL if "url" not in pub_desc else pub_desc.pop("url")]
+        DEFAULT_URL if "url" not in pub_desc else pub_desc.pop("url"),
+    ]
     parsed_cmd += [
         "--port",
-        DEFAULT_PUBLISHER_PORT if "port" not in pub_desc else
-        str(pub_desc.pop("port"))]
+        DEFAULT_PUBLISHER_PORT if "port" not in pub_desc else str(pub_desc.pop("port")),
+    ]
 
     parsed_cmd += ["--name", pub_desc.pop("name")]
     parsed_cmd += ["--master_topic", pub_desc.pop("master_topic")]
@@ -101,13 +102,12 @@ def parse_publisher(pub_desc):
         if pub_desc.pop("noise_filter", default=False):
             parsed_cmd += ["--noise_filter"]
         if "bias_file" in pub_desc:
-            parsed_cmd += [
-                "--bias_file", expandpath(pub_desc.pop("bias_file"))]
+            parsed_cmd += ["--bias_file", expandpath(pub_desc.pop("bias_file"))]
     except Exception:
         pass
 
     try:
-        for (option, value) in pub_desc.items():
+        for option, value in pub_desc.items():
             parsed_cmd += ["--{}".format(option), str(value)]
     except Exception:
         pass
@@ -126,11 +126,14 @@ def parse_subscriber(sub_desc):
 
     parsed_cmd += [
         "--url",
-        DEFAULT_URL if "url" not in sub_desc else sub_desc.pop("url")]
+        DEFAULT_URL if "url" not in sub_desc else sub_desc.pop("url"),
+    ]
     parsed_cmd += [
         "--port",
-        DEFAULT_SUBSCRIBER_PORT if "port" not in sub_desc else
-        str(sub_desc.pop("port"))]
+        DEFAULT_SUBSCRIBER_PORT
+        if "port" not in sub_desc
+        else str(sub_desc.pop("port")),
+    ]
     parsed_cmd += ["--name", sub_desc.pop("name")]
     parsed_cmd += ["--topic", sub_desc.pop("topic")]
 
@@ -147,7 +150,7 @@ def parse_subscriber(sub_desc):
     sub_desc.pop(USE_DEFAULT_SUB)
 
     try:
-        for (option, value) in sub_desc.items():
+        for option, value in sub_desc.items():
             parsed_cmd += ["--{}".format(option), str(value)]
     except Exception:
         pass
@@ -166,24 +169,27 @@ def parse_pubsuber(pubsuber_desc):
 
     parsed_cmd += [
         "--url",
-        DEFAULT_URL if "url" not in pubsuber_desc else
-        pubsuber_desc.pop("url")]
+        DEFAULT_URL if "url" not in pubsuber_desc else pubsuber_desc.pop("url"),
+    ]
     parsed_cmd += [
         "--pub_port",
-        DEFAULT_PUBLISHER_PORT if "pub_port" not in pubsuber_desc else
-        str(pubsuber_desc.pop("pub_port"))]
+        DEFAULT_PUBLISHER_PORT
+        if "pub_port" not in pubsuber_desc
+        else str(pubsuber_desc.pop("pub_port")),
+    ]
     parsed_cmd += ["--pub_name", pubsuber_desc.pop("pub_name")]
     parsed_cmd += ["--pub_topic", pubsuber_desc.pop("pub_topic")]
 
     parsed_cmd += [
         "--sub_port",
-        DEFAULT_SUBSCRIBER_PORT if "sub_port" not in pubsuber_desc else
-        str(pubsuber_desc.pop("sub_port"))]
+        DEFAULT_SUBSCRIBER_PORT
+        if "sub_port" not in pubsuber_desc
+        else str(pubsuber_desc.pop("sub_port")),
+    ]
     parsed_cmd += ["--sub_name", pubsuber_desc.pop("sub_name")]
     parsed_cmd += ["--sub_topic", pubsuber_desc.pop("sub_topic")]
 
-    custom_pubsuber, custom_class = os.path.split(
-        pubsuber_desc.pop("custom_pubsuber"))
+    custom_pubsuber, custom_class = os.path.split(pubsuber_desc.pop("custom_pubsuber"))
     parsed_cmd += ["--custom_pubsuber", expandpath(custom_pubsuber)]
     parsed_cmd += ["--custom_class", custom_class]
 
@@ -193,13 +199,12 @@ def parse_pubsuber(pubsuber_desc):
         if pubsuber_desc.pop("noise_filter", default=False):
             parsed_cmd += ["--noise_filter"]
         if "bias_file" in pubsuber_desc:
-            parsed_cmd += ["--bias_file", expandpath(
-                pubsuber_desc.pop("bias_file"))]
+            parsed_cmd += ["--bias_file", expandpath(pubsuber_desc.pop("bias_file"))]
     except Exception:
         pass
 
     try:
-        for (option, value) in pubsuber_desc.items():
+        for option, value in pubsuber_desc.items():
             parsed_cmd += ["--{}".format(option), str(value)]
     except Exception:
         pass
@@ -212,11 +217,14 @@ def parse_saver(saver_desc):
 
     parsed_cmd += [
         "--url",
-        DEFAULT_URL if "url" not in saver_desc else saver_desc["url"]]
+        DEFAULT_URL if "url" not in saver_desc else saver_desc["url"],
+    ]
     parsed_cmd += [
         "--port",
-        DEFAULT_SUBSCRIBER_PORT if "port" not in saver_desc else
-        str(saver_desc["port"])]
+        DEFAULT_SUBSCRIBER_PORT
+        if "port" not in saver_desc
+        else str(saver_desc["port"]),
+    ]
     parsed_cmd += ["--name", saver_desc["name"]]
     parsed_cmd += ["--topic", saver_desc["topic"]]
 
@@ -224,12 +232,12 @@ def parse_saver(saver_desc):
 
     parsed_cmd += [
         "--mode",
-        DEFAULT_HDF5_MODE if "mode" not in saver_desc else
-        saver_desc["mode"]]
+        DEFAULT_HDF5_MODE if "mode" not in saver_desc else saver_desc["mode"],
+    ]
     parsed_cmd += [
         "--libver",
-        DEFAULT_LIBVER_VERSION if "libver" not in saver_desc else
-        saver_desc["libver"]]
+        DEFAULT_LIBVER_VERSION if "libver" not in saver_desc else saver_desc["libver"],
+    ]
 
     # Use HDF5 as the default saver
     try:
@@ -242,8 +250,7 @@ def parse_saver(saver_desc):
 
 
 parser = argparse.ArgumentParser("AER Launch")
-parser.add_argument("--launch_file", type=expandpath,
-                    help="AER Launch File")
+parser.add_argument("--launch_file", type=expandpath, help="AER Launch File")
 
 args = parser.parse_args()
 
@@ -259,29 +266,23 @@ try:
         # if the first one is not a hub type, then start the default hub
         if pg_i == 0 and pg_type != HUB:
             parsed_hub_cmd = parse_hub({"use_default": True})
-            process_collector.append(
-                AERProcess(parsed_hub_cmd, daemon=True))
+            process_collector.append(AERProcess(parsed_hub_cmd, daemon=True))
 
         if pg_type == HUB:
             parsed_hub_cmd = parse_hub(pg_desc)
-            process_collector.append(
-                AERProcess(parsed_hub_cmd))
+            process_collector.append(AERProcess(parsed_hub_cmd))
         elif PUB in pg_type:
             parsed_pub_cmd = parse_publisher(pg_desc)
-            process_collector.append(
-                AERProcess(parsed_pub_cmd))
+            process_collector.append(AERProcess(parsed_pub_cmd))
         elif SUB in pg_type:
             parsed_sub_cmd = parse_subscriber(pg_desc)
-            process_collector.append(
-                AERProcess(parsed_sub_cmd))
+            process_collector.append(AERProcess(parsed_sub_cmd))
         elif PUBSUB in pg_type:
             parsed_pubsuber_cmd = parse_pubsuber(pg_desc)
-            process_collector.append(
-                AERProcess(parsed_pubsuber_cmd))
+            process_collector.append(AERProcess(parsed_pubsuber_cmd))
         elif SAVER in pg_type:
             parsed_saver_cmd = parse_saver(pg_desc)
-            process_collector.append(
-                AERProcess(parsed_saver_cmd))
+            process_collector.append(AERProcess(parsed_saver_cmd))
         else:
             launch_logger.error("Unsupported Type {}".format(pg_type))
 
