@@ -3,12 +3,15 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
-from __future__ import print_function, absolute_import
 
-import numpy as np
+from __future__ import absolute_import
+from __future__ import print_function
+
 import cv2
+import numpy as np
 
 from pyaer.dvxplorer import DVXPLORER
+
 
 device = DVXPLORER()
 
@@ -42,17 +45,21 @@ print(device.get_bias())
 
 while True:
     try:
-        (pol_events, num_pol_event,
-         special_events, num_special_event,
-         imu_events, num_imu_event) = \
-            device.get_event("events_hist")
+        (
+            pol_events,
+            num_pol_event,
+            special_events,
+            num_special_event,
+            imu_events,
+            num_imu_event,
+        ) = device.get_event("events_hist")
 
         print("Number of events:", num_pol_event)
 
         if num_pol_event != 0:
-            img = pol_events[..., 1]-pol_events[..., 0]
+            img = pol_events[..., 1] - pol_events[..., 0]
             img = np.clip(img, -clip_value, clip_value)
-            img = (img+clip_value)/float(clip_value*2)
+            img = (img + clip_value) / float(clip_value * 2)
 
             cv2.imshow("image", img)
 

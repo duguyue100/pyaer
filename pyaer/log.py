@@ -1,14 +1,10 @@
-"""Logger for PyAER.
+from __future__ import annotations
 
-NOTE: this is different from libcaer's logger.
-
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
 import logging
 from logging import Logger
 from typing import Optional
 from typing import TextIO
+
 
 # Remaps logging levels for easy access.
 NOTSET = logging.NOTSET

@@ -1,13 +1,4 @@
-"""Event Container.
-
-Motivation: After the events are read from the event packet,
-it's difficult to use and less informative to return them
-as single variables, therefore, I decide to introduce a
-container that can manage all the returned Python variables.
-
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
+from __future__ import annotations
 
 from typing import Optional
 

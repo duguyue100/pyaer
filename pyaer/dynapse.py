@@ -1,8 +1,5 @@
-"""DYNAPSE.
+from __future__ import annotations
 
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
 import time
 
 import numpy as np
@@ -186,7 +183,7 @@ class DYNAPSE(USBDevice):
                     1: [0, 1, 2, 3],
                     2: [0, 1, 2, 3],
                     3: [0, 1, 2, 3],
-                    }
+                }
                 ```
         """
         bias_obj = utils.load_dynapse_bias(file_path, verbose)
@@ -369,7 +366,7 @@ class DYNAPSE(USBDevice):
                     1: [0, 1, 2, 3],
                     2: [0, 1, 2, 3],
                     3: [0, 1, 2, 3],
-                    }
+                }
                 ```
 
         # Returns
@@ -408,7 +405,7 @@ class DYNAPSE(USBDevice):
             assert isinstance(scope, dict)
 
         # Set biases for some activity
-        for (chip_id, core_ids) in scope.items():
+        for chip_id, core_ids in scope.items():
             self.set_activity_bias(
                 bias_obj, self.chip_config[chip_id], core_ids=core_ids
             )

@@ -1,10 +1,4 @@
-"""Setup script for the pyaer package.
-
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
-from __future__ import absolute_import
-from __future__ import print_function
+from __future__ import annotations
 
 import os
 from sys import platform
@@ -14,6 +8,7 @@ import numpy
 from setuptools import find_packages
 from setuptools import setup
 from setuptools.extension import Extension
+
 
 classifiers = """
 Development Status :: 4 - Beta
@@ -30,13 +25,10 @@ Topic :: Software Development :: Libraries :: Python Modules
 License :: OSI Approved :: MIT License
 """
 
-try:
-    from pyaer import __about__
-
-    about = __about__.__dict__
-except ImportError:
-    about = dict()
-    exec(open("pyaer/__about__.py").read(), about)
+__version__ = "0.2.7a0"
+__author__ = "Yuhuang Hu"
+__author_email__ = "duguyue100@gmail.com"
+__url__ = "https://github.com/duguyue100/pyaer"
 
 python_paths = get_paths()
 
@@ -79,10 +71,10 @@ libcaer_wrap = Extension(
 
 setup(
     name="pyaer",
-    version=about["__version__"],
-    author=about["__author__"],
-    author_email=about["__author_email__"],
-    url=about["__url__"],
+    version=__version__,
+    author=__author__,
+    author_email=__author_email__,
+    url=__url__,
     install_requires=["numpy"],
     packages=find_packages(),
     ext_modules=[libcaer_wrap],

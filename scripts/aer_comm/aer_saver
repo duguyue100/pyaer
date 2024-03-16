@@ -6,14 +6,16 @@ Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
 
-from __future__ import print_function, absolute_import
+from __future__ import absolute_import
+from __future__ import print_function
 
-import json
 import argparse
+import json
 
-from pyaer.utils import expandpath
+from pyaer.comm import AERHDF5Saver
 from pyaer.comm import AERSubscriber
-from pyaer.comm import AERHDF5Saver, AERZarrSaver
+from pyaer.comm import AERZarrSaver
+from pyaer.utils import expandpath
 
 
 class AERSaverSubscriber(AERSubscriber):
@@ -28,13 +30,11 @@ class AERSaverSubscriber(AERSubscriber):
             try:
                 data = self.socket.recv_multipart()
 
-                topic_name = self.unpack_data_name(
-                    data[:2], topic_name_only=True)
+                topic_name = self.unpack_data_name(data[:2], topic_name_only=True)
 
                 # you can select some of these functions to use
                 if "polarity" in topic_name:
-                    data_id, polarity_events = \
-                        self.unpack_polarity_events(data)
+                    data_id, polarity_events = self.unpack_polarity_events(data)
                     if polarity_events is not None:
                         self.saver.save(data_id, polarity_events)
                 elif "special" in topic_name:
@@ -42,8 +42,7 @@ class AERSaverSubscriber(AERSubscriber):
                     if special_events is not None:
                         self.saver.save(data_id, special_events)
                 elif "frame" in topic_name:
-                    data_id, frame_events, frame_ts = \
-                        self.unpack_frame_events(data)
+                    data_id, frame_events, frame_ts = self.unpack_frame_events(data)
                     if frame_events is not None:
                         self.saver.save(data_id, frame_events)
                 elif "imu" in topic_name:
@@ -57,34 +56,27 @@ class AERSaverSubscriber(AERSubscriber):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--url", type=str,
-                    default="tcp://127.0.0.1",
-                    help="AER Subscriber URL")
-parser.add_argument("--port", type=int,
-                    default=5099,
-                    help="the port that connects this subscriber")
-parser.add_argument("--topic", type=str,
-                    default="",
-                    help="Topic to subscribe")
-parser.add_argument("--name", type=str,
-                    default="")
+parser.add_argument(
+    "--url", type=str, default="tcp://127.0.0.1", help="AER Subscriber URL"
+)
+parser.add_argument(
+    "--port", type=int, default=5099, help="the port that connects this subscriber"
+)
+parser.add_argument("--topic", type=str, default="", help="Topic to subscribe")
+parser.add_argument("--name", type=str, default="")
 
-parser.add_argument("--filename", type=expandpath,
-                    default="record.hdf5",
-                    help="Path to save record")
-parser.add_argument("--mode", type=str,
-                    default="w-",
-                    help="opening mode")
+parser.add_argument(
+    "--filename", type=expandpath, default="record.hdf5", help="Path to save record"
+)
+parser.add_argument("--mode", type=str, default="w-", help="opening mode")
 
-parser.add_argument("--hdf5", action="store_true",
-                    help="use HDF5 as saver")
-parser.add_argument("--zarr", action="store_true",
-                    help="use Zarr as saver")
+parser.add_argument("--hdf5", action="store_true", help="use HDF5 as saver")
+parser.add_argument("--zarr", action="store_true", help="use Zarr as saver")
 
 # HDF5 specific arguments
-parser.add_argument("--libver", type=str,
-                    default="latest",
-                    help="HDF5 library version.")
+parser.add_argument(
+    "--libver", type=str, default="latest", help="HDF5 library version."
+)
 
 # Zarr specific arguments
 
@@ -92,16 +84,14 @@ parser.add_argument("--libver", type=str,
 args = parser.parse_args()
 
 # print all options
-print("="*50)
+print("=" * 50)
 print(json.dumps(args.__dict__, indent=4, sort_keys=True))
-print("="*50)
+print("=" * 50)
 
 
 if args.hdf5:
     # use HDF5 as saver
-    saver = AERHDF5Saver(filename=args.filename,
-                         mode=args.mode,
-                         libver=args.libver)
+    saver = AERHDF5Saver(filename=args.filename, mode=args.mode, libver=args.libver)
 elif args.zarr:
     # use Zarr as saver
     saver = AERZarrSaver(filename=args.filename, mode=args.mode)
@@ -110,8 +100,8 @@ else:
     raise ValueError("No saver selected, use --hdf5 or --zarr")
 
 saver_sub = AERSaverSubscriber(
-    url=args.url, port=args.port, topic=args.topic,
-    name=args.name)
+    url=args.url, port=args.port, topic=args.topic, name=args.name
+)
 
 # set saver
 saver_sub.set_saver(saver)

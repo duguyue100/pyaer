@@ -1,8 +1,5 @@
-"""Utilities Functions.
+from __future__ import annotations
 
-Author: Yuhuang Hu
-Email : duguyue100@gmail.com
-"""
 import importlib.util as imutil
 import json
 import os
@@ -15,6 +12,7 @@ import yaml
 import pyaer
 from pyaer import libcaer
 from pyaer import log
+
 
 logger = log.get_logger("utils", pyaer.LOG_LEVEL)
 
@@ -42,7 +40,6 @@ def import_custom_module(custom_file, custom_class):
 
 def parse_type(custom_str):
     """Parse custom string to its corresponding type."""
-
     # check integer
     try:
         return int(custom_str)

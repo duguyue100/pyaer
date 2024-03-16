@@ -3,11 +3,13 @@
 Author: Yuhuang Hu
 Email : duguyue100@gmail.com
 """
+
 from __future__ import print_function
 
 import numpy as np
 import vispy
-from vispy import app, scene, visuals, gloo
+from vispy import app
+from vispy import gloo
 from vispy.util.transforms import ortho
 
 from pyaer.dvs128 import DVS128
@@ -15,22 +17,22 @@ from pyaer.dvs128 import DVS128
 
 device = DVS128()
 
-print ("Device ID:", device.device_id)
+print("Device ID:", device.device_id)
 if device.device_is_master:
-    print ("Device is master.")
+    print("Device is master.")
 else:
-    print ("Device is slave.")
-print ("Device Serial Number:", device.device_serial_number)
-print ("Device String:", device.device_string)
-print ("Device USB bus Number:", device.device_usb_bus_number)
-print ("Device USB device address:", device.device_usb_device_address)
-print ("Device size X:", device.dvs_size_X)
-print ("Device size Y:", device.dvs_size_Y)
-print ("Logic Version:", device.logic_version)
+    print("Device is slave.")
+print("Device Serial Number:", device.device_serial_number)
+print("Device String:", device.device_string)
+print("Device USB bus Number:", device.device_usb_bus_number)
+print("Device USB device address:", device.device_usb_device_address)
+print("Device size X:", device.dvs_size_X)
+print("Device size Y:", device.dvs_size_Y)
+print("Logic Version:", device.logic_version)
 
 # load new config
 device.set_bias_from_json("./scripts/configs/dvs128_config.json")
-print (device.get_bias())
+print(device.get_bias())
 
 device.start_data_stream()
 
@@ -42,10 +44,9 @@ app.use_app("pyside")
 W, H = 128, 128
 img_array = np.random.uniform(0, 1, (W, H)).astype(np.float32)
 
-data = np.zeros(4, dtype=[('a_position', np.float32, 2),
-                          ('a_texcoord', np.float32, 2)])
-data['a_position'] = np.array([[0, 0], [W, 0], [0, H], [W, H]])
-data['a_texcoord'] = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+data = np.zeros(4, dtype=[("a_position", np.float32, 2), ("a_texcoord", np.float32, 2)])
+data["a_position"] = np.array([[0, 0], [W, 0], [0, H], [W, H]])
+data["a_texcoord"] = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 
 VERT_SHADER = """
 // Uniforms
@@ -79,66 +80,70 @@ void main()
 
 class Canvas(vispy.app.Canvas):
     def __init__(self):
-        vispy.app.Canvas.__init__(self, keys='interactive', size=(300, 300))
+        vispy.app.Canvas.__init__(self, keys="interactive", size=(300, 300))
         self.program = gloo.Program(VERT_SHADER, FRAG_SHADER)
-        self.texture = gloo.Texture2D(
-            img_array, interpolation="linear")
+        self.texture = gloo.Texture2D(img_array, interpolation="linear")
 
-        self.program['u_texture'] = self.texture
+        self.program["u_texture"] = self.texture
         self.program.bind(gloo.VertexBuffer(data))
 
         self.view = np.eye(4, dtype=np.float32)
         self.model = np.eye(4, dtype=np.float32)
         self.projection = np.eye(4, dtype=np.float32)
 
-        self.program['u_model'] = self.model
-        self.program['u_view'] = self.view
+        self.program["u_model"] = self.model
+        self.program["u_view"] = self.view
         self.projection = ortho(0, W, 0, H, -1, 1)
-        self.program['u_projection'] = self.projection
+        self.program["u_projection"] = self.projection
 
-        gloo.set_clear_color('white')
+        gloo.set_clear_color("white")
 
-        self._timer = app.Timer('auto', connect=self.update, start=True)
+        self._timer = app.Timer("auto", connect=self.update, start=True)
         self.show()
 
     #  @profile
     def on_draw(self, ev):
         gloo.clear(color=True, depth=True)
 
-        (pol_events, num_pol_event,
-         special_events, num_special_event) = \
+        (pol_events, num_pol_event, special_events, num_special_event) = (
             device.get_event()
+        )
 
         if num_pol_event != 0:
-            pol_on = (pol_events[:, 3] == 1)
+            pol_on = pol_events[:, 3] == 1
             pol_off = np.logical_not(pol_on)
             img_on, _, _ = np.histogram2d(
-                    pol_events[pol_on, 1], 127-pol_events[pol_on, 2],
-                    bins=(128, 128), range=histrange)
+                pol_events[pol_on, 1],
+                127 - pol_events[pol_on, 2],
+                bins=(128, 128),
+                range=histrange,
+            )
             img_off, _, _ = np.histogram2d(
-                    pol_events[pol_off, 1], 127-pol_events[pol_off, 2],
-                    bins=(128, 128), range=histrange)
+                pol_events[pol_off, 1],
+                127 - pol_events[pol_off, 2],
+                bins=(128, 128),
+                range=histrange,
+            )
             if clip_value is not None:
-                integrated_img = np.clip(
-                    (img_on-img_off), -clip_value, clip_value)
+                integrated_img = np.clip((img_on - img_off), -clip_value, clip_value)
             else:
-                integrated_img = (img_on-img_off)
+                integrated_img = img_on - img_off
 
-            img_array = ((integrated_img+clip_value)/float(
-                clip_value*2)).astype(np.float32)
+            img_array = ((integrated_img + clip_value) / float(clip_value * 2)).astype(
+                np.float32
+            )
         else:
-            img_array[...] = np.zeros(
-                (128, 128), dtype=np.uint8).astype(np.float32)
+            img_array[...] = np.zeros((128, 128), dtype=np.uint8).astype(np.float32)
 
         self.texture.set_data(img_array)
-        self.program.draw('triangle_strip')
+        self.program.draw("triangle_strip")
 
     #  @profile
     def on_resize(self, event):
         width, height = event.physical_size
         gloo.set_viewport(0, 0, width, height)
         self.projection = ortho(0, width, 0, height, -100, 100)
-        self.program['u_projection'] = self.projection
+        self.program["u_projection"] = self.projection
 
         # Compute thje new size of the quad
         r = width / float(height)
@@ -149,13 +154,13 @@ class Canvas(vispy.app.Canvas):
         else:
             w, h = height * R, height
             x, y = int((width - w) / 2), 0
-        data['a_position'] = np.array(
-            [[x, y], [x + w, y], [x, y + h], [x + w, y + h]])
+        data["a_position"] = np.array([[x, y], [x + w, y], [x, y + h], [x + w, y + h]])
         self.program.bind(gloo.VertexBuffer(data))
+
 
 #  @profile
 def run():
-    win = Canvas()
+    win = Canvas()  # noqa
     app.run()
 
 
